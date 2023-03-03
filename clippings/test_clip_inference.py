@@ -3,8 +3,10 @@ import requests
 
 from transformers import CLIPProcessor, CLIPModel
 
-model = CLIPModel.from_pretrained("openai/clip-vit-large-patch14")
-processor = CLIPProcessor.from_pretrained("openai/clip-vit-large-patch14")
+model = CLIPModel.from_pretrained("openai/clip-vit-base-patch16")
+processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch16")
+
+print(processor)
 
 url = "http://images.cocodataset.org/val2017/000000039769.jpg"
 image = Image.open(requests.get(url, stream=True).raw)
@@ -17,3 +19,4 @@ probs = logits_per_image.softmax(dim=1) # we can take the softmax to get the lab
 
 ##Check which probability is higher (argmax) 
 print(probs.argmax(dim=1))
+
