@@ -15,5 +15,5 @@ outputs = model(**inputs)
 logits_per_image = outputs.logits_per_image # this is the image-text similarity score
 probs = logits_per_image.softmax(dim=1) # we can take the softmax to get the label probabilities
 
-
-print(probs)
+##Check which probability is higher (argmax) and print the corresponding label
+print("Label:", processor.tokenizer.decode([probs.argmax()]))
