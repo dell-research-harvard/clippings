@@ -52,6 +52,14 @@ def convert_to_text(unicode_string):
     return unicode_string.encode('ascii','ignore').decode('ascii')
 
 
+def prep_food101_data():
+    ###Load the text file with the labels
+    train_data = pd.read_csv(f'/mnt/data01/clippings_general/texts/train_titles_reformatted.csv')
+    val_data = pd.read_csv(f'/mnt/data01/clippings_general/texts/val_titles_reformatted.csv')
+    test_data = pd.read_csv(f'/mnt/data01/clippings_general/texts/test_titles_reformatted.csv')
+
+    return train_data, val_data, test_data
+
 def eval_clip(val_loader,model,processor):
     print("Evaluating the model - clip loss")
     model.eval()
@@ -144,7 +152,7 @@ def pretrain_clip(train_loader,model,device,img_loss,text_loss,epoch,optimizer,p
 
 
 
-def train_bienc_clip(train_loader,clip_model,device,loss_func,epoch,clip_optimizer,processor,clip_scheduler=None,epochviz=None,mlp_model=None,mlp_optimizer=None,mlp_scheduler=None,freeze_clip=False):
+def train_bienc_clip(train_loader,clip_model,device,loss_func,epoch,clip_optimizer,tokenizer,clip_scheduler=None,epochviz=None,mlp_model=None,mlp_optimizer=None,mlp_scheduler=None,freeze_clip=False):
     """A version where we contrastively train pooled clip embeddings"""
 
 
@@ -162,7 +170,7 @@ def train_bienc_clip(train_loader,clip_model,device,loss_func,epoch,clip_optimiz
 
         ### text is a tuple of strings, we need to convert it to a tensor
         text=list(text)
-        text_features = ja_clip.tokenize(text,processor=processor)
+        text_features = tokenizer(text,processor=processor)
 
         for key in text_features.keys():
             text_features[key]=text_features[key].to(device)
@@ -193,6 +201,10 @@ def train_bienc_clip(train_loader,clip_model,device,loss_func,epoch,clip_optimiz
             final_embeds=mlp_model.forward(final_embeds)
         else:
             raise ValueError("Pooling type not supported")
+        
+        
+        ##L2 normalize the embeddings
+        final_embeds=torch.nn.functional.normalize(final_embeds,p=2,dim=1)
 
         loss=loss_func(final_embeds,labels)
 
@@ -228,9 +240,11 @@ def train_bienc_clip(train_loader,clip_model,device,loss_func,epoch,clip_optimiz
                     image.save(os.path.join(epochviz, f"train_sample_{epoch}_{i}.png"))
 
 
+def train_bienc_classifier(num_classes=0):
+    pass
         
 
-def get_image_text_embeddings(data_loader,clip_model,mlp_model,device):
+def get_image_text_embeddings(data_loader,clip_model,mlp_model,device,tokenizer):
     clip_model.eval()
     if not mlp_model is None:
         mlp_model.eval()
@@ -244,7 +258,7 @@ def get_image_text_embeddings(data_loader,clip_model,mlp_model,device):
 
         ### text is a tuple of strings, we need to convert it to a tensor
         text=list(text)
-        text_features = ja_clip.tokenize(text,processor=processor)
+        text_features = tokenizer(text)
 
         for key in text_features.keys():
             text_features[key]=text_features[key].to(device)
@@ -381,49 +395,21 @@ if __name__ == "__main__":
     # model = torch.nn.DataParallel(model)
     # model.to(device)
 
-    if args.train_data_type == "labelled":
-        train_data,val_data,full_labelled_data=prep_labelled_data()
-    elif args.train_data_type == "unlabelled":
-        train_data,val_data=prep_unlabelled_data()
-    elif args.train_data_type == "synth":
-        train_data,val_data=prep_synth_data()
-    elif args.train_data_type == "synth_unlabelled":
-        train_data_synth,val_data_synth=prep_synth_data()
-        train_data_unlabelled,val_data_unlabelled=prep_unlabelled_data()
-        
-        print("train_data_unlabelled.shape: ",train_data_unlabelled.shape)
-        print("train_data_synth.shape: ",train_data_synth.shape)
+    if args.train_data_type == "food101_labelled":
+        train_data,val_data,test_data=prep_food101_data()
+    elif args.train_data_type == "food101_unlabelled":
+        train_data,val_data,test_data=prep_food101_data()
+    elif args.train_data_type == "newspapers":
+        pass
 
-        ##GEt unique synth data (by label)
-        train_data_synth=train_data_synth.drop_duplicates(subset="label")
-        val_data_synth=val_data_synth.drop_duplicates(subset="label")
-
-        ###Sample only same number of rows as unlabelled data from synth data  to keep it a bit balanced
-        # train_data_synth=train_data_synth.sample(n=len(train_data_unlabelled),random_state=42)
-        # val_data_synth=val_data_synth.sample(n=len(val_data_unlabelled),random_state=42)
-
-
-
-        ####Add the synth data to the unlabelled data
-        train_data=pd.concat([train_data_synth,train_data_unlabelled])
-        val_data=pd.concat([val_data_synth,val_data_unlabelled])
-
-        del train_data_synth,val_data_synth,train_data_unlabelled,val_data_unlabelled
     else:
-        raise ValueError("labelled_data must be either labelled, unlabelled or synth")
+        raise ValueError("labelled_data must be either food101 or newspapers")
     
-    ###Full labelled data is needed anyway
-    _,_,full_labelled_data=prep_labelled_data()
-
+   
     ###Remove any unnamed columns
     train_data=train_data.loc[:, ~train_data.columns.str.contains('^Unnamed')]
     val_data=val_data.loc[:, ~val_data.columns.str.contains('^Unnamed')]
 
-    ####In the image_path columns, replace /data01/ with 122a7683-fa4b-45dd-9f13-b18cc4f4a187
-    train_data['image_path']=train_data['image_path'].apply(lambda x: x.replace("/data01/","/122a7683-fa4b-45dd-9f13-b18cc4f4a187/"))
-    val_data['image_path']=val_data['image_path'].apply(lambda x: x.replace("/data01/","/122a7683-fa4b-45dd-9f13-b18cc4f4a187/"))
-    
-    full_labelled_data['image_path']=full_labelled_data['image_path'].apply(lambda x: x.replace("/data01/","/122a7683-fa4b-45dd-9f13-b18cc4f4a187/"))
     
 
     ###We wil drop duplicates in the train data if pretraining
@@ -435,36 +421,8 @@ if __name__ == "__main__":
         print("Lenth of train data after dropping duplicates: ",len(train_data))
     
     
-    ###Get test data
-    test_data=get_pr_partner_test_data()
+   
 
-    ##Make reference data
-    ###Create a reference dataset - for training bienc_clip
-    tk_universe_df=get_tk_universe()
-
-
-    ###Get labels for the reference dataset
-    ref_data=tk_universe_df[['image_path','text']]
-    ##Merge the reference data with the data to get the labels
-    ref_data=pd.merge(ref_data,full_labelled_data[['image_path','label']],on='image_path',how='left')
-
-    ###Wherever the label is nan, set it to -1
-    ref_data['label']=ref_data['label'].apply(lambda x: -1 if pd.isna(x) else x)
-
-    ###Make the ref set more tractable. Get 1000 from label that has -1 and keep all the rest!
-    small_ref_data=ref_data[ref_data['label']==-1].sample(1).append(ref_data[ref_data['label']!=-1]).drop_duplicates(subset=['image_path','text'])
-    med_ref_data=ref_data[ref_data['label']==-1].sample(1000).append(ref_data[ref_data['label']!=-1]).drop_duplicates(subset=['image_path','text'])
-    large_ref_data=ref_data[ref_data['label']==-1].sample(7000).append(ref_data[ref_data['label']!=-1]).drop_duplicates(subset=['image_path','text'])
-    huge_ref_data=ref_data[ref_data['label']==-1].sample(15000).append(ref_data[ref_data['label']!=-1]).drop_duplicates(subset=['image_path','text'])
-    all_tk_ref_data=ref_data[ref_data['label']==-1].append(ref_data[ref_data['label']!=-1]).drop_duplicates(subset=['image_path','text'])
-
-
-    ##Give more labguage to the 'text'. This is a hack to make the model learn better
-    # train_data['text']=train_data['text'].apply(lambda x: "会社名(" + x + ")は次のように書かれています")
-    # val_data['text']=val_data['text'].apply(lambda x: "会社名(" + x + ")は次のように書かれています")
-
-    print(len(train_data))
-    print(train_data.head())
     ###Create the data datsets
     if args.augmented_crops:
         train_image_transform=create_clip_random_doc_transform()
@@ -481,18 +439,13 @@ if __name__ == "__main__":
         train_dataset=data_loaders.TextImageDataset(train_data, img_transform=train_image_transform)
     
     val_dataset=data_loaders.TextImageDataset(val_data,img_transform=CLIP_BASE_TRANSFORM)
-    small_ref_dataset=data_loaders.TextImageDataset(small_ref_data,img_transform=CLIP_BASE_TRANSFORM)
-    med_ref_dataset=data_loaders.TextImageDataset(med_ref_data,img_transform=CLIP_BASE_TRANSFORM)
-    large_ref_dataset=data_loaders.TextImageDataset(large_ref_data,img_transform=CLIP_BASE_TRANSFORM)
-    huge_ref_dataset=data_loaders.TextImageDataset(huge_ref_data,img_transform=CLIP_BASE_TRANSFORM)
-    all_tk_ref_dataset=data_loaders.TextImageDataset(all_tk_ref_data,img_transform=CLIP_BASE_TRANSFORM)
     test_dataset=data_loaders.TextImageDataset(test_data,img_transform=CLIP_BASE_TRANSFORM)
 
     print(len(train_dataset))
 
 
     ###Create the data loaders
-    if args.train_data_type == "labelled" or args.train_data_type == "synth":
+    if args.train_data_type == "food101_labelled" :
         
         if args.train_hardneg:
             train_loader=torch.utils.data.DataLoader(train_dataset,batch_size=126,shuffle=False,num_workers=4)
@@ -501,26 +454,16 @@ if __name__ == "__main__":
 
         val_loader=torch.utils.data.DataLoader(val_dataset, batch_size=args.batch_size, shuffle=False)
 
-    elif args.train_data_type == "unlabelled":
+    elif args.train_data_type == "food101_unlabelled":
         if args.train_hardneg:
             train_loader=torch.utils.data.DataLoader(train_dataset,batch_size=126,shuffle=False,num_workers=4)
         else:
             train_loader=torch.utils.data.DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True)
         val_loader=torch.utils.data.DataLoader(val_dataset, batch_size=args.batch_size, shuffle=False)
-    elif args.train_data_type == "synth_unlabelled":
-        if args.train_hardneg:
-            train_loader=torch.utils.data.DataLoader(train_dataset,batch_size=126,shuffle=False,num_workers=16)
-        else:
-            train_loader=torch.utils.data.DataLoader(train_dataset, batch_size=args.batch_size,shuffle=True)
-        val_loader=torch.utils.data.DataLoader(val_dataset, batch_size=args.batch_size, shuffle=False)
+   
     else:
-        raise ValueError("labelled_data must be either labelled, unlabelled or synth")
+        raise ValueError("labelled_data must be either food101_labelled, food101_unlabelled or newspapers")
 
-    small_ref_loader=torch.utils.data.DataLoader(small_ref_dataset, batch_size=args.batch_size, shuffle=False)
-    med_ref_loader=torch.utils.data.DataLoader(med_ref_dataset, batch_size=args.batch_size, shuffle=False)
-    large_ref_loader=torch.utils.data.DataLoader(large_ref_dataset, batch_size=args.batch_size, shuffle=False)
-    huge_ref_loader=torch.utils.data.DataLoader(huge_ref_dataset, batch_size=args.batch_size, shuffle=False)
-    all_tk_ref_loader=torch.utils.data.DataLoader(all_tk_ref_dataset, batch_size=args.batch_size, shuffle=False)
     test_loader=torch.utils.data.DataLoader(test_dataset, batch_size=args.batch_size, shuffle=False)
 
     ###ADditonally, if training biencoder with synthetic data, create a reference dataset
