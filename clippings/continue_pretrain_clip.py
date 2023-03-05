@@ -63,8 +63,9 @@ def prep_food101_data():
 def prep_unlabelled_news_data():
     ###Load the text file with the labels
     train_data = pd.read_csv(f'/mnt/data01/clippings_general/texts/unlabelled_news_titles.csv')
-    
-    return train_data
+    val_data = pd.read_csv(f'/mnt/data01/clippings_general/texts/unlabelled_news_titles.csv')
+
+    return train_data,val_data
 
 def eval_clip(val_loader,model,processor):
     print("Evaluating the model - clip loss")
@@ -385,7 +386,7 @@ if __name__ == "__main__":
     ###Load checkpoint
     if args.checkpoint_path is not None:
         clip_model.load_state_dict(torch.load(args.checkpoint_path, map_location=torch.device(device)))
-    # model.load_state_dict(torch.load("/mnt/122a7683-fa4b-45dd-9f13-b18cc4f4a187/homoglyphs/multimodal_record_linkage/models/bienc_clip_pretrain_labelled_m3.pt", map_location=torch.device(device)))
+    # model.load_state_dict(torch.load("/mnt/data01/clippings_general/models/bienc_clip_pretrain_labelled_m3.pt", map_location=torch.device(device)))
     clip_model.to(device)
 
     if args.pooling_type=="mlp":
@@ -405,8 +406,9 @@ if __name__ == "__main__":
         train_data,val_data,test_data=prep_food101_data()
     elif args.train_data_type == "food101_unlabelled":
         train_data,val_data,test_data=prep_food101_data()
-    elif args.train_data_type == "newspapers":
-        pass
+    elif args.train_data_type == "newspapers_unlabelled":
+        train_data,val_data=prep_unlabelled_news_data()
+        
 
     else:
         raise ValueError("labelled_data must be either food101 or newspapers")
@@ -538,69 +540,66 @@ if __name__ == "__main__":
 
             if val_loss<zero_shot_loss:
                 zero_shot_loss=val_loss
-                torch.save(clip_model.state_dict(), os.path.join("/mnt/122a7683-fa4b-45dd-9f13-b18cc4f4a187/homoglyphs/multimodal_record_linkage/models/",args.wandb_name+".pt"))
+                torch.save(clip_model.state_dict(), os.path.join("/mnt/data01/clippings_general/models/",args.wandb_name+".pt"))
                 
                 print("Model saved at epoch {}".format(epoch))
-                print("Path of the saved model: {}".format(os.path.join("/mnt/122a7683-fa4b-45dd-9f13-b18cc4f4a187/homoglyphs/multimodal_record_linkage/models/",args.wandb_name+".pt")))
-                print("Path of the saved model: {}".format(os.path.join("/mnt/122a7683-fa4b-45dd-9f13-b18cc4f4a187/homoglyphs/multimodal_record_linkage/models/",("epoch_"+str(epoch)+"_"+args.wandb_name+".pt"))))
+                print("Path of the saved model: {}".format(os.path.join("/mnt/data01/clippings_general/models/",args.wandb_name+".pt")))
+                print("Path of the saved model: {}".format(os.path.join("/mnt/data01/clippings_general/models/",("epoch_"+str(epoch)+"_"+args.wandb_name+".pt"))))
                 print("Val loss: {}".format(val_loss))
                 if val_loss<0.1:
-                    ###Look at final acc on tk
-                    final_acc=tester_bienc_clip(test_loader,small_ref_loader,clip_model,split="test",log=True)
-                    print("Final acc on test set: {}".format(final_acc))
-            torch.save(clip_model.state_dict(), os.path.join("/mnt/122a7683-fa4b-45dd-9f13-b18cc4f4a187/homoglyphs/multimodal_record_linkage/models/",("epoch_"+str(epoch)+args.wandb_name+".pt")))
+                    torch.save(clip_model.state_dict(), os.path.join("/mnt/data01/clippings_general/models/",("epoch_"+str(epoch)+args.wandb_name+".pt")))
 
 
-    elif args.training_type=="train_bienc" and args.train_data_type=="labelled":
-        best_acc=tester_bienc_clip(val_loader,small_ref_loader,clip_model,mlp_model,split="val_small",log=True)
-        best_acc=tester_bienc_clip(val_loader,med_ref_loader,clip_model,mlp_model,split="val_med",log=True)
-        best_acc=tester_bienc_clip(val_loader,large_ref_loader,clip_model,mlp_model,split="val_large",log=True)
-        # best_acc=tester_bienc_clip(val_loader,huge_ref_loader,clip_model,mlp_model,split="val_huge",log=True)
-        loss_func=losses.SupConLoss(temperature=args.supcon_temp)
-        for epoch in (range(start_epoch, num_epochs+start_epoch)):
-            if epoch<= args.freeze_clip_epochs:
-                if args.pooling_type=="mlp":
-                    freeze_clip=True
-                else:
-                    freeze_clip=False
-                epoch_loss=train_bienc_clip(train_loader,clip_model,device,loss_func,epoch,clip_optimizer,clip_scheduler=clip_scheduler,epochviz=None,processor=processor,mlp_model=mlp_model,mlp_optimizer=mlp_optimizer,mlp_scheduler=mlp_scheduler,freeze_clip=freeze_clip)
-            else:
-                freeze_clip=False
-                epoch_loss=train_bienc_clip(train_loader,clip_model,device,loss_func,epoch,clip_optimizer,clip_scheduler=clip_scheduler,epochviz=None,processor=processor,mlp_model=mlp_model,mlp_optimizer=mlp_optimizer,mlp_scheduler=mlp_scheduler,freeze_clip=freeze_clip)
-            acc=tester_bienc_clip(val_loader,large_ref_loader,clip_model,mlp_model,split="val_large",log=True)
-            if acc>best_acc:
-                best_acc=acc
-                torch.save(clip_model.state_dict(), os.path.join("/mnt/122a7683-fa4b-45dd-9f13-b18cc4f4a187/homoglyphs/multimodal_record_linkage/models/",("clip_imwt_"+str(args.im_wt)[2]+args.wandb_name+".pt")))
-                print("Model saved at epoch {}".format(epoch))
-                print("Path of the saved model: {}".format(os.path.join("/mnt/122a7683-fa4b-45dd-9f13-b18cc4f4a187/homoglyphs/multimodal_record_linkage/models/",("clip_imwt_"+str(args.im_wt)[2]+args.wandb_name+".pt"))))
-                if args.pooling_type=="mlp":
-                    torch.save(mlp_model.state_dict(), os.path.join("/mnt/122a7683-fa4b-45dd-9f13-b18cc4f4a187/homoglyphs/multimodal_record_linkage/models/",("mlp_imwt_"+str(args.im_wt)[2]+args.wandb_name+".pt")))
-                print("Model saved at epoch {}".format(epoch))
-                if acc>0.99:
-                    ###Look at final acc on tk
-                    final_acc=tester_bienc_clip(test_loader,small_ref_loader,clip_model,mlp_model,split="test",log=True)
-            ###SAve at every epoch
-            torch.save(clip_model.state_dict(), os.path.join("/mnt/122a7683-fa4b-45dd-9f13-b18cc4f4a187/homoglyphs/multimodal_record_linkage/models/",("clip_imwt_"+str(args.im_wt)[2]+"epoch_"+str(epoch)+args.wandb_name+".pt")))
+    # elif args.training_type=="train_bienc" and args.train_data_type=="labelled":
+    #     best_acc=tester_bienc_clip(val_loader,small_ref_loader,clip_model,mlp_model,split="val_small",log=True)
+    #     best_acc=tester_bienc_clip(val_loader,med_ref_loader,clip_model,mlp_model,split="val_med",log=True)
+    #     best_acc=tester_bienc_clip(val_loader,large_ref_loader,clip_model,mlp_model,split="val_large",log=True)
+    #     # best_acc=tester_bienc_clip(val_loader,huge_ref_loader,clip_model,mlp_model,split="val_huge",log=True)
+    #     loss_func=losses.SupConLoss(temperature=args.supcon_temp)
+    #     for epoch in (range(start_epoch, num_epochs+start_epoch)):
+    #         if epoch<= args.freeze_clip_epochs:
+    #             if args.pooling_type=="mlp":
+    #                 freeze_clip=True
+    #             else:
+    #                 freeze_clip=False
+    #             epoch_loss=train_bienc_clip(train_loader,clip_model,device,loss_func,epoch,clip_optimizer,clip_scheduler=clip_scheduler,epochviz=None,processor=processor,mlp_model=mlp_model,mlp_optimizer=mlp_optimizer,mlp_scheduler=mlp_scheduler,freeze_clip=freeze_clip)
+    #         else:
+    #             freeze_clip=False
+    #             epoch_loss=train_bienc_clip(train_loader,clip_model,device,loss_func,epoch,clip_optimizer,clip_scheduler=clip_scheduler,epochviz=None,processor=processor,mlp_model=mlp_model,mlp_optimizer=mlp_optimizer,mlp_scheduler=mlp_scheduler,freeze_clip=freeze_clip)
+    #         acc=tester_bienc_clip(val_loader,large_ref_loader,clip_model,mlp_model,split="val_large",log=True)
+    #         if acc>best_acc:
+    #             best_acc=acc
+    #             torch.save(clip_model.state_dict(), os.path.join("/mnt/data01/clippings_general/models/",("clip_imwt_"+str(args.im_wt)[2]+args.wandb_name+".pt")))
+    #             print("Model saved at epoch {}".format(epoch))
+    #             print("Path of the saved model: {}".format(os.path.join("/mnt/data01/clippings_general/models/",("clip_imwt_"+str(args.im_wt)[2]+args.wandb_name+".pt"))))
+    #             if args.pooling_type=="mlp":
+    #                 torch.save(mlp_model.state_dict(), os.path.join("/mnt/data01/clippings_general/models/",("mlp_imwt_"+str(args.im_wt)[2]+args.wandb_name+".pt")))
+    #             print("Model saved at epoch {}".format(epoch))
+    #             if acc>0.99:
+    #                 ###Look at final acc on tk
+    #                 final_acc=tester_bienc_clip(test_loader,small_ref_loader,clip_model,mlp_model,split="test",log=True)
+    #         ###SAve at every epoch
+    #         torch.save(clip_model.state_dict(), os.path.join("/mnt/data01/clippings_general/models/",("clip_imwt_"+str(args.im_wt)[2]+"epoch_"+str(epoch)+args.wandb_name+".pt")))
     
-    elif args.training_type=="train_bienc" and args.train_data_type!="labelled":
-        best_acc=tester_bienc_clip(val_loader,synth_ref_dataloader,clip_model,mlp_model,split="val_small",log=True)
-        loss_func=losses.SupConLoss(temperature=args.supcon_temp)
-        for epoch in (range(start_epoch, num_epochs+start_epoch)):
-            epoch_loss=train_bienc_clip(train_loader,clip_model,device,loss_func,epoch,clip_optimizer,clip_scheduler=clip_scheduler,epochviz=None,processor=processor,mlp_model=mlp_model,freeze_clip=False)
-            acc=tester_bienc_clip(val_loader,large_synth_ref_dataloader,clip_model,mlp_model,split="val_large",log=True)
-            if acc>best_acc:
-                best_acc=acc
-                torch.save(clip_model.state_dict(), os.path.join("/mnt/122a7683-fa4b-45dd-9f13-b18cc4f4a187/homoglyphs/multimodal_record_linkage/models/",args.wandb_name+".pt"))
-                print("Model saved at epoch {}".format(epoch))
-                print("Path of the saved model: {}".format(os.path.join("/mnt/122a7683-fa4b-45dd-9f13-b18cc4f4a187/homoglyphs/multimodal_record_linkage/models/",args.wandb_name+".pt")))
-                if args.pooling_type=="mlp":
-                    torch.save(mlp_model.state_dict(), os.path.join("/mnt/122a7683-fa4b-45dd-9f13-b18cc4f4a187/homoglyphs/multimodal_record_linkage/models/",("mlp_imwt_"+str(args.im_wt)[2]+args.wandb_name+".pt")))
-                print("Model saved at epoch {}".format(epoch))
-                if acc>0.99:
-                    ###Look at final acc on tk
-                    final_acc=tester_bienc_clip(test_loader,all_tk_ref_loader,clip_model,mlp_model,split="test",log=True)
-            ###SAve at every epoch
-            torch.save(clip_model.state_dict(), os.path.join("/mnt/122a7683-fa4b-45dd-9f13-b18cc4f4a187/homoglyphs/multimodal_record_linkage/models/",("clip_imwt_"+str(args.im_wt)[2]+"epoch_"+str(epoch)+args.wandb_name+".pt")))
+    # elif args.training_type=="train_bienc" and args.train_data_type!="labelled":
+    #     best_acc=tester_bienc_clip(val_loader,synth_ref_dataloader,clip_model,mlp_model,split="val_small",log=True)
+    #     loss_func=losses.SupConLoss(temperature=args.supcon_temp)
+    #     for epoch in (range(start_epoch, num_epochs+start_epoch)):
+    #         epoch_loss=train_bienc_clip(train_loader,clip_model,device,loss_func,epoch,clip_optimizer,clip_scheduler=clip_scheduler,epochviz=None,processor=processor,mlp_model=mlp_model,freeze_clip=False)
+    #         acc=tester_bienc_clip(val_loader,large_synth_ref_dataloader,clip_model,mlp_model,split="val_large",log=True)
+    #         if acc>best_acc:
+    #             best_acc=acc
+    #             torch.save(clip_model.state_dict(), os.path.join("/mnt/data01/clippings_general/models/",args.wandb_name+".pt"))
+    #             print("Model saved at epoch {}".format(epoch))
+    #             print("Path of the saved model: {}".format(os.path.join("/mnt/data01/clippings_general/models/",args.wandb_name+".pt")))
+    #             if args.pooling_type=="mlp":
+    #                 torch.save(mlp_model.state_dict(), os.path.join("/mnt/data01/clippings_general/models/",("mlp_imwt_"+str(args.im_wt)[2]+args.wandb_name+".pt")))
+    #             print("Model saved at epoch {}".format(epoch))
+    #             if acc>0.99:
+    #                 ###Look at final acc on tk
+    #                 final_acc=tester_bienc_clip(test_loader,all_tk_ref_loader,clip_model,mlp_model,split="test",log=True)
+    #         ###SAve at every epoch
+    #         torch.save(clip_model.state_dict(), os.path.join("/mnt/data01/clippings_general/models/",("clip_imwt_"+str(args.im_wt)[2]+"epoch_"+str(epoch)+args.wandb_name+".pt")))
     
     else :
         print("Training type not recognised")
