@@ -57,8 +57,8 @@ def prep_food101_data():
 
 def prep_unlabelled_news_data():
     ###Load the text file with the labels
-    train_data = pd.read_csv(f'/mnt/data01/clippings_general/texts/unlabelled_news_titles.csv')
-    val_data = pd.read_csv(f'/mnt/data01/clippings_general/texts/unlabelled_news_titles.csv')
+    train_data = pd.read_csv(f'/mnt/data01/clippings_general/texts/unlabelled_news_train_reformatted.csv')
+    val_data = pd.read_csv(f'/mnt/data01/clippings_general/texts/unlabelled_news_val_reformatted.csv')
 
     return train_data,val_data
 
