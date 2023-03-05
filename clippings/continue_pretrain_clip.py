@@ -442,7 +442,8 @@ if __name__ == "__main__":
         train_dataset=data_loaders.TextImageDataset(train_data, img_transform=train_image_transform)
     
     val_dataset=data_loaders.TextImageDataset(val_data,img_transform=None)
-    test_dataset=data_loaders.TextImageDataset(test_data,img_transform=None)
+    if args.train_data_type != "pretrained":
+        test_dataset=data_loaders.TextImageDataset(test_data,img_transform=None)
 
     print(len(train_dataset))
 
@@ -466,8 +467,8 @@ if __name__ == "__main__":
    
     else:
         raise ValueError("labelled_data must be either food101_labelled, food101_unlabelled or newspapers")
-
-    test_loader=torch.utils.data.DataLoader(test_dataset, batch_size=args.batch_size, shuffle=False)
+    if args.train_data_type != "pretrained":
+        test_loader=torch.utils.data.DataLoader(test_dataset, batch_size=args.batch_size, shuffle=False)
 
     ###ADditonally, if training biencoder with synthetic data, create a reference dataset
     if args.train_data_type == "synth":
