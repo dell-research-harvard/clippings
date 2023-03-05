@@ -5,10 +5,7 @@ import pandas as pd
 import numpy as np
 import wandb
 from utils.datasets_utils import *
-from tqdm.autonotebook import trange
-import sentence_transformers
 
-from  sentence_transformers import SentenceTransformer 
 import faiss 
 from tqdm import tqdm
 
@@ -19,8 +16,6 @@ import argparse
 from sklearn.model_selection import train_test_split
 
 
-import io
-import requests
 from PIL import Image
 import torch
 
@@ -435,7 +430,7 @@ if __name__ == "__main__":
     if args.augmented_crops:
         train_image_transform=create_clip_random_doc_transform()
     else:
-        train_image_transform=CLIP_BASE_TRANSFORM
+        train_image_transform=None
     if args.train_hardneg:
         print("Setting up dataset with hardnegatives")
         dedup_train_data=train_data.drop_duplicates(subset=['label'],keep='first')
@@ -446,8 +441,8 @@ if __name__ == "__main__":
     else: 
         train_dataset=data_loaders.TextImageDataset(train_data, img_transform=train_image_transform)
     
-    val_dataset=data_loaders.TextImageDataset(val_data,img_transform=CLIP_BASE_TRANSFORM)
-    test_dataset=data_loaders.TextImageDataset(test_data,img_transform=CLIP_BASE_TRANSFORM)
+    val_dataset=data_loaders.TextImageDataset(val_data,img_transform=None)
+    test_dataset=data_loaders.TextImageDataset(test_data,img_transform=None)
 
     print(len(train_dataset))
 
@@ -482,7 +477,7 @@ if __name__ == "__main__":
         synth_ref_data=synth_ref_data.sample(frac=1)
         ##Drop duplicates
         synth_ref_data=synth_ref_data.drop_duplicates(subset=['label'])
-        synth_ref_dataset=data_loaders.TextImageDataset(synth_ref_data, img_transform=CLIP_BASE_TRANSFORM)
+        synth_ref_dataset=data_loaders.TextImageDataset(synth_ref_data, img_transform=None)
         synth_ref_dataloader=torch.utils.data.DataLoader(synth_ref_dataset, batch_size=args.batch_size, shuffle=False)
 
         large_synth_ref_data=pd.concat([train_data.sample(20000),val_data])
