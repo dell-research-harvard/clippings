@@ -14,7 +14,7 @@ def format_food101_data(split='train'):
     text_data.columns = ['image_path', 'text', 'label']
 
     ###Append base paths to image paths
-    text_data['image_path'] = '/mnt/data01/clippings_general/images/' + "split/" + text_data['label'] +"/" + text_data['image_path']
+    text_data['image_path'] = '/mnt/data01/clippings_general/images/' +split +"/" + text_data['label'] +"/" + text_data['image_path']
 
     ###Save the text data
     text_data.to_csv(f'texts/{split}_titles_reformatted.csv', index=False)
