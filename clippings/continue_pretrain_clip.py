@@ -39,7 +39,10 @@ from utils.datasets_utils import *
 
 
 import data_loaders
-from transformers import AutoModel
+from PIL import Image
+import requests
+
+from transformers import CLIPProcessor, CLIPModel
 import encoders
 
 
@@ -49,7 +52,7 @@ def convert_to_text(unicode_string):
     return unicode_string.encode('ascii','ignore').decode('ascii')
 
 
-def eval_clip(val_loader,model,tokenizer):
+def eval_clip(val_loader,model,processor):
     print("Evaluating the model - clip loss")
     model.eval()
     loss_list=[]
@@ -58,17 +61,12 @@ def eval_clip(val_loader,model,tokenizer):
             labels = labels.to(device)
             labels= torch.arange((labels.shape[0])).to(device)
             ###Unsquueze the image data
-            image_data = image_data.to(device)
+            inputs=processor(text=text, images=image_data, return_tensors="pt", padding=True)
 
-            ### text is a tuple of strings, we need to convert it to a tensor
-            text=list(text)
-            text_features = ja_clip.tokenize(text,tokenizer=tokenizer)
+            # for key in text_features.keys():
+            #     text_features[key]=text_features[key].to(device)
 
-            for key in text_features.keys():
-                text_features[key]=text_features[key].to(device)
-
-            model_output=model.forward(input_ids=text_features["input_ids"],pixel_values=image_data,
-                                                attention_mask=text_features["attention_mask"], position_ids=text_features["position_ids"])
+            model_output=model(**inputs)
             logits_per_image, logits_per_text = model_output["logits_per_image"], model_output["logits_per_text"]
 
             loss = (img_loss(logits_per_image, labels) + text_loss(logits_per_text, labels))/2
@@ -81,7 +79,7 @@ def eval_clip(val_loader,model,tokenizer):
 
 
 
-def pretrain_clip(train_loader,model,device,img_loss,text_loss,epoch,optimizer,tokenizer,scheduler=None,epochviz=None):
+def pretrain_clip(train_loader,model,device,img_loss,text_loss,epoch,optimizer,processor,scheduler=None,epochviz=None):
     print("Pretraining CLIP")
     """REf: https://github.com/openai/CLIP/blob/main/clip/model.py | https://github.com/openai/CLIP/issues/83 """
     # model.to(device)
@@ -95,18 +93,18 @@ def pretrain_clip(train_loader,model,device,img_loss,text_loss,epoch,optimizer,t
         image_data = image_data.to(device)
 
         ### text is a tuple of strings, we need to convert it to a tensor
-        text=list(text)
-        text_features = ja_clip.tokenize(text,tokenizer=tokenizer)
+        inputs=processor(text=text, images=image_data, return_tensors="pt", padding=True)
 
-        for key in text_features.keys():
-            text_features[key]=text_features[key].to(device)
+        # for key in text_features.keys():
+        #     text_features[key]=text_features[key].to(device)
+
         
         optimizer.zero_grad()
 
 
 
-        model_output=model.forward(input_ids=text_features["input_ids"],pixel_values=image_data,
-                                                attention_mask=text_features["attention_mask"], position_ids=text_features["position_ids"])
+        model_output=model(**inputs)
+
         logits_per_image, logits_per_text = model_output["logits_per_image"], model_output["logits_per_text"]
         del model_output
 
@@ -146,7 +144,7 @@ def pretrain_clip(train_loader,model,device,img_loss,text_loss,epoch,optimizer,t
 
 
 
-def train_bienc_clip(train_loader,clip_model,device,loss_func,epoch,clip_optimizer,tokenizer,clip_scheduler=None,epochviz=None,mlp_model=None,mlp_optimizer=None,mlp_scheduler=None,freeze_clip=False):
+def train_bienc_clip(train_loader,clip_model,device,loss_func,epoch,clip_optimizer,processor,clip_scheduler=None,epochviz=None,mlp_model=None,mlp_optimizer=None,mlp_scheduler=None,freeze_clip=False):
     """A version where we contrastively train pooled clip embeddings"""
 
 
@@ -164,7 +162,7 @@ def train_bienc_clip(train_loader,clip_model,device,loss_func,epoch,clip_optimiz
 
         ### text is a tuple of strings, we need to convert it to a tensor
         text=list(text)
-        text_features = ja_clip.tokenize(text,tokenizer=tokenizer)
+        text_features = ja_clip.tokenize(text,processor=processor)
 
         for key in text_features.keys():
             text_features[key]=text_features[key].to(device)
@@ -246,7 +244,7 @@ def get_image_text_embeddings(data_loader,clip_model,mlp_model,device):
 
         ### text is a tuple of strings, we need to convert it to a tensor
         text=list(text)
-        text_features = ja_clip.tokenize(text,tokenizer=tokenizer)
+        text_features = ja_clip.tokenize(text,processor=processor)
 
         for key in text_features.keys():
             text_features[key]=text_features[key].to(device)
@@ -362,8 +360,8 @@ if __name__ == "__main__":
     # def main():
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
-    clip_model = ja_clip.clip.CLIPModel.from_pretrained("rinna/japanese-clip-vit-b-16",cache_dir="/tmp/japanese_clip")
-
+    clip_model = CLIPModel.from_pretrained("openai/clip-vit-base-patch32")
+    processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
     ###Load checkpoint
     if args.checkpoint_path is not None:
         clip_model.load_state_dict(torch.load(args.checkpoint_path, map_location=torch.device(device)))
@@ -377,7 +375,6 @@ if __name__ == "__main__":
         mlp_model=None
 
 
-    tokenizer = ja_clip.load_tokenizer()
 
     ###DATAparallel
 
@@ -477,7 +474,7 @@ if __name__ == "__main__":
         print("Setting up dataset with hardnegatives")
         dedup_train_data=train_data.drop_duplicates(subset=['label'],keep='first')
         print("Total number of unique labels in train data: ",len(dedup_train_data))
-        k_hardneg_df = data_loaders.make_hard_neg_df(dedup_train_data,k=args.k,clip_model=clip_model,mlp_model=mlp_model,device=device,tokenizer=tokenizer,pooling_type=args.pooling_type,im_wt=args.im_wt)
+        k_hardneg_df = data_loaders.make_hard_neg_df(dedup_train_data,k=args.k,clip_model=clip_model,mlp_model=mlp_model,device=device,processor=processor,pooling_type=args.pooling_type,im_wt=args.im_wt)
         train_dataset=data_loaders.TextImageDatasetWithHardNegs(train_data,k_hardneg_df,img_transform=  train_image_transform ,text_transform=None,batch_size=126,k=args.k,m=args.m)
         print("Done setting up dataset with hardnegatives")
     else: 
@@ -577,14 +574,14 @@ if __name__ == "__main__":
     start_epoch=0
     best_acc=0
     if args.training_type=="pretrain":
-        zero_shot_loss=eval_clip(val_loader,clip_model,tokenizer)
+        zero_shot_loss=eval_clip(val_loader,clip_model,processor)
 
     if args.training_type=="pretrain":
 
 
         for epoch in (range(start_epoch, num_epochs+start_epoch)):
-            train_loss=pretrain_clip(train_loader,clip_model,device,img_loss,text_loss,epoch,clip_optimizer,tokenizer,clip_scheduler,epochviz=None)
-            val_loss=eval_clip(val_loader,clip_model,tokenizer)
+            train_loss=pretrain_clip(train_loader,clip_model,device,img_loss,text_loss,epoch,clip_optimizer,processor,clip_scheduler,epochviz=None)
+            val_loss=eval_clip(val_loader,clip_model,processor)
             # print("val Accuracy: {}".format(acc))
             # acc=tester_bienc_clip(val_loader,val_loader,model,split="val_small",log=True)
             print("Val loss: {}".format(val_loss))
@@ -617,10 +614,10 @@ if __name__ == "__main__":
                     freeze_clip=True
                 else:
                     freeze_clip=False
-                epoch_loss=train_bienc_clip(train_loader,clip_model,device,loss_func,epoch,clip_optimizer,clip_scheduler=clip_scheduler,epochviz=None,tokenizer=tokenizer,mlp_model=mlp_model,mlp_optimizer=mlp_optimizer,mlp_scheduler=mlp_scheduler,freeze_clip=freeze_clip)
+                epoch_loss=train_bienc_clip(train_loader,clip_model,device,loss_func,epoch,clip_optimizer,clip_scheduler=clip_scheduler,epochviz=None,processor=processor,mlp_model=mlp_model,mlp_optimizer=mlp_optimizer,mlp_scheduler=mlp_scheduler,freeze_clip=freeze_clip)
             else:
                 freeze_clip=False
-                epoch_loss=train_bienc_clip(train_loader,clip_model,device,loss_func,epoch,clip_optimizer,clip_scheduler=clip_scheduler,epochviz=None,tokenizer=tokenizer,mlp_model=mlp_model,mlp_optimizer=mlp_optimizer,mlp_scheduler=mlp_scheduler,freeze_clip=freeze_clip)
+                epoch_loss=train_bienc_clip(train_loader,clip_model,device,loss_func,epoch,clip_optimizer,clip_scheduler=clip_scheduler,epochviz=None,processor=processor,mlp_model=mlp_model,mlp_optimizer=mlp_optimizer,mlp_scheduler=mlp_scheduler,freeze_clip=freeze_clip)
             acc=tester_bienc_clip(val_loader,large_ref_loader,clip_model,mlp_model,split="val_large",log=True)
             if acc>best_acc:
                 best_acc=acc
@@ -640,7 +637,7 @@ if __name__ == "__main__":
         best_acc=tester_bienc_clip(val_loader,synth_ref_dataloader,clip_model,mlp_model,split="val_small",log=True)
         loss_func=losses.SupConLoss(temperature=args.supcon_temp)
         for epoch in (range(start_epoch, num_epochs+start_epoch)):
-            epoch_loss=train_bienc_clip(train_loader,clip_model,device,loss_func,epoch,clip_optimizer,clip_scheduler=clip_scheduler,epochviz=None,tokenizer=tokenizer,mlp_model=mlp_model,freeze_clip=False)
+            epoch_loss=train_bienc_clip(train_loader,clip_model,device,loss_func,epoch,clip_optimizer,clip_scheduler=clip_scheduler,epochviz=None,processor=processor,mlp_model=mlp_model,freeze_clip=False)
             acc=tester_bienc_clip(val_loader,large_synth_ref_dataloader,clip_model,mlp_model,split="val_large",log=True)
             if acc>best_acc:
                 best_acc=acc
