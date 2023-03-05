@@ -60,6 +60,12 @@ def prep_food101_data():
 
     return train_data, val_data, test_data
 
+def prep_unlabelled_news_data():
+    ###Load the text file with the labels
+    train_data = pd.read_csv(f'/mnt/data01/clippings_general/texts/unlabelled_news_titles.csv')
+    
+    return train_data
+
 def eval_clip(val_loader,model,processor):
     print("Evaluating the model - clip loss")
     model.eval()
