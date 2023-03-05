@@ -34,6 +34,8 @@ val.to_csv(f'texts/unlabelled_news_val_reformatted.csv', index=False)
 ###Save the text data
 unlabelled_data.to_csv(f'texts/unlabelled_news_reformatted.csv', index=False)
 
+print("Total image-text pairs in pretraining CLIP", len(unlabelled_data))
+
 
 ###Reformat the labelled data
 
