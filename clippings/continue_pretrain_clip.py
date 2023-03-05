@@ -406,8 +406,7 @@ if __name__ == "__main__":
         
 
     else:
-        raise ValueError("labelled_data must be either food101 or newspapers")
-    
+        pass
    
     ###Remove any unnamed columns
     train_data=train_data.loc[:, ~train_data.columns.str.contains('^Unnamed')]
