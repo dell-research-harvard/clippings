@@ -377,7 +377,7 @@ if __name__ == "__main__":
     # def main():
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
-    clip_model = CLIPModel.from_pretrained("openai/clip-vit-base-patch32",jit=False)
+    clip_model = CLIPModel.from_pretrained("openai/clip-vit-base-patch32")
     processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
     ###Load checkpoint
     if args.checkpoint_path is not None:
