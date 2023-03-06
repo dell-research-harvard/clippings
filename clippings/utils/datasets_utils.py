@@ -116,6 +116,23 @@ CLIP_BASE_TRANSFORM = T.Compose([
         T.Resize((224, 224)),
         T.Normalize((0.48145466, 0.4578275, 0.40821073), (0.26862954, 0.26130258, 0.27577711),)
     ])
+
+CLIP_BASE_TRANSFORM_RANDOM = T.Compose([  
+        ###REsize shortest edge
+        T.Lambda(lambda x: x.convert("RGB") if isinstance(x, Image.Image) else x),
+        T.ToTensor(),
+        ##RAndom crop
+        T.RandomCrop((224, 224),pad_if_needed=True),
+        T.Normalize((0.48145466, 0.4578275, 0.40821073), (0.26862954, 0.26130258, 0.27577711),)
+    ])
+
+CLIP_BASE_TRANSFORM_CENTER= T.Compose([  
+        T.Lambda(lambda x: x.convert("RGB") if isinstance(x, Image.Image) else x),
+        T.ToTensor(),
+        ##CEnter crop
+        T.CenterCrop((224, 224)),
+        T.Normalize((0.48145466, 0.4578275, 0.40821073), (0.26862954, 0.26130258, 0.27577711),)
+    ])
 ##Run as script
 if __name__ == "__main__":
 
