@@ -2,20 +2,28 @@ from PIL import Image
 import requests
 
 from transformers import CLIPProcessor, CLIPModel
+import torchvision as T
 
 model = CLIPModel.from_pretrained("openai/clip-vit-base-patch16")
 processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch16")
 
 print(processor)
 print(processor.feature_extractor)
-
+CLIP_BASE_TRANSFORM_CENTER= T.Compose([  
+        T.Lambda(lambda x: x.convert("RGB") if isinstance(x, Image.Image) else x),
+        T.ToTensor(),
+        ##CEnter crop
+        T.CenterCrop((224, 224)),
+        T.Normalize((0.48145466, 0.4578275, 0.40821073), (0.26862954, 0.26130258, 0.27577711),)
+    ])
 
 
 url = "http://images.cocodataset.org/val2017/000000039769.jpg"
 image = Image.open(requests.get(url, stream=True).raw)
 
-inputs = processor(text=["a photo of a cat", "a photo of a dog"], images=image, return_tensors="pt", padding=True)
+# inputs = processor(text=["a photo of a cat", "a photo of a dog"], images=image, return_tensors="pt", padding=True)
 
+image_features = CLIP_BASE_TRANSFORM_CENTER(image)
 text_features=(processor.tokenizer(["a photo of a cat","a photo of a dog"], return_tensors="pt", padding=True))
 
 print(text_features.keys())
