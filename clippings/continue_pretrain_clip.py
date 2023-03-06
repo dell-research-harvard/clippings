@@ -70,13 +70,14 @@ def eval_clip(val_loader,model,processor):
         for batch_idx, (text, image_data, labels, image_path) in enumerate(val_loader):
             labels = labels.to(device)
             labels= torch.arange((labels.shape[0])).to(device)
-            ###Unsquueze the image data
-            inputs=processor(text=text, images=image_data, return_tensors="pt", padding=True)
 
-            # for key in text_features.keys():
-            #     text_features[key]=text_features[key].to(device)
+            text_features=(processor.tokenizer(text, return_tensors="pt", padding=True))
 
-            model_output=model(**inputs)
+            for key in text_features.keys():
+                text_features[key]=text_features[key].to(device)
+
+            model_output=model.forward(input_ids=text_features["input_ids"],pixel_values=image_data,
+                                                attention_mask=text_features["attention_mask"])
             logits_per_image, logits_per_text = model_output["logits_per_image"], model_output["logits_per_text"]
 
             loss = (img_loss(logits_per_image, labels) + text_loss(logits_per_text, labels))/2
@@ -112,8 +113,7 @@ def pretrain_clip(train_loader,model,device,img_loss,text_loss,epoch,optimizer,p
         optimizer.zero_grad()
 
 
-
-        model_output=model(image_data,inputs)
+        model_output=model.forward(input_ids=text_features["input_ids"],pixel_values=image_data,attention_mask=text_features["attention_mask"])
 
         logits_per_image, logits_per_text = model_output["logits_per_image"], model_output["logits_per_text"]
         del model_output

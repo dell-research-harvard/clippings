@@ -30,8 +30,7 @@ image_features=image_features.unsqueeze(0)
 text_features=(processor.tokenizer(["a photo of a cat","a photo of a dog"], return_tensors="pt", padding=True))
 
 print(text_features.keys())
-model_output=model.forward(input_ids=text_features["input_ids"],pixel_values=image_features,
-                                    attention_mask=text_features["attention_mask"])
+model_output=model.forward(input_ids=text_features["input_ids"],pixel_values=image_features,attention_mask=text_features["attention_mask"])
 
 print(model_output)
 # outputs = model(**inputs)
