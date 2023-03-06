@@ -11,7 +11,7 @@ from sklearn.model_selection import train_test_split
 
 ###Reformat the newspaper images data
 ###Load the directory containig the csvs
-unlabelled_dir = '/mnt/data01/captions/unlabelled_pairs/'
+unlabelled_dir = '/mnt/data02/captions/unlabelled_pairs/'
 ##Load all the csvs
 unlabelled_data = pd.concat([pd.read_csv(unlabelled_dir + file) for file in os.listdir(unlabelled_dir)])
 ##Remove the index column
@@ -22,7 +22,7 @@ unlabelled_data['label'] = 999
 unlabelled_data.columns = ['image_path', 'text', 'label']
 
 ##Add base path to image path
-unlabelled_data['image_path'] = '/mnt/data01/captions/pulled_crops/' + unlabelled_data['image_path']
+unlabelled_data['image_path'] = '/mnt/data02/captions/pulled_crops/' + unlabelled_data['image_path'] + '.png'
 
 ##Split in val and train
 train, val = train_test_split(unlabelled_data, test_size=0.2, random_state=42)
