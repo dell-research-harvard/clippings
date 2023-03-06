@@ -11,7 +11,7 @@ from sklearn.model_selection import train_test_split
 
 ###Reformat the newspaper images data
 ###Load the directory containig the csvs
-unlabelled_dir = '/mnt/data02/captions/unlabelled_pairs/'
+unlabelled_dir = '/mnt/data01/captions/unlabelled_pairs/'
 ##Load all the csvs
 unlabelled_data = pd.concat([pd.read_csv(unlabelled_dir + file) for file in os.listdir(unlabelled_dir)])
 ##Remove the index column
