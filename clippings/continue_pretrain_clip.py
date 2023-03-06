@@ -529,7 +529,8 @@ if __name__ == "__main__":
 
         for epoch in (range(start_epoch, num_epochs+start_epoch)):
             train_loss=pretrain_clip(train_loader,clip_model,device,img_loss,text_loss,epoch,clip_optimizer,processor,clip_scheduler,epochviz=None)
-            val_loss=eval_clip(val_loader,clip_model,processor)
+            if epoch>5:
+                val_loss=eval_clip(val_loader,clip_model,processor)
             # print("val Accuracy: {}".format(acc))
             # acc=tester_bienc_clip(val_loader,val_loader,model,split="val_small",log=True)
             print("Val loss: {}".format(val_loss))
