@@ -18,7 +18,7 @@ inputs = processor(text=["a photo of a cat", "a photo of a dog"], images=image, 
 
 text_features=(processor.tokenizer(["a photo of a cat","a photo of a dog"], return_tensors="pt", padding=True))
 
-
+text_features.keys()
 model_output=model.forward(input_ids=text_features["input_ids"],pixel_values=image,
                                     attention_mask=text_features["attention_mask"], position_ids=text_features["position_ids"])
 
