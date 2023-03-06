@@ -455,7 +455,7 @@ if __name__ == "__main__":
 
         val_loader=torch.utils.data.DataLoader(val_dataset, batch_size=args.batch_size, shuffle=False)
 
-    elif args.train_data_type == "food101_unlabelled":
+    elif args.train_data_type == "food101_unlabelled" or args.train_data_type == "newspapers_unlabelled":
         if args.train_hardneg:
             train_loader=torch.utils.data.DataLoader(train_dataset,batch_size=126,shuffle=False,num_workers=4)
         else:
