@@ -20,12 +20,12 @@ text_features=(processor.tokenizer(["a photo of a cat","a photo of a dog"], retu
 
 print(text_features.keys())
 model_output=model.forward(input_ids=text_features["input_ids"],pixel_values=image,
-                                    attention_mask=text_features["attention_mask"], position_ids=text_features["position_ids"])
+                                    attention_mask=text_features["attention_mask"])
 
 print(model_output)
 # outputs = model(**inputs)
-print(outputs.keys())
-logits_per_image = outputs.logits_per_image # this is the image-text similarity score
+print(model_output.keys())
+logits_per_image = model_output.logits_per_image # this is the image-text similarity score
 probs = logits_per_image.softmax(dim=1) # we can take the softmax to get the label probabilities
 
 ##Check which probability is higher (argmax) 
