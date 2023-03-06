@@ -72,7 +72,7 @@ def eval_clip(val_loader,model,processor):
             image_data = image_data.to(device)
             labels= torch.arange((labels.shape[0])).to(device)
 
-            text_features=(processor.tokenizer(text, return_tensors="pt", padding=True))
+            text_features=(processor.tokenizer(text, return_tensors="pt", padding=True,max_length=77,truncation=True))
 
             for key in text_features.keys():
                 text_features[key]=text_features[key].to(device)
@@ -105,7 +105,7 @@ def pretrain_clip(train_loader,model,device,img_loss,text_loss,epoch,optimizer,p
         image_data = image_data.to(device)
 
         ### text is a tuple of strings, we need to convert it to a tensor
-        text_features=processor.tokenizer(text=text, return_tensors="pt", padding=True)
+        text_features=processor.tokenizer(text=text, return_tensors="pt", padding=True,max_length=77,truncation=True)
 
         for key in text_features.keys():
             text_features[key]=text_features[key].to(device)
