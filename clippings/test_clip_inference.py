@@ -24,6 +24,9 @@ image = Image.open(requests.get(url, stream=True).raw)
 # inputs = processor(text=["a photo of a cat", "a photo of a dog"], images=image, return_tensors="pt", padding=True)
 
 image_features = CLIP_BASE_TRANSFORM_CENTER(image)
+
+##add batch dimension
+image_features=image_features.unsqueeze(0)
 text_features=(processor.tokenizer(["a photo of a cat","a photo of a dog"], return_tensors="pt", padding=True))
 
 print(text_features.keys())
