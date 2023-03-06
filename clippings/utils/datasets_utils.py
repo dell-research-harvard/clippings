@@ -129,6 +129,8 @@ CLIP_BASE_TRANSFORM_RANDOM = T.Compose([
 CLIP_BASE_TRANSFORM_CENTER= T.Compose([  
         T.Lambda(lambda x: x.convert("RGB") if isinstance(x, Image.Image) else x),
         T.ToTensor(),
+        ###REsize shortest edge
+        T.Resize((224, 224),max_size=225),
         ##CEnter crop
         T.CenterCrop((224, 224)),
         T.Normalize((0.48145466, 0.4578275, 0.40821073), (0.26862954, 0.26130258, 0.27577711),)
