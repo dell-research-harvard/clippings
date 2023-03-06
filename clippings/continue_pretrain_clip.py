@@ -533,19 +533,19 @@ if __name__ == "__main__":
                 val_loss=eval_clip(val_loader,clip_model,processor)
             # print("val Accuracy: {}".format(acc))
             # acc=tester_bienc_clip(val_loader,val_loader,model,split="val_small",log=True)
-            print("Val loss: {}".format(val_loss))
-            print("Train loss: {}".format(train_loss))
-
-            if val_loss<zero_shot_loss:
-                zero_shot_loss=val_loss
-                torch.save(clip_model.state_dict(), os.path.join("/mnt/data01/clippings_general/models/",args.wandb_name+".pt"))
-                
-                print("Model saved at epoch {}".format(epoch))
-                print("Path of the saved model: {}".format(os.path.join("/mnt/data01/clippings_general/models/",args.wandb_name+".pt")))
-                print("Path of the saved model: {}".format(os.path.join("/mnt/data01/clippings_general/models/",("epoch_"+str(epoch)+"_"+args.wandb_name+".pt"))))
                 print("Val loss: {}".format(val_loss))
-                if val_loss<0.1:
-                    torch.save(clip_model.state_dict(), os.path.join("/mnt/data01/clippings_general/models/",("epoch_"+str(epoch)+args.wandb_name+".pt")))
+                print("Train loss: {}".format(train_loss))
+
+                if val_loss<zero_shot_loss:
+                    zero_shot_loss=val_loss
+                    torch.save(clip_model.state_dict(), os.path.join("/mnt/data01/clippings_general/models/",args.wandb_name+".pt"))
+                    
+                    print("Model saved at epoch {}".format(epoch))
+                    print("Path of the saved model: {}".format(os.path.join("/mnt/data01/clippings_general/models/",args.wandb_name+".pt")))
+                    print("Path of the saved model: {}".format(os.path.join("/mnt/data01/clippings_general/models/",("epoch_"+str(epoch)+"_"+args.wandb_name+".pt"))))
+                    print("Val loss: {}".format(val_loss))
+                    if val_loss<0.1:
+                        torch.save(clip_model.state_dict(), os.path.join("/mnt/data01/clippings_general/models/",("epoch_"+str(epoch)+args.wandb_name+".pt")))
 
 
     # elif args.training_type=="train_bienc" and args.train_data_type=="labelled":
