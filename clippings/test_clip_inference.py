@@ -2,7 +2,7 @@ from PIL import Image
 import requests
 
 from transformers import CLIPProcessor, CLIPModel
-import torchvision as T
+import torchvision.transforms as T
 
 model = CLIPModel.from_pretrained("openai/clip-vit-base-patch16")
 processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch16")
