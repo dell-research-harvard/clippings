@@ -392,7 +392,6 @@ if __name__ == "__main__":
 
 
 
-    ###DATAparallel
 
     print("Train data type: ",args.train_data_type)
     if args.train_data_type == "food101_labelled":
