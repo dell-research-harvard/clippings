@@ -41,3 +41,5 @@ probs = logits_per_image.softmax(dim=1) # we can take the softmax to get the lab
 ##Check which probability is higher (argmax) 
 print(probs.argmax(dim=1))
 
+
+print(processor.tokenizer)
