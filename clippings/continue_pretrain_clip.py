@@ -438,9 +438,9 @@ if __name__ == "__main__":
     else: 
         train_dataset=data_loaders.TextImageDataset(train_data, img_transform=train_image_transform)
     
-    val_dataset=data_loaders.TextImageDataset(val_data,img_transform=None)
+    val_dataset=data_loaders.TextImageDataset(val_data,img_transform=CLIP_BASE_TRANSFORM_CENTER)
     if args.training_type != "pretrain":
-        test_dataset=data_loaders.TextImageDataset(test_data,img_transform=None)
+        test_dataset=data_loaders.TextImageDataset(test_data,img_transform=CLIP_BASE_TRANSFORM_CENTER)
 
     print(len(train_dataset))
 
