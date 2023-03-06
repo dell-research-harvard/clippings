@@ -103,17 +103,17 @@ def pretrain_clip(train_loader,model,device,img_loss,text_loss,epoch,optimizer,p
         image_data = image_data.to(device)
 
         ### text is a tuple of strings, we need to convert it to a tensor
-        inputs=processor(text=text, images=image_data, return_tensors="pt", padding=True)
+        text_features=processor.tokenizer(text=text, return_tensors="pt", padding=True)
 
-        # for key in text_features.keys():
-        #     text_features[key]=text_features[key].to(device)
+        for key in text_features.keys():
+            text_features[key]=text_features[key].to(device)
 
         
         optimizer.zero_grad()
 
 
 
-        model_output=model(**inputs)
+        model_output=model(image_data,inputs)
 
         logits_per_image, logits_per_text = model_output["logits_per_image"], model_output["logits_per_text"]
         del model_output
@@ -427,7 +427,7 @@ if __name__ == "__main__":
     if args.augmented_crops:
         train_image_transform=create_clip_random_doc_transform()
     else:
-        train_image_transform=None
+        train_image_transform=CLIP_BASE_TRANSFORM_CENTER
     if args.train_hardneg:
         print("Setting up dataset with hardnegatives")
         dedup_train_data=train_data.drop_duplicates(subset=['label'],keep='first')
@@ -481,12 +481,12 @@ if __name__ == "__main__":
         large_synth_ref_data=pd.concat([train_data.sample(20000),val_data])
         large_synth_ref_data=synth_ref_data.sample(frac=1)
         large_synth_ref_data=synth_ref_data.drop_duplicates(subset=['label'])
-        large_synth_ref_dataset=data_loaders.TextImageDataset(large_synth_ref_data, img_transform=CLIP_BASE_TRANSFORM)
+        large_synth_ref_dataset=data_loaders.TextImageDataset(large_synth_ref_data, img_transform=CLIP_BASE_TRANSFORM_CENTER)
         large_synth_ref_dataloader=torch.utils.data.DataLoader(large_synth_ref_dataset, batch_size=args.batch_size, shuffle=False)
 
 
         val_data=val_data.drop_duplicates(subset=['label'])
-        val_dataset=data_loaders.TextImageDataset(val_data, img_transform=CLIP_BASE_TRANSFORM)
+        val_dataset=data_loaders.TextImageDataset(val_data, img_transform=CLIP_BASE_TRANSFORM_CENTER)
         val_loader=torch.utils.data.DataLoader(val_dataset, batch_size=args.batch_size, shuffle=False)
 
     ###Set up device
