@@ -67,7 +67,7 @@ def eval_clip(val_loader,model,processor):
     model.eval()
     loss_list=[]
     with torch.no_grad():
-        for batch_idx, (text, image_data, labels, image_path) in enumerate(val_loader):
+        for batch_idx, (text, image_data, labels, image_path) in enumerate(tqdm(val_loader)):
             labels = labels.to(device)
             image_data = image_data.to(device)
             labels= torch.arange((labels.shape[0])).to(device)
