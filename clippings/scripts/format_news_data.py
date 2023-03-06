@@ -22,7 +22,7 @@ unlabelled_data['label'] = 999
 unlabelled_data.columns = ['image_path', 'text', 'label']
 
 ##Add base path to image path
-unlabelled_data['image_path'] = '/mnt/data02/captions/pulled_crops/' + unlabelled_data['image_path']
+unlabelled_data['image_path'] = '/mnt/data01/captions/pulled_crops/' + unlabelled_data['image_path']
 
 ##Split in val and train
 train, val = train_test_split(unlabelled_data, test_size=0.2, random_state=42)
