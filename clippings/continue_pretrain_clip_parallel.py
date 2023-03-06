@@ -466,7 +466,7 @@ if __name__ == "__main__":
             train_loader=torch.utils.data.DataLoader(train_dataset,batch_size=126,shuffle=False,num_workers=4)
         else:
             train_loader=torch.utils.data.DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True)
-        val_loader=torch.utils.data.DataLoader(val_dataset, batch_size=args.batch_size, shuffle=False)
+        val_loader=torch.utils.data.DataLoader(val_dataset, batch_size=args.batch_size, shuffle=True)
    
     else:
         raise ValueError("labelled_data must be either food101_labelled, food101_unlabelled or newspapers")
