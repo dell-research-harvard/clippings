@@ -168,15 +168,15 @@ def train_bienc_clip(train_loader,clip_model,device,loss_func,epoch,clip_optimiz
 
         labels = labels.to(device)
 
-        ####Unsquueze the image data
+       ####Unsquueze the image data
         image_data = image_data.to(device)
 
         ### text is a tuple of strings, we need to convert it to a tensor
-        text=list(text)
-        text_features = tokenizer(text,processor=processor)
+        text_features=processor.tokenizer(text=text, return_tensors="pt", padding=True,max_length=77,truncation=True)
 
         for key in text_features.keys():
             text_features[key]=text_features[key].to(device)
+
         
         clip_optimizer.zero_grad()
         if not mlp_model is None:
@@ -185,12 +185,10 @@ def train_bienc_clip(train_loader,clip_model,device,loss_func,epoch,clip_optimiz
 
         if freeze_clip:
             with torch.no_grad():
-                model_output=clip_model.forward(input_ids=text_features["input_ids"],pixel_values=image_data,
-                                                attention_mask=text_features["attention_mask"], position_ids=text_features["position_ids"])
+                model_output=clip_model.forward(input_ids=text_features["input_ids"],pixel_values=image_data,attention_mask=text_features["attention_mask"])
         
         else:
-            model_output=clip_model.forward(input_ids=text_features["input_ids"],pixel_values=image_data,
-                                                attention_mask=text_features["attention_mask"], position_ids=text_features["position_ids"])
+                model_output=clip_model.forward(input_ids=text_features["input_ids"],pixel_values=image_data,attention_mask=text_features["attention_mask"])
         image_embeds, text_embeds = model_output["image_embeds"], model_output["text_embeds"]
         del model_output
 
@@ -342,7 +340,20 @@ def tester_bienc_clip(test_loader,ref_loader,clip_model,mlp_model,split='val',lo
     return acc
 
 
+def val_bienc_clip_loss(val_loader,clip_model,mlp_model,loss_fn,split='val',log=True):
+    print("Testing using pooled embeddings")
 
+    
+    test_embeddings, test_labels, test_text, test_paths = get_image_text_embeddings(val_loader,clip_model,mlp_model, device)
+    print("total test embeddings: ",test_embeddings.shape)
+
+    val_loss=loss_fn(test_embeddings,test_labels)
+
+
+    if log:
+        wandb.log({f"{split}/precision_1": val_loss})
+
+    return val_loss
 
 
 
@@ -457,14 +468,14 @@ if __name__ == "__main__":
         else:
             train_loader=torch.utils.data.DataLoader(train_dataset, batch_size=args.batch_size,sampler=data_loaders.NoReplacementMPerClassSampler(train_dataset, m=args.m,batch_size=args.batch_size,num_passes=1))
 
-        val_loader=torch.utils.data.DataLoader(val_dataset, batch_size=args.batch_size, shuffle=False)
+        val_loader=torch.utils.data.DataLoader(val_dataset, batch_size=args.batch_size, shuffle=True)
 
     elif args.train_data_type == "food101_unlabelled" or args.train_data_type == "newspapers_unlabelled":
         if args.train_hardneg:
             train_loader=torch.utils.data.DataLoader(train_dataset,batch_size=126,shuffle=False,num_workers=4)
         else:
             train_loader=torch.utils.data.DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True)
-        val_loader=torch.utils.data.DataLoader(val_dataset, batch_size=args.batch_size, shuffle=False)
+        val_loader=torch.utils.data.DataLoader(val_dataset, batch_size=args.batch_size, shuffle=True)
    
     else:
         raise ValueError("labelled_data must be either food101_labelled, food101_unlabelled or newspapers")
@@ -472,26 +483,6 @@ if __name__ == "__main__":
         test_loader=torch.utils.data.DataLoader(test_dataset, batch_size=args.batch_size, shuffle=False)
 
     ###ADditonally, if training biencoder with synthetic data, create a reference dataset
-    if args.train_data_type == "synth":
-        # synth_ref_data=pd.concat([train_data,val_data])
-        synth_ref_data=pd.concat([val_data])
-        ##Shuffle the data
-        synth_ref_data=synth_ref_data.sample(frac=1)
-        ##Drop duplicates
-        synth_ref_data=synth_ref_data.drop_duplicates(subset=['label'])
-        synth_ref_dataset=data_loaders.TextImageDataset(synth_ref_data, img_transform=None)
-        synth_ref_dataloader=torch.utils.data.DataLoader(synth_ref_dataset, batch_size=args.batch_size, shuffle=False)
-
-        large_synth_ref_data=pd.concat([train_data.sample(20000),val_data])
-        large_synth_ref_data=synth_ref_data.sample(frac=1)
-        large_synth_ref_data=synth_ref_data.drop_duplicates(subset=['label'])
-        large_synth_ref_dataset=data_loaders.TextImageDataset(large_synth_ref_data, img_transform=CLIP_BASE_TRANSFORM_CENTER)
-        large_synth_ref_dataloader=torch.utils.data.DataLoader(large_synth_ref_dataset, batch_size=args.batch_size, shuffle=False)
-
-
-        val_data=val_data.drop_duplicates(subset=['label'])
-        val_dataset=data_loaders.TextImageDataset(val_data, img_transform=CLIP_BASE_TRANSFORM_CENTER)
-        val_loader=torch.utils.data.DataLoader(val_dataset, batch_size=args.batch_size, shuffle=False)
 
     ###Set up device
     # setup
@@ -521,8 +512,14 @@ if __name__ == "__main__":
     num_epochs=1000
     start_epoch=0
     best_acc=0
+    loss_func=losses.SupConLoss(temperature=args.supcon_temp)
+
+
+
     if args.training_type=="pretrain":
         zero_shot_loss=eval_clip(val_loader,clip_model,processor)
+    else:
+        pass
 
     if args.training_type=="pretrain":
 
@@ -548,57 +545,34 @@ if __name__ == "__main__":
                         torch.save(clip_model.state_dict(), os.path.join("/mnt/data01/clippings_general/models/",("epoch_"+str(epoch)+args.wandb_name+".pt")))
 
 
-    # elif args.training_type=="train_bienc" and args.train_data_type=="labelled":
-    #     best_acc=tester_bienc_clip(val_loader,small_ref_loader,clip_model,mlp_model,split="val_small",log=True)
-    #     best_acc=tester_bienc_clip(val_loader,med_ref_loader,clip_model,mlp_model,split="val_med",log=True)
-    #     best_acc=tester_bienc_clip(val_loader,large_ref_loader,clip_model,mlp_model,split="val_large",log=True)
-    #     # best_acc=tester_bienc_clip(val_loader,huge_ref_loader,clip_model,mlp_model,split="val_huge",log=True)
-    #     loss_func=losses.SupConLoss(temperature=args.supcon_temp)
-    #     for epoch in (range(start_epoch, num_epochs+start_epoch)):
-    #         if epoch<= args.freeze_clip_epochs:
-    #             if args.pooling_type=="mlp":
-    #                 freeze_clip=True
-    #             else:
-    #                 freeze_clip=False
-    #             epoch_loss=train_bienc_clip(train_loader,clip_model,device,loss_func,epoch,clip_optimizer,clip_scheduler=clip_scheduler,epochviz=None,processor=processor,mlp_model=mlp_model,mlp_optimizer=mlp_optimizer,mlp_scheduler=mlp_scheduler,freeze_clip=freeze_clip)
-    #         else:
-    #             freeze_clip=False
-    #             epoch_loss=train_bienc_clip(train_loader,clip_model,device,loss_func,epoch,clip_optimizer,clip_scheduler=clip_scheduler,epochviz=None,processor=processor,mlp_model=mlp_model,mlp_optimizer=mlp_optimizer,mlp_scheduler=mlp_scheduler,freeze_clip=freeze_clip)
-    #         acc=tester_bienc_clip(val_loader,large_ref_loader,clip_model,mlp_model,split="val_large",log=True)
-    #         if acc>best_acc:
-    #             best_acc=acc
-    #             torch.save(clip_model.state_dict(), os.path.join("/mnt/data01/clippings_general/models/",("clip_imwt_"+str(args.im_wt)[2]+args.wandb_name+".pt")))
-    #             print("Model saved at epoch {}".format(epoch))
-    #             print("Path of the saved model: {}".format(os.path.join("/mnt/data01/clippings_general/models/",("clip_imwt_"+str(args.im_wt)[2]+args.wandb_name+".pt"))))
-    #             if args.pooling_type=="mlp":
-    #                 torch.save(mlp_model.state_dict(), os.path.join("/mnt/data01/clippings_general/models/",("mlp_imwt_"+str(args.im_wt)[2]+args.wandb_name+".pt")))
-    #             print("Model saved at epoch {}".format(epoch))
-    #             if acc>0.99:
-    #                 ###Look at final acc on tk
-    #                 final_acc=tester_bienc_clip(test_loader,small_ref_loader,clip_model,mlp_model,split="test",log=True)
-    #         ###SAve at every epoch
-    #         torch.save(clip_model.state_dict(), os.path.join("/mnt/data01/clippings_general/models/",("clip_imwt_"+str(args.im_wt)[2]+"epoch_"+str(epoch)+args.wandb_name+".pt")))
+    elif args.training_type=="train_bienc" and args.train_data_type=="newspapers_labelled":
+        best_bienc_loss=val_bienc_clip_loss(val_loader,clip_model,mlp_model,loss_func,split='val',log=True)
+        print("Val loss: {}".format(best_bienc_loss))
+        # best_acc=tester_bienc_clip(val_loader,huge_ref_loader,clip_model,mlp_model,split="val_huge",log=True)
+        for epoch in (range(start_epoch, num_epochs+start_epoch)):
+            if epoch<= args.freeze_clip_epochs:
+                if args.pooling_type=="mlp":
+                    freeze_clip=True
+                else:
+                    freeze_clip=False
+                epoch_loss=train_bienc_clip(train_loader,clip_model,device,loss_func,epoch,clip_optimizer,clip_scheduler=clip_scheduler,epochviz="/mnt/data01/clippings_general/epoch_viz/",processor=processor,mlp_model=mlp_model,mlp_optimizer=mlp_optimizer,mlp_scheduler=mlp_scheduler,freeze_clip=freeze_clip)
+            else:
+                freeze_clip=False
+                epoch_loss=train_bienc_clip(train_loader,clip_model,device,loss_func,epoch,clip_optimizer,clip_scheduler=clip_scheduler,epochviz="/mnt/data01/clippings_general/epoch_viz/",processor=processor,mlp_model=mlp_model,mlp_optimizer=mlp_optimizer,mlp_scheduler=mlp_scheduler,freeze_clip=freeze_clip)
+            
+            bienc_loss=val_bienc_clip_loss(val_loader,clip_model,mlp_model,loss_func,split='val',log=True)
+            if bienc_loss<best_bienc_loss:
+                best_acc=bienc_loss
+                torch.save(clip_model.state_dict(), os.path.join("/mnt/data01/clippings_general/models/",("clip_imwt_"+str(args.im_wt)[2]+args.wandb_name+".pt")))
+                print("Model saved at epoch {}".format(epoch))
+                print("Path of the saved model: {}".format(os.path.join("/mnt/data01/clippings_general/models/",("clip_imwt_"+str(args.im_wt)[2]+args.wandb_name+".pt"))))
+                if args.pooling_type=="mlp":
+                    torch.save(mlp_model.state_dict(), os.path.join("/mnt/data01/clippings_general/models/",("mlp_imwt_"+str(args.im_wt)[2]+args.wandb_name+".pt")))
+                print("Model saved at epoch {}".format(epoch))
+            ###SAve at every epoch
+            torch.save(clip_model.state_dict(), os.path.join("/mnt/data01/clippings_general/models/",("clip_imwt_"+str(args.im_wt)[2]+"epoch_"+str(epoch)+args.wandb_name+".pt")))
     
-    # elif args.training_type=="train_bienc" and args.train_data_type!="labelled":
-    #     best_acc=tester_bienc_clip(val_loader,synth_ref_dataloader,clip_model,mlp_model,split="val_small",log=True)
-    #     loss_func=losses.SupConLoss(temperature=args.supcon_temp)
-    #     for epoch in (range(start_epoch, num_epochs+start_epoch)):
-    #         epoch_loss=train_bienc_clip(train_loader,clip_model,device,loss_func,epoch,clip_optimizer,clip_scheduler=clip_scheduler,epochviz=None,processor=processor,mlp_model=mlp_model,freeze_clip=False)
-    #         acc=tester_bienc_clip(val_loader,large_synth_ref_dataloader,clip_model,mlp_model,split="val_large",log=True)
-    #         if acc>best_acc:
-    #             best_acc=acc
-    #             torch.save(clip_model.state_dict(), os.path.join("/mnt/data01/clippings_general/models/",args.wandb_name+".pt"))
-    #             print("Model saved at epoch {}".format(epoch))
-    #             print("Path of the saved model: {}".format(os.path.join("/mnt/data01/clippings_general/models/",args.wandb_name+".pt")))
-    #             if args.pooling_type=="mlp":
-    #                 torch.save(mlp_model.state_dict(), os.path.join("/mnt/data01/clippings_general/models/",("mlp_imwt_"+str(args.im_wt)[2]+args.wandb_name+".pt")))
-    #             print("Model saved at epoch {}".format(epoch))
-    #             if acc>0.99:
-    #                 ###Look at final acc on tk
-    #                 final_acc=tester_bienc_clip(test_loader,all_tk_ref_loader,clip_model,mlp_model,split="test",log=True)
-    #         ###SAve at every epoch
-    #         torch.save(clip_model.state_dict(), os.path.join("/mnt/data01/clippings_general/models/",("clip_imwt_"+str(args.im_wt)[2]+"epoch_"+str(epoch)+args.wandb_name+".pt")))
-    
+       
     else :
         print("Training type not recognised")
         raise ValueError
