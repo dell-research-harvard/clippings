@@ -394,8 +394,6 @@ if __name__ == "__main__":
 
     ###DATAparallel
 
-    # model = torch.nn.DataParallel(model)
-    # model.to(device)
     print("Train data type: ",args.train_data_type)
     if args.train_data_type == "food101_labelled":
         train_data,val_data,test_data=prep_food101_data()
