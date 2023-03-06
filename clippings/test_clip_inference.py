@@ -27,7 +27,7 @@ image_features = CLIP_BASE_TRANSFORM_CENTER(image)
 
 ##add batch dimension
 image_features=image_features.unsqueeze(0)
-text_features=(processor.tokenizer(["a photo of a cat","a photo of a dog"], return_tensors="pt", padding=True))
+text_features=(processor.tokenizer(["a photo of a cat","a photo of a dog"], return_tensors="pt", padding=True,max_length=77,truncation=True))
 
 print(text_features.keys())
 model_output=model.forward(input_ids=text_features["input_ids"],pixel_values=image_features,attention_mask=text_features["attention_mask"])
