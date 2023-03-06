@@ -407,8 +407,8 @@ if __name__ == "__main__":
         print("Not implemented yet")
         pass
     ###Prototype sample 1000
-    train_data=train_data.sample(n=1000,random_state=42)
-    val_data=val_data.sample(n=500,random_state=42)
+    # train_data=train_data.sample(n=1000,random_state=42)
+    val_data=val_data.sample(n=5000,random_state=42)
    
     ###Remove any unnamed columns
     train_data=train_data.loc[:, ~train_data.columns.str.contains('^Unnamed')]
