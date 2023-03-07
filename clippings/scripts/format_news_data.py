@@ -126,8 +126,16 @@ connected_components_df = pd.concat([connected_components_df, singletons])
 connected_components_df = pd.merge(connected_components_df, image_captions, on='image_path')
 
 
-print(connected_components_df)
 
+###Rename caption as text and reorder columns
+connected_components_df = connected_components_df.rename(columns={'caption':'text'})
+connected_components_df = connected_components_df[['image_path', 'text', 'label']]
+
+###Add root to the image path
+
+
+##Save the text data
+connected_components_df.to_csv(f'texts/labelled_news_reformatted.csv', index=False)
 
 
 
