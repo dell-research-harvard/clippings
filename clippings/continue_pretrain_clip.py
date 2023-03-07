@@ -471,7 +471,7 @@ if __name__ == "__main__":
 
 
     ###Create the data loaders
-    if args.train_data_type == "food101_labelled" :
+    if args.train_data_type == "food101_labelled" or args.train_data_type == "newspapers_labelled" :
         
         if args.train_hardneg:
             train_loader=torch.utils.data.DataLoader(train_dataset,batch_size=126,shuffle=False,num_workers=4)
