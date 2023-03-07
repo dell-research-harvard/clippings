@@ -108,10 +108,16 @@ connected_components_df.columns = ['image_path', 'label']
 
 
 print((connected_components_df))
+print(len(connected_components_df), "connected components"")
 
 
 ###Add singletons
-singletons = train_data[train_data['result']==0]
+singletons = train_data[train_data['result']==0 and train_data['image1'] not in connected_components_df['image_path'] and train_data['image2'] not in connected_components_df['image_path']]
+print("Number of singletons", len(singletons))
+
+###Now split the singletons into two columns
+singletons = pd.concat([singletons['image1'], singletons['image2']], axis=0).reset_index(drop=True)
+
 
 ###Add the label column - start from the last label 
 max_label=connected_components_df['label'].max()
@@ -120,7 +126,7 @@ singletons['label'] = max_label + singletons.index + 1
 
 
 ####Add singletons to the connected components
-connected_components_df = pd.concat([connected_components_df, singletons])
+connected_components_df = pd.concat([connected_components_df, singletons], axis=0)
 
 ###merge the captions to the extended connected components df
 connected_components_df = pd.merge(connected_components_df, image_captions, on='image_path')
