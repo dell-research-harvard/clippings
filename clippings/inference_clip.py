@@ -176,7 +176,7 @@ if __name__ == "__main__":
 
     ###Get the top 1000 nearest neighbours
     D, I = index.search(all_embeddings.cpu().numpy(), all_embeddings.shape[0])
-    above_threshold = D > 0.8
+    above_threshold = D > 0.9
     print(above_threshold)
     upper_only = np.triu(np.ones((all_embeddings.shape[0], all_embeddings.shape[0])) - np.identity(all_embeddings.shape[0]))
     result = above_threshold * upper_only
