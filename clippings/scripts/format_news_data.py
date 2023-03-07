@@ -112,7 +112,7 @@ print(len(connected_components_df), "connected components")
 
 
 ###Add singletons
-singletons = train_data[train_data['result']==0 & train_data['image1'] not in connected_components_df['image_path'] & train_data['image2'] not in connected_components_df['image_path']]
+singletons = train_data[(train_data['result']==0) & (train_data['image1'] not in connected_components_df['image_path']) & (train_data['image2'] not in connected_components_df['image_path'])]
 print("Number of singletons", len(singletons))
 
 ###Now split the singletons into two columns
