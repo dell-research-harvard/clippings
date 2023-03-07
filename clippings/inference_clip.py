@@ -41,6 +41,13 @@ import requests
 
 from transformers import CLIPProcessor, CLIPModel
 import encoders
+import networkx as nx
+
+##NX community detection
+import networkx.algorithms.community as nx_comm
+##Import combinations
+from itertools import combinations
+
 
 
 
@@ -150,6 +157,32 @@ if __name__ == "__main__":
     ###Get the top 1000 nearest neighbours
     D, I = index.search(all_embeddings.cpu().numpy(), all_embeddings.shape[0])
 
+    above_threshold = D > 0.94
+    upper_only = np.triu(np.ones((all_embeddings.shape[0], all_embeddings.shape[0])) - np.identity(all_embeddings.shape[0]))
+    result = above_threshold * upper_only
+    indices = [index for index, value in np.ndenumerate(result) if value]
+    edges = [[all_paths[pair[0]], all_paths[pair[1]]] for pair in indices]
+
+    # Build graph
+    G = nx.Graph()
+    G.add_edges_from(edges)
+
+    # Community detection
+    communities = nx_comm.louvain_communities(G, resolution=1)
+
+    pred_pairs = []
+    for i in range(len(communities)):
+        pred_pairs.extend(combinations(list(communities[i]), 2))
+
+    clustered_ids = {}
+    for i in range(len(communities)):
+        clustered_ids[i] = list(communities[i])
+
+
+
+    pred_pairs = [list(p) for p in pred_pairs]
+
+    print(f'{len(all_embeddings.shape)} examples grouped into {len(communities)} clusters')
 
 
 
