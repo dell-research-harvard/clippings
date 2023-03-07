@@ -61,7 +61,7 @@ for i in range(len(data)):
     caption1.append(data[i]['data']['caption1'])
     image2.append(data[i]['data']['image2'])
     caption2.append(data[i]['data']['caption2'])
-    result.append(data[i]['annotations']['result'][0]['value']['choices'][0])
+    result.append(data[i]['annotations'][0]['result'][0]['value']['choices'][0])
 
 ###Make a dataframe
 train_data = pd.DataFrame({'image1':image1, 'caption1':caption1, 'image2':image2, 'caption2':caption2, 'result':result})
