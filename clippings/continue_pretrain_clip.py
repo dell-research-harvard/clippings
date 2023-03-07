@@ -418,9 +418,10 @@ if __name__ == "__main__":
         train_data,val_data,test_data=prep_food101_data()
     elif args.train_data_type == "newspapers_unlabelled":
         train_data,val_data=prep_unlabelled_news_data()
+        test_data=val_data
     elif args.train_data_type == "newspapers_labelled":
         train_data,val_data=prep_labelled_news_data()       
-
+        test_data=val_data
     else:
         print("Not implemented yet")
         pass
