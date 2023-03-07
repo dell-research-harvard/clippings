@@ -103,7 +103,8 @@ connected_components = nx.connected_components(G)
 # connected_components_df['label'] = connected_components_df.index
 
 
-print(connected_components)
+###Make a dataframe with the connected components
+connected_components_df = pd.DataFrame(connected_components)
 
 ##Print column names
 print(connected_components_df.columns)
