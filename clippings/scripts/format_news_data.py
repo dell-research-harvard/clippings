@@ -178,7 +178,10 @@ eval_data = pd.read_csv(eval_data_path)
 
 ####Add root to the image path
 
-eval_data['image_path'] = '/mnt/data02/captions/test_day_pulled_crops/' + eval_data['image_path'] + '.png'
+eval_data['image_path'] = '/mnt/data02/captions/test_day_pulled_crops/' + eval_data['image_id'] + '.png'
+
+##Drop image_id
+eval_data = eval_data.drop(columns=['image_id'])
 
 ##Remove the unnamed column
 eval_data = eval_data.drop(columns=['Unnamed: 0'])
