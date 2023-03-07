@@ -419,7 +419,10 @@ if __name__ == "__main__":
         pass
     ###Prototype sample 1000
     # train_data=train_data.sample(n=1000,random_state=42)
-    val_data=val_data.sample(n=5000,random_state=42)
+    if args.training_type == "pretrain":
+        val_data=val_data.sample(n=5000,random_state=42)
+    else:
+        pass
    
     ###Remove any unnamed columns
     train_data=train_data.loc[:, ~train_data.columns.str.contains('^Unnamed')]
