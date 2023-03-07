@@ -236,7 +236,7 @@ def get_image_text_embeddings(data_loader,clip_model,mlp_model,device,tokenizer,
 ###The data is stored in paths in a csv file. The csv is loaded seperately into a pandas df
 ## . Each row contains paired images and their corresponding ocr texts, and a label
 
-def make_hard_neg_df(original_df,k,clip_model,mlp_model,device,tokenizer,pooling_type="mean",im_wt=0.5,save_path=None):
+def make_hard_neg_df(original_df,k,clip_model,mlp_model,device,processor,pooling_type="mean",im_wt=0.5,save_path=None):
     """Load as dataset,loader, get embeddings and construct a df with k nn for each sample and give all of them a unique anchor_id"""    
 
     ###pre process for labelled data
@@ -245,7 +245,7 @@ def make_hard_neg_df(original_df,k,clip_model,mlp_model,device,tokenizer,pooling
     original_loader = TextImageDataLoader(original_dataset,batch_size=128,shuffle=False,num_workers=32)
 
     ##Get embeddings
-    all_embeddings, all_labels, all_text, all_paths = get_image_text_embeddings(original_loader,clip_model,mlp_model,device,tokenizer,pooling_type,im_wt)
+    all_embeddings, all_labels, all_text, all_paths = get_image_text_embeddings(original_loader,clip_model,mlp_model,device,processor,pooling_type,im_wt)
 
     ###Get k nearest neighbors for each sample
     ##Make FAISS index
