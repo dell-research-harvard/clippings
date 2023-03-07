@@ -158,8 +158,11 @@ if __name__ == "__main__":
     D, I = index.search(all_embeddings.cpu().numpy(), all_embeddings.shape[0])
 
     above_threshold = D > 0.94
+    print(above_threshold)
     upper_only = np.triu(np.ones((all_embeddings.shape[0], all_embeddings.shape[0])) - np.identity(all_embeddings.shape[0]))
     result = above_threshold * upper_only
+
+    print(result)
     indices = [index for index, value in np.ndenumerate(result) if value]
     edges = [[all_paths[pair[0]], all_paths[pair[1]]] for pair in indices]
 
