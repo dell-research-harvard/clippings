@@ -129,7 +129,7 @@ if __name__ == "__main__":
 
     ###Pairwise distances using faiss - gpu
     ###Get the pairwise distances
-
+    print("Calculating pairwise distances")
     res=faiss.StandardGpuResources()
     D=faiss.pairwise_distance_gpu(res, all_embeddings, all_embeddings)
     D = np.sort(D, axis=1)
