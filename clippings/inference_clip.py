@@ -127,6 +127,8 @@ if __name__ == "__main__":
     ###Get the embeddings
     all_embeddings, all_labels, all_text, all_paths=get_image_text_embeddings(eval_loader,clip_model,None,device,processor,"mean",0.5)
 
+    ##Take a subset of embeddngs
+    all_embeddings=all_embeddings[0:10]
     ###Pairwise distances using faiss - gpu
     ###Get the pairwise distances
     print("Get knn")
