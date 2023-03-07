@@ -42,8 +42,8 @@ import networkx as nx
 
 ###The labelled data is in a json from label studio 
 
-###Load the json
-train_data_path="/mnt/data01/clippings_general/texts/emily_newspaper_labels_0603.json"
+##Load the json
+train_data_path="/mnt/data01/clippings_general/texts/emily_news_captions_2.json"
 
 with open(train_data_path) as f:
     data = json.load(f)
@@ -167,8 +167,30 @@ train.to_csv(f'/mnt/data01/clippings_general/texts/labelled_news_train_reformatt
 val.to_csv(f'/mnt/data01/clippings_general/texts/labelled_news_val_reformatted.csv', index=False)
 
 
-
-
-
 print("Total image-text pairs in pretraining CLIP", len(connected_components_df))
+
+###Reformat the eval data
+
+###Eval data csv
+eval_data_path="/mnt/data02/captions/labels/test_day.csv"
+
+eval_data = pd.read_csv(eval_data_path)
+
+####Add root to the image path
+
+eval_data['image_path'] = '/mnt/data02/captions/test_day_pulled_crops/' + eval_data['image_path'] + '.png'
+
+##Remove the unnamed column
+eval_data = eval_data.drop(columns=['Unnamed: 0'])
+
+##Rename caption as text and cluster_label as label
+eval_data = eval_data.rename(columns={'caption':'text', 'cluster_label':'label'})
+
+##Reorder and keep only image_path, text and label
+eval_data = eval_data[['image_path', 'text', 'label']]
+
+##Save the text data
+eval_data.to_csv(f'/mnt/data01/clippings_general/texts/labelled_news_eval_reformatted.csv', index=False)
+
+print("Total image-text pairs in eval CLIP", len(eval_data))
 
