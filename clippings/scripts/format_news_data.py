@@ -119,10 +119,10 @@ print("Number of singletons", len(singletons))
 singletons = pd.concat([singletons['image1'], singletons['image2']], axis=0).reset_index(drop=True)
 
 
-###Add the label column - start from the last label 
-max_label=connected_components_df['label'].max()
+###Add the label column - -index would be the label
 
-singletons['label'] = max_label + singletons.index + 1
+###Add a label to the singletons
+singletons["label"] = [-i-1 for i in range(len(singletons))]
 
 
 print("LEngth before singletons", len(connected_components_df))
