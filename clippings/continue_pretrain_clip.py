@@ -46,6 +46,12 @@ import encoders
 def convert_to_text(unicode_string):
     return unicode_string.encode('ascii','ignore').decode('ascii')
 
+def prep_labelled_news_data():
+    ###Load the text file with the labels
+    train_data = pd.read_csv(f'/mnt/data01/clippings_general/texts/labelled_news_train_reformatted.csv')
+    val_data = pd.read_csv(f'/mnt/data01/clippings_general/texts/labelled_news_val_reformatted.csv')
+
+    return train_data,val_data
 
 def prep_food101_data():
     ###Load the text file with the labels
@@ -412,15 +418,18 @@ if __name__ == "__main__":
         train_data,val_data,test_data=prep_food101_data()
     elif args.train_data_type == "newspapers_unlabelled":
         train_data,val_data=prep_unlabelled_news_data()
-        
+    elif args.train_data_type == "newspapers_labelled":
+        train_data,val_data=prep_labelled_news_data()       
 
     else:
         print("Not implemented yet")
         pass
     ###Prototype sample 1000
     # train_data=train_data.sample(n=1000,random_state=42)
-    val_data=val_data.sample(n=5000,random_state=42)
-   
+    if args.training_type == "pretrain":
+        val_data=val_data.sample(n=5000,random_state=42)
+    else:
+        pass   
     ###Remove any unnamed columns
     train_data=train_data.loc[:, ~train_data.columns.str.contains('^Unnamed')]
     val_data=val_data.loc[:, ~val_data.columns.str.contains('^Unnamed')]
