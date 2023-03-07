@@ -129,6 +129,8 @@ if __name__ == "__main__":
 
     ##Take a subset of embeddngs
     all_embeddings=all_embeddings[0:10]
+
+
     ###Pairwise distances using faiss - gpu
     ###Get the pairwise distances
     print("Get knn")
@@ -139,6 +141,8 @@ if __name__ == "__main__":
 
     ###Add the embeddings
     index.add(all_embeddings)
+
+    print("Done adding embeddings")
 
     ###Get the top 1000 nearest neighbours
     D, I = index.search(all_embeddings[0:2], 1)
