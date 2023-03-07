@@ -131,6 +131,7 @@ if __name__ == "__main__":
     gt_pairs=[]
     ###for each label, get all image paths, then take combinations of 2 and add as a tuple
     unique_labels=eval_data["label"]
+    print("Unique labels",unique_labels)
 
     for label in unique_labels:
         label_data=eval_data[eval_data["label"]==label]
@@ -202,7 +203,7 @@ if __name__ == "__main__":
 
     pred_pairs = [list(p) for p in pred_pairs]
 
-    print(f'{len(all_embeddings.shape[0])} examples grouped into {len(communities)} clusters')
+    print(f'{(all_embeddings.shape[0])} examples grouped into {len(communities)} clusters')
     # Evaluate
     set_preds = set(map(tuple, pred_pairs))
     set_gt = set(map(tuple, gt_pairs))
