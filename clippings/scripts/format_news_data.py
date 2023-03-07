@@ -64,7 +64,7 @@ for i in range(len(data)):
     caption2.append(data[i]['data']['caption2'])
 
     ##Get result if it exists
-    if len(data[i]['annotations'])>0:
+    if len(data[i]['annotations'][0]['result'])>0:
         result.append(data[i]['annotations'][0]['result'][0]['value']['choices'][0])
     else:
         result.append('Drop')
