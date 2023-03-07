@@ -108,7 +108,7 @@ connected_components_df.columns = ['image_path', 'label']
 
 
 print((connected_components_df))
-print(len(connected_components_df), "connected components"")
+print(len(connected_components_df), "connected components")
 
 
 ###Add singletons
