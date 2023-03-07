@@ -311,9 +311,9 @@ def tester_bienc_clip(test_loader,ref_loader,clip_model,mlp_model,split='val',lo
     print("Testing using pooled embeddings")
 
     
-    test_embeddings, test_labels, test_text, test_paths = get_image_text_embeddings(test_loader,clip_model,mlp_model, device,args.pooling_type,args.im_wt)
+    test_embeddings, test_labels, test_text, test_paths = get_image_text_embeddings(test_loader,clip_model,mlp_model, processor, device,args.pooling_type,args.im_wt)
     print("total test embeddings: ",test_embeddings.shape)
-    ref_embeddings, ref_labels, ref_text, ref_paths = get_image_text_embeddings(ref_loader,clip_model,mlp_model, device,args.pooling_type,args.im_wt)
+    ref_embeddings, ref_labels, ref_text, ref_paths = get_image_text_embeddings(ref_loader,clip_model,mlp_model,processor, device,args.pooling_type,args.im_wt)
     print("total ref embeddings: ",ref_embeddings.shape)
     ###Make an index
     index = faiss.IndexFlatIP(test_embeddings.shape[1])
@@ -346,11 +346,11 @@ def tester_bienc_clip(test_loader,ref_loader,clip_model,mlp_model,split='val',lo
     return acc
 
 
-def val_bienc_clip_loss(val_loader,clip_model,mlp_model,loss_fn,split='val',log=True):
+def val_bienc_clip_loss(val_loader,clip_model,mlp_model,loss_fn,split='val',log=True,processor=None):
     print("Testing using pooled embeddings")
 
     
-    test_embeddings, test_labels, test_text, test_paths = get_image_text_embeddings(val_loader,clip_model,mlp_model, device,args.pooling_type,args.im_wt)
+    test_embeddings, test_labels, test_text, test_paths = get_image_text_embeddings(val_loader,clip_model,mlp_model, processor, device,args.pooling_type,args.im_wt)
     print("total test embeddings: ",test_embeddings.shape)
 
     val_loss=loss_fn(test_embeddings,test_labels)
@@ -556,7 +556,7 @@ if __name__ == "__main__":
 
 
     elif args.training_type=="train_bienc" and args.train_data_type=="newspapers_labelled":
-        best_bienc_loss=val_bienc_clip_loss(val_loader,clip_model,mlp_model,loss_func,split='val',log=True)
+        best_bienc_loss=val_bienc_clip_loss(val_loader,clip_model,mlp_model,loss_func,split='val',log=True,processor=processor)
         print("Val loss: {}".format(best_bienc_loss))
         # best_acc=tester_bienc_clip(val_loader,huge_ref_loader,clip_model,mlp_model,split="val_huge",log=True)
         for epoch in (range(start_epoch, num_epochs+start_epoch)):
@@ -570,7 +570,7 @@ if __name__ == "__main__":
                 freeze_clip=False
                 epoch_loss=train_bienc_clip(train_loader,clip_model,device,loss_func,epoch,clip_optimizer,clip_scheduler=clip_scheduler,epochviz="/mnt/data01/clippings_general/epoch_viz/",processor=processor,mlp_model=mlp_model,mlp_optimizer=mlp_optimizer,mlp_scheduler=mlp_scheduler,freeze_clip=freeze_clip)
             
-            bienc_loss=val_bienc_clip_loss(val_loader,clip_model,mlp_model,loss_func,split='val',log=True)
+            bienc_loss=val_bienc_clip_loss(val_loader,clip_model,mlp_model,loss_func,split='val',log=True,processor=processor)
             if bienc_loss<best_bienc_loss:
                 best_acc=bienc_loss
                 torch.save(clip_model.state_dict(), os.path.join("/mnt/data01/clippings_general/models/",("clip_imwt_"+str(args.im_wt)[2]+args.wandb_name+".pt")))
