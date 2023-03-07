@@ -357,7 +357,7 @@ def val_bienc_clip_loss(val_loader,clip_model,mlp_model,loss_fn,split='val',log=
 
 
     if log:
-        wandb.log({f"{split}/precision_1": val_loss})
+        wandb.log({f"{split}/val loss": val_loss})
 
     return val_loss
 
@@ -553,7 +553,8 @@ if __name__ == "__main__":
                     print("Val loss: {}".format(val_loss))
                     if val_loss<0.1:
                         torch.save(clip_model.state_dict(), os.path.join("/mnt/data01/clippings_general/models/",("epoch_"+str(epoch)+args.wandb_name+".pt")))
-
+                ##Also save the model at the end of each epoch
+                torch.save(clip_model.state_dict(), os.path.join("/mnt/data01/clippings_general/models/",("epoch_"+str(epoch)+args.wandb_name+".pt")))
 
     elif args.training_type=="train_bienc" and args.train_data_type=="newspapers_labelled":
         best_bienc_loss=val_bienc_clip_loss(val_loader,clip_model,mlp_model,loss_func,split='val',log=True,processor=processor)
