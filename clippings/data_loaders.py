@@ -188,7 +188,7 @@ def get_image_text_embeddings(data_loader,clip_model,mlp_model,device,processor,
 
         ### text is a tuple of strings, we need to convert it to a tensor
         text=list(text)
-        text_features = processor.tokenizer(text)
+        text_features =processor.tokenizer(text, return_tensors="pt", padding=True,max_length=77,truncation=True)
 
         for key in text_features.keys():
             text_features[key]=text_features[key].to(device)
