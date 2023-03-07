@@ -103,6 +103,11 @@ connected_components_df = pd.DataFrame.from_dict(d, orient='index').reset_index(
 
 print((connected_components_df))
 
+###Rename the columns
+connected_components_df.columns = ['image_path', 'label']
+
+
+print((connected_components_df))
 
 
 ###Add singletons
