@@ -161,7 +161,7 @@ def pretrain_clip(train_loader,model,device,img_loss,text_loss,epoch,optimizer,p
 
 
 
-def train_bienc_clip(train_loader,clip_model,device,loss_func,epoch,clip_optimizer,tokenizer,clip_scheduler=None,epochviz=None,mlp_model=None,mlp_optimizer=None,mlp_scheduler=None,freeze_clip=False):
+def train_bienc_clip(train_loader,clip_model,device,loss_func,epoch,clip_optimizer,processor,clip_scheduler=None,epochviz=None,mlp_model=None,mlp_optimizer=None,mlp_scheduler=None,freeze_clip=False):
     """A version where we contrastively train pooled clip embeddings"""
 
 
