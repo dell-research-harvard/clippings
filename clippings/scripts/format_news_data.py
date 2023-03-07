@@ -137,5 +137,14 @@ connected_components_df = connected_components_df[['image_path', 'text', 'label'
 ##Save the text data
 connected_components_df.to_csv(f'texts/labelled_news_reformatted.csv', index=False)
 
+##Split into train and val
+train, val = train_test_split(connected_components_df, test_size=0.2, random_state=42)
+
+##Save the text data
+train.to_csv(f'texts/labelled_news_train_reformatted.csv', index=False)
+val.to_csv(f'texts/labelled_news_val_reformatted.csv', index=False)
+
+
 
 print("Total image-text pairs in pretraining CLIP", len(connected_components_df))
+

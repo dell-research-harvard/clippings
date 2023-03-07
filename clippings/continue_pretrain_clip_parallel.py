@@ -62,6 +62,13 @@ def prep_unlabelled_news_data():
 
     return train_data,val_data
 
+def prep_labelled_news_data():
+    ###Load the text file with the labels
+    train_data = pd.read_csv(f'/mnt/data01/clippings_general/texts/labelled_news_train_reformatted.csv')
+    val_data = pd.read_csv(f'/mnt/data01/clippings_general/texts/labelled_news_val_reformatted.csv')
+
+    return train_data,val_data
+
 def eval_clip(val_loader,model,processor):
     print("Evaluating the model - clip loss")
     model.eval()
@@ -403,6 +410,8 @@ if __name__ == "__main__":
         train_data,val_data,test_data=prep_food101_data()
     elif args.train_data_type == "newspapers_unlabelled":
         train_data,val_data=prep_unlabelled_news_data()
+    elif args.train_data_type == "newspapers_labelled":
+        train_data,val_data=prep_labelled_news_data()
         
 
     else:
@@ -452,7 +461,7 @@ if __name__ == "__main__":
 
 
     ###Create the data loaders
-    if args.train_data_type == "food101_labelled" :
+    if args.train_data_type == "food101_labelled" or args.train_data_type == "newspapers_labelled" :
         
         if args.train_hardneg:
             train_loader=torch.utils.data.DataLoader(train_dataset,batch_size=126,shuffle=False,num_workers=4)
