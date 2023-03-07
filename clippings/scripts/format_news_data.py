@@ -104,7 +104,11 @@ connected_components = nx.connected_components(G)
 
 
 ###Make a dataframe with the connected components
-print(connected_components[0])
+for i, component in enumerate(connected_components):
+    if i==0:
+        connected_components_df = pd.DataFrame(list(component))
+    else:
+        connected_components_df = pd.concat([connected_components_df, pd.DataFrame(list(component))])
 ##Print column names
 print(connected_components_df.columns)
 ##Rename the 0 column to image_path
