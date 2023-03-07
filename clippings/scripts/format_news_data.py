@@ -109,7 +109,7 @@ for i in range(len(connected_components)):
 connected_components_df = pd.DataFrame.from_dict(connected_components_dict, orient='index')
 
 ###Add the label column
-connected_components_df['label'] = connected_components_df.index
+# connected_components_df['label'] = connected_components_df.index
 
 
 print((connected_components_df.head(5)))
