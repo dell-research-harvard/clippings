@@ -136,7 +136,7 @@ if __name__ == "__main__":
         label_data=eval_data[eval_data["label"]==label]
         image_paths=label_data["image_path"]
         combinations=list(combinations(image_paths,2))
-        combination_pairs=combination_pairs+combinations
+        gt_pairs=gt_pairs+combinations
     
 
 
