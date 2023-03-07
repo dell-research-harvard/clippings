@@ -157,7 +157,7 @@ if __name__ == "__main__":
     ###Get the top 1000 nearest neighbours
     D, I = index.search(all_embeddings.cpu().numpy(), all_embeddings.shape[0])
     print(D)
-    above_threshold = D > 0.7
+    above_threshold = D > 0.8
     print(above_threshold)
     upper_only = np.triu(np.ones((all_embeddings.shape[0], all_embeddings.shape[0])) - np.identity(all_embeddings.shape[0]))
     result = above_threshold * upper_only
@@ -187,9 +187,6 @@ if __name__ == "__main__":
     pred_pairs = [list(p) for p in pred_pairs]
 
     print(f'{len(all_embeddings.shape)} examples grouped into {len(communities)} clusters')
-
-
-
 
 
 
