@@ -132,10 +132,10 @@ if __name__ == "__main__":
     ###Pairwise distances using faiss - gpu
     ###Get the pairwise distances
     print("Get knn")
-    res=faiss.StandardGpuResources()
+    # res=faiss.StandardGpuResources()
     print(all_embeddings.shape)
     ###Build the index
-    index = faiss.GpuIndexFlatIP(res, 512)
+    index = faiss.IndexFlatIP( 512)
 
     ###Add the embeddings
     index.add(all_embeddings)
