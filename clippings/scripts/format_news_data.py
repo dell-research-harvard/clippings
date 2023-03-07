@@ -62,7 +62,12 @@ for i in range(len(data)):
     caption1.append(data[i]['data']['caption1'])
     image2.append(data[i]['data']['image2'])
     caption2.append(data[i]['data']['caption2'])
-    result.append(data[i]['annotations'][0]['result'][0]['value']['choices'][0])
+
+    ##Get result if it exists
+    if len(data[i]['annotations'])>0:
+        result.append(data[i]['annotations'][0]['result'][0]['value']['choices'][0])
+    else:
+        result.append('Drop')
 
 ###Make a dataframe
 train_data = pd.DataFrame({'image1':image1, 'caption1':caption1, 'image2':image2, 'caption2':caption2, 'result':result})
@@ -74,7 +79,7 @@ image_captions = pd.DataFrame({'image_path':image_paths, 'caption':captions})
 
 
 ###Now, replace "Different" with 0 and "Same" with 1
-train_data['result'] = train_data['result'].replace({'Different':0, 'Same':1})
+train_data['result'] = train_data['result'].replace({'Different':0, 'Same':1,'Drop':np.nan})
 
 
 ###Build a graph from the data. Nodes are connected if they have result=1
