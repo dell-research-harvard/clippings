@@ -135,8 +135,8 @@ if __name__ == "__main__":
     for label in unique_labels:
         label_data=eval_data[eval_data["label"]==label]
         image_paths=label_data["image_path"]
-        combinations=list(combinations(image_paths,2))
-        gt_pairs=gt_pairs+combinations
+        combinations_label=list(combinations(image_paths,2))
+        gt_pairs=gt_pairs+combinations_label
     
 
 
