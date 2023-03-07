@@ -251,7 +251,7 @@ def train_bienc_classifier(num_classes=0):
     pass
         
 
-def get_image_text_embeddings(data_loader,clip_model,mlp_model,device,processor):
+def get_image_text_embeddings(data_loader,clip_model,mlp_model,device,processor,pooling_type,im_wt):
     clip_model.eval()
     if not mlp_model is None:
         mlp_model.eval()
@@ -280,9 +280,9 @@ def get_image_text_embeddings(data_loader,clip_model,mlp_model,device,processor)
 
             # final_embeds=torch.cat((image_embeds,text_embeds),dim=1)
             ###MEan of the two embeddings
-            if args.pooling_type=="mean":
-                final_embeds= args.im_wt*image_embeds + (1-args.im_wt)*text_embeds
-            elif args.pooling_type=="mlp":
+            if pooling_type=="mean":
+                final_embeds= im_wt*image_embeds + (1-im_wt)*text_embeds
+            elif pooling_type=="mlp":
                 ###Use an MLP to combine the image and text embeddings
                 ###concat the image and text embeddings
                 final_embeds=torch.cat([image_embeds,text_embeds],dim=1)
