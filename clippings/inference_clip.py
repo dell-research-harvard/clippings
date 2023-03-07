@@ -139,7 +139,7 @@ if __name__ == "__main__":
     index.add(all_embeddings)
 
     ###Get the top 1000 nearest neighbours
-    D, I = index.search(all_embeddings, 1000)
+    D, I = index.search(all_embeddings[0], 1)
 
 
 
