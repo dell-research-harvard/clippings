@@ -60,7 +60,7 @@ for i in range(len(data)):
     print(i)
     image1.append(data[i]['data']['id1'])
     caption1.append(data[i]['data']['caption1'])
-    image2.append(data[i]['data']['image2'])
+    image2.append(data[i]['data']['id2'])
     caption2.append(data[i]['data']['caption2'])
 
     ##Get result if it exists
@@ -98,8 +98,8 @@ d={k: v for d in L for k, v in d.items()}
 
 print(d)
 
-###Add the label column to the train data
-train_data['label'] = train_data['image1'].map(d)
+###Make a two column df with image path and label
+connected_components_df = pd.DataFrame.from_dict(d, orient='index').reset_index()
 
 print(len(train_data))
 
