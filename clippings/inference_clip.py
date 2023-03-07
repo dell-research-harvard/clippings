@@ -128,7 +128,7 @@ if __name__ == "__main__":
     all_embeddings, all_labels, all_text, all_paths=get_image_text_embeddings(eval_loader,clip_model,None,device,processor,"mean",0.5)
 
     ##Take a subset of embeddngs
-    all_embeddings=all_embeddings[0:10]
+    # all_embeddings=all_embeddings[0:10]
 
 
     ###Pairwise distances using faiss - gpu
@@ -140,12 +140,12 @@ if __name__ == "__main__":
     index = faiss.IndexFlatIP( 512)
 
     ###Add the embeddings
-    index.add(all_embeddings)
+    index.add(all_embeddings.cpu().numpy())
 
     print("Done adding embeddings")
 
     ###Get the top 1000 nearest neighbours
-    D, I = index.search(all_embeddings[0:2], 1)
+    D, I = index.search(all_embeddings.cpu().numpy(), 1)
 
 
 
