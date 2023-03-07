@@ -126,6 +126,17 @@ if __name__ == "__main__":
     ###Load data
     eval_data=pd.read_csv("/mnt/data01/clippings_general/texts/labelled_news_eval_reformatted.csv")
 
+    ###Make ground truth pairs - take combinations of 2 image_paths for each label
+    
+    combination_pairs=[]
+    ###for each label, get all image paths, then take combinations of 2 and add as a tuple
+    unique_labels=eval_data["label"]
+
+        
+        
+
+
+
     ##Load the dataset
     ###Create the data datsets
     eval_dataset=data_loaders.TextImageDataset(eval_data, img_transform=clip_transform)
