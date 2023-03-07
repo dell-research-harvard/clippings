@@ -163,26 +163,27 @@ if __name__ == "__main__":
     indices = [index for index, value in np.ndenumerate(result) if value]
     edges = [[all_paths[pair[0]], all_paths[pair[1]]] for pair in indices]
 
+    print(edges)
     # Build graph
     G = nx.Graph()
     G.add_edges_from(edges)
 
-    # Community detection
-    communities = nx_comm.louvain_communities(G, resolution=1)
+    # # Community detection
+    # communities = nx_comm.louvain_communities(G, resolution=1)
 
-    pred_pairs = []
-    for i in range(len(communities)):
-        pred_pairs.extend(combinations(list(communities[i]), 2))
+    # pred_pairs = []
+    # for i in range(len(communities)):
+    #     pred_pairs.extend(combinations(list(communities[i]), 2))
 
-    clustered_ids = {}
-    for i in range(len(communities)):
-        clustered_ids[i] = list(communities[i])
+    # clustered_ids = {}
+    # for i in range(len(communities)):
+    #     clustered_ids[i] = list(communities[i])
 
 
 
-    pred_pairs = [list(p) for p in pred_pairs]
+    # pred_pairs = [list(p) for p in pred_pairs]
 
-    print(f'{len(all_embeddings.shape)} examples grouped into {len(communities)} clusters')
+    # print(f'{len(all_embeddings.shape)} examples grouped into {len(communities)} clusters')
 
 
 
