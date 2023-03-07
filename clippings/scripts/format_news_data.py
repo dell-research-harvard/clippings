@@ -87,32 +87,24 @@ train_data['result'] = train_data['result'].replace({'Different':0, 'Same':1,'Dr
 connected_pairs = train_data[train_data['result']==1]
 
 ###Make a graph
-G = nx.Graph()
 
-###Add all the nodes
-G.add_nodes_from(train_data['image1'])
-G.add_nodes_from(train_data['image2'])
+G=nx.from_pandas_edgelist(connected_pairs, 'image_1', 'image_2')
 
-###Add all the edges
-for i in range(len(connected_pairs)):
-    G.add_edge(connected_pairs['image1'].iloc[i], connected_pairs['image2'].iloc[i])
+l=list(nx.connected_components(G))
 
-###Find the connected components
-connected_components = nx.connected_components(G)
-###Add the label column
-# connected_components_df['label'] = connected_components_df.index
+L=[dict.fromkeys(y,x) for x, y in enumerate(l)]
+
+d={k: v for d in L for k, v in d.items()}
+
+print(len(train_data))
+
+###Add the label column to the train data
+train_data['label'] = train_data['image1'].map(d)
+
+print(len(train_data))
 
 
-###Make a dataframe with the connected components
-for i, component in enumerate(connected_components):
-    if i==0:
-        connected_components_df = pd.DataFrame(list(component))
-    else:
-        connected_components_df = pd.concat([connected_components_df, pd.DataFrame(list(component))])
-##Print column names
-print(connected_components_df.columns)
-##Rename the 0 column to image_path
-connected_components_df = connected_components_df.rename(columns={0:'image_path'})
+
 ###Add singletons
 singletons = train_data[train_data['result']==0]
 
