@@ -99,7 +99,7 @@ d={k: v for d in L for k, v in d.items()}
 print(len(train_data))
 
 ###Add the label column to the train data
-train_data['label'] = train_data['image1'].map(d)
+train_data['label'] = train_data['image_1'].map(d)
 
 print(len(train_data))
 
