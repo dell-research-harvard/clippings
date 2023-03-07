@@ -124,6 +124,8 @@ singletons = pd.concat([singletons['image1'], singletons['image2']], axis=0).res
 ###Add a label to the singletons
 singletons["label"] = [-i-1 for i in range(len(singletons))]
 
+print(singletons.head(10))
+
 
 print("LEngth before singletons", len(connected_components_df))
 ####Add singletons to the connected components
@@ -138,6 +140,9 @@ connected_components_df = pd.merge(connected_components_df, image_captions, on='
 ###Rename caption as text and reorder columns
 connected_components_df = connected_components_df.rename(columns={'caption':'text'})
 connected_components_df = connected_components_df[['image_path', 'text', 'label']]
+
+##Print len unique labels
+print("Number of unique labels", len(connected_components_df['label'].unique()))
 
 ###Add root to the image path
 
