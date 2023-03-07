@@ -126,6 +126,9 @@ if __name__ == "__main__":
     ###Load data
     eval_data=pd.read_csv("/mnt/data01/clippings_general/texts/labelled_news_eval_reformatted.csv")
 
+    ##Sort by label
+    eval_data=eval_data.sort_values(by="label")
+
     ###Make ground truth pairs - take combinations of 2 image_paths for each label
     
     gt_pairs=[]
