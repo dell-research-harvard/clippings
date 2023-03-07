@@ -129,7 +129,7 @@ if __name__ == "__main__":
 
     ###Pairwise distances using faiss - gpu
     ###Get the pairwise distances
-    print("Calculating pairwise distances")
+    print("Get knn")
     res=faiss.StandardGpuResources()
 
     ###Build the index
@@ -139,7 +139,7 @@ if __name__ == "__main__":
     index.add(all_embeddings)
 
     ###Get the top 1000 nearest neighbours
-    D, I = index.search(all_embeddings[0], 1)
+    D, I = index.search(all_embeddings[0:2], 1)
 
 
 
