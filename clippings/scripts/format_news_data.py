@@ -133,6 +133,7 @@ connected_components_df = connected_components_df[['image_path', 'text', 'label'
 
 ###Add root to the image path
 
+connected_components_df['image_path'] = '/mnt/data02/captions/train_day_pulled_crops_quicker/' + connected_components_df['image_path'] + '.png'
 
 ##Save the text data
 connected_components_df.to_csv(f'texts/labelled_news_reformatted.csv', index=False)
