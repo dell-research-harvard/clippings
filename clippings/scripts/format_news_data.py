@@ -88,7 +88,7 @@ connected_pairs = train_data[train_data['result']==1]
 
 ###Make a graph
 
-G=nx.from_pandas_edgelist(connected_pairs, 'image_1', 'image_2')
+G=nx.from_pandas_edgelist(connected_pairs, 'image1', 'image2')
 
 l=list(nx.connected_components(G))
 
@@ -99,7 +99,7 @@ d={k: v for d in L for k, v in d.items()}
 print(len(train_data))
 
 ###Add the label column to the train data
-train_data['label'] = train_data['image_1'].map(d)
+train_data['label'] = train_data['image1'].map(d)
 
 print(len(train_data))
 
