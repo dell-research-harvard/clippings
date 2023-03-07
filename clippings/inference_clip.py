@@ -181,7 +181,7 @@ if __name__ == "__main__":
     D, I = index.search(all_embeddings.cpu().numpy(), all_embeddings.shape[0])
     thresh=0.75
 
-    for thresh in np.arange(0.5,0.95,0.01):
+    for thresh in np.arange(0.1,0.95,0.01):
         print("Threshold",thresh)
         above_threshold = D > thresh
         ##If 0 embeddings are above threshold, then set stop
