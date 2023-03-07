@@ -138,4 +138,4 @@ connected_components_df = connected_components_df[['image_path', 'text', 'label'
 connected_components_df.to_csv(f'texts/labelled_news_reformatted.csv', index=False)
 
 
-
+print("Total image-text pairs in pretraining CLIP", len(connected_components_df))
