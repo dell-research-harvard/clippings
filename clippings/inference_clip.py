@@ -109,7 +109,7 @@ if __name__ == "__main__":
     clip_model = CLIPModel.from_pretrained("openai/clip-vit-base-patch32")
     processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
 
-    clip_transform=
+    clip_transform=CLIP_BASE_TRANSFORM_CENTER
     ###Load checkpoint
     if checkpoint_path is not None:
         clip_model.load_state_dict(torch.load(checkpoint_path, map_location=torch.device(device)))
@@ -120,7 +120,25 @@ if __name__ == "__main__":
     eval_data=pd.read_csv("/mnt/data01/clippings_general/texts/labelled_news_eval_reformatted.csv")
 
     ##Load the dataset
-    
+    ###Create the data datsets
+    eval_dataset=data_loaders.TextImageDataset(eval_data, img_transform=clip_transform)
+    eval_loader=torch.utils.data.DataLoader(eval_dataset,batch_size=126,shuffle=False,num_workers=4)
+
+    ###Get the embeddings
+    all_embeddings, all_labels, all_text, all_paths=get_image_text_embeddings(eval_loader,clip_model,None,device,processor,"mean",0.5)
+
+    ###Pairwise distances using faiss - gpu
+    ###Get the pairwise distances
+
+    res=faiss.StandardGpuResources()
+    D=faiss.pairwise_distance_gpu(res, all_embeddings, all_embeddings)
+    D = np.sort(D, axis=1)
+
+    print(D)
+
+
+
+
 
     
 
