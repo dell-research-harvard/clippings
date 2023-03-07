@@ -174,11 +174,9 @@ class NoReplacementMPerClassSampler(Sampler):
         assert self.batch_size < self.dataset_len, "Batch size is larger than dataset!"
         return self.dataset_len // self.batch_size
 
-
-
-def get_image_text_embeddings(data_loader,clip_model,mlp_model,device,tokenizer,pooling_type,im_wt):
+def get_image_text_embeddings(data_loader,clip_model,mlp_model,device,processor):
     clip_model.eval()
-    if mlp_model is not None:
+    if not mlp_model is None:
         mlp_model.eval()
 
     for batch_idx, (text, image_data, labels, image_path) in tqdm(enumerate(data_loader)):
@@ -190,7 +188,7 @@ def get_image_text_embeddings(data_loader,clip_model,mlp_model,device,tokenizer,
 
         ### text is a tuple of strings, we need to convert it to a tensor
         text=list(text)
-        text_features = ja_clip.tokenize(text,tokenizer=tokenizer)
+        text_features = processor.tokenizer(text)
 
         for key in text_features.keys():
             text_features[key]=text_features[key].to(device)
@@ -200,14 +198,14 @@ def get_image_text_embeddings(data_loader,clip_model,mlp_model,device,tokenizer,
 
 
             model_output=clip_model.forward(input_ids=text_features["input_ids"],pixel_values=image_data,
-                                                    attention_mask=text_features["attention_mask"], position_ids=text_features["position_ids"])
+                                                attention_mask=text_features["attention_mask"])
             image_embeds, text_embeds = model_output["image_embeds"], model_output["text_embeds"]
 
             # final_embeds=torch.cat((image_embeds,text_embeds),dim=1)
             ###MEan of the two embeddings
-            if pooling_type=="mean":
-                final_embeds= im_wt*image_embeds + (1-im_wt)*text_embeds
-            elif pooling_type=="mlp":
+            if args.pooling_type=="mean":
+                final_embeds= args.im_wt*image_embeds + (1-args.im_wt)*text_embeds
+            elif args.pooling_type=="mlp":
                 ###Use an MLP to combine the image and text embeddings
                 ###concat the image and text embeddings
                 final_embeds=torch.cat([image_embeds,text_embeds],dim=1)

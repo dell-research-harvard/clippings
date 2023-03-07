@@ -251,7 +251,7 @@ def train_bienc_classifier(num_classes=0):
     pass
         
 
-def get_image_text_embeddings(data_loader,clip_model,mlp_model,device,tokenizer):
+def get_image_text_embeddings(data_loader,clip_model,mlp_model,device,processor):
     clip_model.eval()
     if not mlp_model is None:
         mlp_model.eval()
@@ -265,7 +265,7 @@ def get_image_text_embeddings(data_loader,clip_model,mlp_model,device,tokenizer)
 
         ### text is a tuple of strings, we need to convert it to a tensor
         text=list(text)
-        text_features = tokenizer(text)
+        text_features = processor.tokenizer(text)
 
         for key in text_features.keys():
             text_features[key]=text_features[key].to(device)
@@ -275,7 +275,7 @@ def get_image_text_embeddings(data_loader,clip_model,mlp_model,device,tokenizer)
 
 
             model_output=clip_model.forward(input_ids=text_features["input_ids"],pixel_values=image_data,
-                                                    attention_mask=text_features["attention_mask"], position_ids=text_features["position_ids"])
+                                                attention_mask=text_features["attention_mask"])
             image_embeds, text_embeds = model_output["image_embeds"], model_output["text_embeds"]
 
             # final_embeds=torch.cat((image_embeds,text_embeds),dim=1)
