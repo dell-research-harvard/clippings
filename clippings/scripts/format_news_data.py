@@ -113,8 +113,11 @@ print((connected_components_df))
 ###Add singletons
 singletons = train_data[train_data['result']==0]
 
-###Add the label column - start from the last label
-singletons['label'] = connected_components_df.index.max() + 1
+###Add the label column - start from the last label 
+max_label=connected_components_df['label'].max()
+
+singletons['label'] = max_label + singletons.index + 1
+
 
 ####Add singletons to the connected components
 connected_components_df = pd.concat([connected_components_df, singletons])
@@ -123,7 +126,7 @@ connected_components_df = pd.concat([connected_components_df, singletons])
 connected_components_df = pd.merge(connected_components_df, image_captions, on='image_path')
 
 
-
+print(connected_components_df)
 
 
 
