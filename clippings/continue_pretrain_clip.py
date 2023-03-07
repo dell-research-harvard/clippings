@@ -311,9 +311,9 @@ def tester_bienc_clip(test_loader,ref_loader,clip_model,mlp_model,split='val',lo
     print("Testing using pooled embeddings")
 
     
-    test_embeddings, test_labels, test_text, test_paths = get_image_text_embeddings(test_loader,clip_model,mlp_model, device)
+    test_embeddings, test_labels, test_text, test_paths = get_image_text_embeddings(test_loader,clip_model,mlp_model, device,args.pooling_type,args.im_wt)
     print("total test embeddings: ",test_embeddings.shape)
-    ref_embeddings, ref_labels, ref_text, ref_paths = get_image_text_embeddings(ref_loader,clip_model,mlp_model, device)
+    ref_embeddings, ref_labels, ref_text, ref_paths = get_image_text_embeddings(ref_loader,clip_model,mlp_model, device,args.pooling_type,args.im_wt)
     print("total ref embeddings: ",ref_embeddings.shape)
     ###Make an index
     index = faiss.IndexFlatIP(test_embeddings.shape[1])
@@ -350,7 +350,7 @@ def val_bienc_clip_loss(val_loader,clip_model,mlp_model,loss_fn,split='val',log=
     print("Testing using pooled embeddings")
 
     
-    test_embeddings, test_labels, test_text, test_paths = get_image_text_embeddings(val_loader,clip_model,mlp_model, device)
+    test_embeddings, test_labels, test_text, test_paths = get_image_text_embeddings(val_loader,clip_model,mlp_model, device,args.pooling_type,args.im_wt)
     print("total test embeddings: ",test_embeddings.shape)
 
     val_loss=loss_fn(test_embeddings,test_labels)
