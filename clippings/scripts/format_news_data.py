@@ -96,7 +96,7 @@ L=[dict.fromkeys(y,x) for x, y in enumerate(l)]
 
 d={k: v for d in L for k, v in d.items()}
 
-print(len(train_data))
+print(d)
 
 ###Add the label column to the train data
 train_data['label'] = train_data['image1'].map(d)
