@@ -125,9 +125,11 @@ max_label=connected_components_df['label'].max()
 singletons['label'] = max_label + singletons.index + 1
 
 
+print("LEngth before singletons", len(connected_components_df))
 ####Add singletons to the connected components
 connected_components_df = pd.concat([connected_components_df, singletons], axis=0)
 
+print("LEngth after singletons", len(connected_components_df))
 ###merge the captions to the extended connected components df
 connected_components_df = pd.merge(connected_components_df, image_captions, on='image_path')
 
@@ -149,7 +151,9 @@ train, val = train_test_split(connected_components_df['label'].unique(), test_si
 
 ##Split the data
 train = connected_components_df[connected_components_df['label'].isin(train)]
+print("Number of train images", len(train))
 val = connected_components_df[connected_components_df['label'].isin(val)]
+print("Number of val images", len(val))
 
 ##Save the text data
 train.to_csv(f'/mnt/data01/clippings_general/texts/labelled_news_train_reformatted.csv', index=False)
