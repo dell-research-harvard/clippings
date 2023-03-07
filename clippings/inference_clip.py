@@ -110,7 +110,7 @@ def get_image_text_embeddings(data_loader,clip_model,mlp_model,device,processor,
 ###Run as script
 if __name__ == "__main__":
 
-    checkpoint_path="/mnt/data01/clippings_general/models/epoch_1clip_pretrain_unlabelled_m1_newspapers_cc_3.pt"
+    checkpoint_path="/mnt/data01/clippings_general/models/clip_imwt_5bienc_clip_pretrain_labelled_m3_v3_newspapers.pt"
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
     clip_model = CLIPModel.from_pretrained("openai/clip-vit-base-patch32")
