@@ -98,21 +98,12 @@ for i in range(len(connected_pairs)):
     G.add_edge(connected_pairs['image1'].iloc[i], connected_pairs['image2'].iloc[i])
 
 ###Find the connected components
-connected_components = list(nx.connected_components(G))
-
-###Make a dictionary with the connected components
-connected_components_dict = {}
-for i in range(len(connected_components)):
-    connected_components_dict[i] = list(connected_components[i])
-
-###Make a dataframe with the connected components
-connected_components_df = pd.DataFrame.from_dict(connected_components_dict, orient='index')
-
+connected_components = nx.connected_components(G)
 ###Add the label column
 # connected_components_df['label'] = connected_components_df.index
 
 
-print((connected_components_df.head(5)))
+print(connected_components)
 
 ##Print column names
 print(connected_components_df.columns)
