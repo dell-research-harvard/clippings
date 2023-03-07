@@ -136,6 +136,9 @@ if __name__ == "__main__":
     print("Get knn")
     # res=faiss.StandardGpuResources()
     print(all_embeddings.shape)
+
+
+
     ###Build the index
     index = faiss.IndexFlatIP( 512)
 
@@ -145,7 +148,7 @@ if __name__ == "__main__":
     print("Done adding embeddings")
 
     ###Get the top 1000 nearest neighbours
-    D, I = index.search(all_embeddings.cpu().numpy(), 1)
+    D, I = index.search(all_embeddings.cpu().numpy(), all_embeddings.shape[0])
 
 
 
