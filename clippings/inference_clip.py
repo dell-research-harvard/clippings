@@ -128,9 +128,17 @@ if __name__ == "__main__":
 
     ###Make ground truth pairs - take combinations of 2 image_paths for each label
     
-    combination_pairs=[]
+    gt_pairs=[]
     ###for each label, get all image paths, then take combinations of 2 and add as a tuple
     unique_labels=eval_data["label"]
+
+    for label in unique_labels:
+        label_data=eval_data[eval_data["label"]==label]
+        image_paths=label_data["image_path"]
+        combinations=list(combinations(image_paths,2))
+        combination_pairs=combination_pairs+combinations
+    
+
 
         
         
@@ -198,7 +206,35 @@ if __name__ == "__main__":
     pred_pairs = [list(p) for p in pred_pairs]
 
     print(f'{len(all_embeddings.shape)} examples grouped into {len(communities)} clusters')
+    # Evaluate
+    set_preds = set(map(tuple, pred_pairs))
+    set_gt = set(map(tuple, gt_pairs))
 
+     # Metrics
+    true_pos = [i for i in set_gt if i in set_preds or (i[1], i[0]) in set_preds]
+    false_pos = [i for i in set_preds if i not in set_gt and (i[1], i[0]) not in set_gt]
+    false_neg = [i for i in set_gt if i not in set_preds and (i[1], i[0]) not in set_preds]
+
+    tps = len(true_pos)
+    fps = len(false_pos)
+    fns = len(false_neg)
+
+    precision = tps / (tps + fps)
+    recall = tps / (tps + fns)
+    f_score = 2 * (precision * recall) / (precision + recall)
+
+    # wrongs = []
+    # for fn in false_neg:
+    #     wrongs.append(fn[0])
+    #     wrongs.append(fn[1])
+    # wrongs = list(set(wrongs))
+
+    # for w in wrongs:
+    #     print(text_dict[w])
+    #     print("**")
+
+    print(precision, recall, f_score)
+    print(tps, fps, fns)
 
 
     
