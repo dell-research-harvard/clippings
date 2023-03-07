@@ -122,7 +122,8 @@ singletons = pd.concat([singletons['image1'], singletons['image2']], axis=0).res
 ###Add the label column - -index would be the label
 
 ###Add a label to the singletons
-singletons[["label"]] = [-i-1 for i in range(len(singletons))]
+single_ton_labels=[-i-1 for i in range(len(singletons))]
+singletons = pd.DataFrame({'image_path':singletons, 'label':single_ton_labels})
 
 
 print(singletons.head(10))
