@@ -113,6 +113,9 @@ connected_components_df['label'] = connected_components_df.index
 
 
 print((connected_components_df.head(5)))
+
+##Rename the columns
+connected_components_df.columns = ['image_path', 'label']
 ###Add singletons
 singletons = train_data[train_data['result']==0]
 
