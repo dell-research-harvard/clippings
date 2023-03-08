@@ -178,19 +178,21 @@ if __name__ == "__main__":
     print("Done adding embeddings")
 
     ###Get the top 1000 nearest neighbours
-    D, I = index.search(all_embeddings.cpu().numpy(), all_embeddings.shape[0])
+    D, I = index.search(all_embeddings.cpu().numpy(),    all_embeddings.shape[0])
 
     ###Check the text of some of the nearest neighbours apart from the same image
-    for i in [1,4,8,10]:
-        print("Image",all_paths[i])
+    for i in range(0,all_embeddings.shape[0]):
+        print("Image",i)
         print("Text",all_text[i])
-        print("Label",all_labels[i])
         print("Nearest neighbours")
-        for j in range(1,2):
-                print("Image",all_paths[j])
-                print("Text",all_text[j])
-                print("Label",all_labels[j])
-                print("Distance",D[i,j])
+        nn_of_i=I[i]
+        for nn in nn_of_i:
+            if nn!=i:
+                print("NN",nn)
+                print("Text",all_text[nn])
+                print("Path",all_paths[nn])
+                print("Label",all_labels[nn])
+
   
     # for thresh in np.arange(0.1,0.95,0.01):
     #     print("Threshold",thresh)
