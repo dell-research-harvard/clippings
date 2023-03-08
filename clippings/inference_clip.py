@@ -179,7 +179,6 @@ if __name__ == "__main__":
 
     ###Get the top 1000 nearest neighbours
     D, I = index.search(all_embeddings.cpu().numpy(), all_embeddings.shape[0])
-    thresh=0.75
 
     ###Check the text of some of the nearest neighbours apart from the same image
     for i in range(0,all_embeddings.shape[0]):
@@ -188,7 +187,6 @@ if __name__ == "__main__":
         print("Label",all_labels[i])
         print("Nearest neighbours")
         for j in range(0,all_embeddings.shape[0]):
-            if D[i,j]>thresh and i!=j:
                 print("Image",all_paths[j])
                 print("Text",all_text[j])
                 print("Label",all_labels[j])
