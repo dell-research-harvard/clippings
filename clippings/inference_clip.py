@@ -224,7 +224,7 @@ if __name__ == "__main__":
     eval_loader=torch.utils.data.DataLoader(eval_dataset,batch_size=126,shuffle=False,num_workers=16)
 
     ###Get the embeddings
-    all_embeddings, all_labels, all_text, all_paths=get_image_text_embeddings(eval_loader,clip_model,None,device,processor,"mean",0)
+    all_embeddings, all_labels, all_text, all_paths=get_image_text_embeddings(eval_loader,clip_model,None,device,processor,"mean",1)
 
     ##Take a subset of embeddngs
     # all_embeddings=all_embeddings[0:10]
