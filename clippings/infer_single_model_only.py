@@ -197,6 +197,7 @@ if __name__ == "__main__":
     parser.add_argument("--im_wt", type=float, default=0.5, help="Weight of image embeddings")
     parser.add_argument("--pooling_type", type=str, default="mean", help="Pooling type")
     parser.add_argument("--split_test_for_eval", action="store_true", help="Split test set for evaluation")
+    parser.add_argument("--opt_im_wt", action="store_true", help="Optimize image weight")
     
 
     
@@ -272,9 +273,11 @@ if __name__ == "__main__":
 
         print("Get knn")
 
+        if args.opt_im_wt:
         ###final embeddings = im_wt*image_embeddings + (1-im_wt)*text_embeddings
-        all_embeddings=params["im_wt"]*all_image_embeddings + (1-params["im_wt"])*all_text_embeddings
-
+            all_embeddings=params["im_wt"]*all_image_embeddings + (1-params["im_wt"])*all_text_embeddings
+        else:
+            all_embeddings=args.im_wt*all_image_embeddings + (1-args.im_wt)*all_text_embeddings
         ##Normalize the embeddings
         all_embeddings=torch.nn.functional.normalize(all_embeddings,dim=1)
         all_embeddings=all_embeddings.cpu().numpy()
@@ -287,10 +290,16 @@ if __name__ == "__main__":
         print("ARI",adjusted_rand_score(all_labels,clusters))
         return -adjusted_rand_score(all_labels,clusters)
     
-    space = {
-        "threshold":hp.uniform("threshold",0.01,1),
-        "im_wt":hp.uniform("im_wt",0,1),
-    }
+    if args.opt_im_wt:
+        space = {
+            "threshold":hp.uniform("threshold",0.01,1),
+            "im_wt":hp.uniform("im_wt",0,1),
+        }
+    else:
+
+        space = {
+            "threshold":hp.uniform("threshold",0.01,1),
+        }
 
     best = fmin(hyp_ari, space, algo=tpe.suggest, max_evals=1000)
     print(best)
@@ -305,8 +314,10 @@ if __name__ == "__main__":
     all_embeddings, all_image_embeddings, all_text_embeddings, all_labels, all_text, all_paths=get_image_text_embeddings(test_loader,clip_model,None,device,processor,"mean",0.5)
 
     ###final embeddings = im_wt*image_embeddings + (1-im_wt)*text_embeddings
-    all_embeddings=best["im_wt"]*all_image_embeddings + (1-best["im_wt"])*all_text_embeddings
-
+    if args.opt_im_wt:
+        all_embeddings=best["im_wt"]*all_image_embeddings + (1-best["im_wt"])*all_text_embeddings
+    else:
+        all_embeddings=args.im_wt*all_image_embeddings + (1-args.im_wt)*all_text_embeddings
     ##Normalize the embeddings
     all_embeddings=torch.nn.functional.normalize(all_embeddings,dim=1)
 
