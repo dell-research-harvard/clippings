@@ -490,7 +490,7 @@ def val_bienc_clustering(val_loader,clip_model,mlp_model,split='val',log=True,pr
 
     cluster_preds=cluster("SLINK",cluster_params={"min cluster size":1,"threshold":best["threshold"],"metric":"cosine"},corpus_embeddings=all_embeddings_test,corpus_ids=None)
 
-    ari_split=("ARI",adjusted_rand_score(all_labels_test,cluster_preds))
+    ari_split=adjusted_rand_score(all_labels_test,cluster_preds)
     if log:
         wandb.log({f"{split}/ari": ari_split})
 
