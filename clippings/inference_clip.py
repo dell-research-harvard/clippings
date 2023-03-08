@@ -266,8 +266,9 @@ if __name__ == "__main__":
         eval_loader=torch.utils.data.DataLoader(eval_dataset,batch_size=126,shuffle=False,num_workers=16)
 
         ###Get the embeddings
-        all_embeddings, all_image_embeddings, all_text_embeddings, all_labels, all_text, all_paths=get_image_text_embeddings(eval_loader,clip_model,None,device,processor,args.pooling_type,args.im_wt)
+        all_embeddings, all_image_embeddings, all_text_embeddings, all_labels, all_text, all_paths = get_image_text_embeddings(eval_loader,clip_model,None,device,processor,args.pooling_type,args.im_wt)
 
+        
 
         ###Get the clusters
 
@@ -279,6 +280,9 @@ if __name__ == "__main__":
 
             ###final embeddings = im_wt*image_embeddings + (1-im_wt)*text_embeddings
             all_embeddings=params["im_wt"]*all_image_embeddings + (1-params["im_wt"])*all_text_embeddings
+
+            ##Normalize the embeddings
+            all_embeddings=torch.nn.functional.normalize(all_embeddings,dim=1)
 
             ###Build the index
             index = faiss.IndexFlatIP( 512)
@@ -317,9 +321,13 @@ if __name__ == "__main__":
         test_loader=torch.utils.data.DataLoader(test_dataset,batch_size=126,shuffle=False,num_workers=16)
 
         ###Get the embeddings
-        all_embeddings, all_labels, all_text, all_paths=get_image_text_embeddings(test_loader,clip_model,None,device,processor,"mean",0.5)
+        all_embeddings, all_image_embeddings, all_text_embeddings, all_labels, all_text, all_paths=get_image_text_embeddings(test_loader,clip_model,None,device,processor,"mean",0.5)
 
-        print("Get knn")
+        ###final embeddings = im_wt*image_embeddings + (1-im_wt)*text_embeddings
+        all_embeddings=params["im_wt"]*all_image_embeddings + (1-params["im_wt"])*all_text_embeddings
+
+        ##Normalize the embeddings
+        all_embeddings=torch.nn.functional.normalize(all_embeddings,dim=1)
 
         ###Build the index
         index = faiss.IndexFlatIP( 512)
@@ -335,9 +343,13 @@ if __name__ == "__main__":
 
         all_embeddings=all_embeddings.cpu().numpy()
         all_labels=all_labels.cpu().numpy()
+        print(all_labels)
 
-        clusters=cluster("SLINK",cluster_params={"min cluster size":1,"threshold":best["threshold"],"metric":"cosine"},corpus_embeddings=all_embeddings,corpus_ids=None)
-
+        clusters=cluster("SLINK",cluster_params={"min cluster size":1,"threshold":params["threshold"],"metric":"cosine"},corpus_embeddings=all_embeddings,corpus_ids=None)
+        print("Clusters",clusters)
+        print("Max cluster",max(clusters))
+        print("ARI",adjusted_rand_score(all_labels,clusters))
+    
         print("threshold",best["threshold"])
         print("checkpoint",args.checkpoint_path)
         print("im_wt",args.im_wt)
