@@ -345,7 +345,7 @@ if __name__ == "__main__":
         all_labels=all_labels.cpu().numpy()
         print(all_labels)
 
-        clusters=cluster("SLINK",cluster_params={"min cluster size":1,"threshold":params["threshold"],"metric":"cosine"},corpus_embeddings=all_embeddings,corpus_ids=None)
+        clusters=cluster("SLINK",cluster_params={"min cluster size":1,"threshold":best["threshold"],"metric":"cosine"},corpus_embeddings=all_embeddings,corpus_ids=None)
         print("Clusters",clusters)
         print("Max cluster",max(clusters))
         print("ARI",adjusted_rand_score(all_labels,clusters))
