@@ -197,7 +197,7 @@ if __name__ == "__main__":
                 print("Label",all_labels[nn])
 
   
-    for thresh in np.arange(0.1,0.95,0.01):
+    for thresh in np.arange(0.8,0.99,0.01):
         print("Threshold",thresh)
         above_threshold = D > thresh
         ##If 0 embeddings are above threshold, then set stop
