@@ -273,7 +273,7 @@ if __name__ == "__main__":
         ###Get the clusters
 
         ###Use hyperopt to max the adjusted rand index
-        def hyp_ari(params):
+        def hyp_ari(params,all_embeddings=all_embeddings, all_image_embeddings=all_image_embeddings, all_text_embeddings=all_text_embeddings, all_labels=all_labels, all_text=all_text, all_paths=all_paths):
             print("Params",params)
 
             print("Get knn")
@@ -324,7 +324,7 @@ if __name__ == "__main__":
         all_embeddings, all_image_embeddings, all_text_embeddings, all_labels, all_text, all_paths=get_image_text_embeddings(test_loader,clip_model,None,device,processor,"mean",0.5)
 
         ###final embeddings = im_wt*image_embeddings + (1-im_wt)*text_embeddings
-        all_embeddings=params["im_wt"]*all_image_embeddings + (1-params["im_wt"])*all_text_embeddings
+        all_embeddings=best["im_wt"]*all_image_embeddings + (1-best["im_wt"])*all_text_embeddings
 
         ##Normalize the embeddings
         all_embeddings=torch.nn.functional.normalize(all_embeddings,dim=1)
