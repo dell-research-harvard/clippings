@@ -215,7 +215,7 @@ if __name__ == "__main__":
         unique_labels=eval_data.label.unique()
 
         ###Split labels into train and test
-        _, val_labels=train_test_split(unique_labels, test_size=0.4, random_state=42)
+        test_labels, val_labels=train_test_split(unique_labels, test_size=0.4, random_state=42)
 
         ###Get the data
         eval_data=eval_data[eval_data.label.isin(val_labels)]
@@ -223,6 +223,11 @@ if __name__ == "__main__":
         ##Save val data
         eval_data.to_csv("/mnt/data01/clippings_general/texts/test_val_for_export.csv",index=False)
 
+
+        test_data=test_data[test_data.label.isin(test_labels)]
+
+        ##Save test data
+        test_data.to_csv("/mnt/data01/clippings_general/texts/test_test_for_export.csv",index=False)
 
     else:
         eval_data=pd.read_csv("/mnt/data01/clippings_general/texts/labelled_news_val_reformatted.csv")
