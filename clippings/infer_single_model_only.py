@@ -278,10 +278,14 @@ if __name__ == "__main__":
             all_embeddings=params["im_wt"]*all_image_embeddings + (1-params["im_wt"])*all_text_embeddings
         else:
             if args.im_wt==0:
+                print("using only text embeddings")
+
                 all_embeddings=all_text_embeddings
             elif args.im_wt==1:
+                print("using only image embeddings")
                 all_embeddings=all_image_embeddings
             else:
+                print("using weighted embeddings")
                 all_embeddings=args.im_wt*all_image_embeddings + (1-args.im_wt)*all_text_embeddings
             
         ##Normalize the embeddings
