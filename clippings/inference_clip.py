@@ -197,8 +197,8 @@ if __name__ == "__main__":
 
     clip_transform=CLIP_BASE_TRANSFORM_CENTER
     ###Load checkpoint
-    if checkpoint_path is not None:
-        clip_model.load_state_dict(torch.load(checkpoint_path, map_location=torch.device(device)))
+    if args.checkpoint_path is not None:
+        clip_model.load_state_dict(torch.load(args.checkpoint_path, map_location=torch.device(device)))
     # model.load_state_dict(torch.load("/mnt/data01/clippings_general/models/bienc_clip_pretrain_labelled_m3.pt", map_location=torch.device(device)))
     clip_model.to(device)
 
