@@ -198,7 +198,10 @@ if __name__ == "__main__":
     parser.add_argument("--pooling_type", type=str, default="mean", help="Pooling type")
     parser.add_argument("--split_test_for_eval", action="store_true", help="Split test set for evaluation")
     parser.add_argument("--opt_im_wt", action="store_true", help="Optimize image weight")
-    
+    parser.add_argument("--specified_thresh", action="store_true", help="Optimize image weight")
+    parser.add_argument("--use_specified_weight", action="store_true", help="Use specified args")
+
+
 
     
     args = parser.parse_args()
@@ -357,6 +360,10 @@ if __name__ == "__main__":
     all_embeddings=all_embeddings.cpu().numpy()
     all_labels=all_labels.cpu().numpy()
     print(all_labels)
+
+    if args.specified_thresh:
+        best["threshold"]=args.specified_thresh
+    
 
     clusters=cluster("SLINK",cluster_params={"min cluster size":1,"threshold":best["threshold"],"metric":"cosine"},corpus_embeddings=all_embeddings,corpus_ids=None)
     print("Clusters",clusters)
