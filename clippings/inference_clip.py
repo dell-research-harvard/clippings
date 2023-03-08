@@ -110,7 +110,7 @@ def get_image_text_embeddings(data_loader,clip_model,mlp_model,device,processor,
 ###Run as script
 if __name__ == "__main__":
 
-    checkpoint_path="/mnt/data01/clippings_general/models/clip_imwt_5bienc_clip_pretrain_labelled_m3_v3_newspapers_lowlr.pt"
+    checkpoint_path="/mnt/data01/clippings_general/models/clip_pretrain_unlabelled_m1_newspapers_cc_3.pt"
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
     clip_model = CLIPModel.from_pretrained("openai/clip-vit-base-patch32")
@@ -155,7 +155,7 @@ if __name__ == "__main__":
     eval_loader=torch.utils.data.DataLoader(eval_dataset,batch_size=126,shuffle=False,num_workers=16)
 
     ###Get the embeddings
-    all_embeddings, all_labels, all_text, all_paths=get_image_text_embeddings(eval_loader,clip_model,None,device,processor,"mean",0.5)
+    all_embeddings, all_labels, all_text, all_paths=get_image_text_embeddings(eval_loader,clip_model,None,device,processor,"mean",0)
 
     ##Take a subset of embeddngs
     # all_embeddings=all_embeddings[0:10]
