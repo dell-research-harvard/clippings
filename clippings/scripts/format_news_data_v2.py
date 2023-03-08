@@ -125,7 +125,7 @@ labels= train_data['result']
 ###Build a graph from the data. Nodes are connected if they have result=1
 edges_list = []
 for i in range(len(image_1)):
-    if labels[i] == "same":
+    if labels[i] == 1:
         edges_list.append([image_1[i], image_2[i]])
 
 cluster_dict = clusters_from_edges(edges_list)
