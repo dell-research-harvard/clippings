@@ -185,9 +185,8 @@ if __name__ == "__main__":
         print("Image",i)
         print("Text",all_text[i])
         print("Nearest neighbours")
-        nn_of_i=I[i]
-        for nn in nn_of_i:
-            if nn!=i:
+        nn_of_i_2=I[i][1:3]
+        for nn in nn_of_i_2:
                 print("NN",nn)
                 print("Text",all_text[nn])
                 print("Path",all_paths[nn])
