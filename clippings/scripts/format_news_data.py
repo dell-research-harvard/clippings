@@ -102,7 +102,6 @@ L=[dict.fromkeys(y,x) for x, y in enumerate(l)]
 
 d={k: v for d in L for k, v in d.items()}
 
-print(d)
 
 ###Make a two column df with image path and label
 connected_components_df = pd.DataFrame.from_dict(d, orient='index').reset_index()
