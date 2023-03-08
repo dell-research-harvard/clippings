@@ -69,8 +69,12 @@ if __name__ == "__main__":
     ###Transform image
     transformed_image = clip_transform(image)
 
+    ###SAve locally 
+    image.save("test.png")
+
+
     ###Rclone to dropbox
-    subprocess.run(["rclone", "copy", image_path, "maindb:abhishek_for_rclone/eval_clippings/"])
+    subprocess.run(["rclone", "copy", "test.png", "maindb:abhishek_for_rclone/eval_clippings/"])
 
 
 
