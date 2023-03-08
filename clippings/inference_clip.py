@@ -360,20 +360,20 @@ if __name__ == "__main__":
 
 
 
-    results_dict[checkpoint_path]={"threshold":best["threshold"],"checkpoint":args.checkpoint_path,"im_wt":best["im_wt"],"pooling_type":args.pooling_type,"ARI":test_ari}
+    # results_dict[checkpoint_path]={"threshold":best["threshold"],"checkpoint":args.checkpoint_path,"im_wt":best["im_wt"],"pooling_type":args.pooling_type,"ARI":test_ari}
 
 
-    if args.iter_glob:
-        continue
-    else:
-        break
+    # if args.iter_glob:
+    #     continue
+    # else:
+    #     break
 
 
-    results_df=pd.DataFrame.from_dict(results_dict,orient="index")
-    results_df.to_csv("/mnt/data01/clippings_general/nosingle_results_check.csv")
+    # results_df=pd.DataFrame.from_dict(results_dict,orient="index")
+    # results_df.to_csv("/mnt/data01/clippings_general/nosingle_results_check.csv")
     
-    ##Print max ARI and its checkpoint
-    print(results_df[results_df.ARI==results_df.ARI.max()])
+    # ##Print max ARI and its checkpoint
+    # print(results_df[results_df.ARI==results_df.ARI.max()])
     
   
     
