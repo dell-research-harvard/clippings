@@ -215,11 +215,6 @@ if __name__ == "__main__":
     
 
 
-        
-        
-
-
-
     ##Load the dataset
     ###Create the data datsets
     eval_dataset=data_loaders.TextImageDataset(eval_data, img_transform=clip_transform)
@@ -251,22 +246,6 @@ if __name__ == "__main__":
     ###Get the top 1000 nearest neighbours
     D, I = index.search(all_embeddings.cpu().numpy(),    all_embeddings.shape[0])
 
-    ###Check the text of some of the nearest neighbours apart from the same image
-    # for i in range(0,3):
-    #     print("Image",i)
-    #     print("Text",all_text[i])
-    #     print("Nearest neighbours")
-    #     nn_of_i_2=I[i][1:3]
-    #     dist_of_i_2=D[i][1:3]
-    #     for j  in range(len(nn_of_i_2)):
-    #             nn=nn_of_i_2[j]
-    #             print("NN",nn_of_i_2[j])
-    #             print("Dist" ,dist_of_i_2[j])
-
-    #             print("Text",all_text[nn])
-    #             print("Path",all_paths[nn])
-    #             print("Label",all_labels[nn])
-
 
     all_embeddings=all_embeddings.cpu().numpy()
     all_labels=all_labels.cpu().numpy()
@@ -274,7 +253,7 @@ if __name__ == "__main__":
 
     ###Get the clusters
     print("Get clusters")
-    clusters=cluster("SLINK",cluster_params={"min cluster size":1,"threshold":0.1,"metric":"cosine"},corpus_embeddings=all_embeddings,corpus_ids=None)
+    clusters=cluster("SLINK",cluster_params={"min cluster size":1,"threshold":0.09,"metric":"cosine"},corpus_embeddings=all_embeddings,corpus_ids=None)
     print("Done getting clusters")
     print(clusters)
     print(max(clusters))
