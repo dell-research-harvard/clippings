@@ -149,7 +149,7 @@ def pretrain_clip(train_loader,model,device,img_loss,text_loss,epoch,optimizer,p
             print("Epoch {} Iteration {}: Loss = {}".format(
                 str(epoch).zfill(3), str(batch_idx).zfill(4), loss))
             if not epochviz is None:
-                for i in range(10):
+                for i in range(30):
                     image = T.ToPILImage()(INV_NORMALIZE(image_data[i].cpu()))
                     image.save(os.path.join(epochviz, f"train_sample_{epoch}_{i}.png"))
 
