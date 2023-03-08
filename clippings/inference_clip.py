@@ -274,7 +274,7 @@ if __name__ == "__main__":
 
     ###Get the clusters
     print("Get clusters")
-    clusters=cluster("SLINK",cluster_params={"min cluster size":1,"threshold":0.15,"metric":"cosine"},corpus_embeddings=all_embeddings,corpus_ids=None)
+    clusters=cluster("SLINK",cluster_params={"min cluster size":1,"threshold":0.1,"metric":"cosine"},corpus_embeddings=all_embeddings,corpus_ids=None)
     print("Done getting clusters")
     print(clusters)
     print(max(clusters))
