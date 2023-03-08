@@ -316,9 +316,12 @@ if __name__ == "__main__":
     ###final embeddings = im_wt*image_embeddings + (1-im_wt)*text_embeddings
     if args.opt_im_wt:
         all_embeddings=best["im_wt"]*all_image_embeddings + (1-best["im_wt"])*all_text_embeddings
+        all_image_embeddings=all_image_embeddings
         
     else:
         all_embeddings=args.im_wt*all_image_embeddings + (1-args.im_wt)*all_text_embeddings
+        all_image_embeddings=all_image_embeddings
+
     ##Normalize the embeddings
     all_embeddings=torch.nn.functional.normalize(all_embeddings,dim=1)
 
