@@ -368,7 +368,7 @@ class TextImageDatasetWithHardNegs(Dataset):
 
 ##Different hardnegative dataset in the presence of singletons
 class TextImageDatasetWithHardNegsSingle(Dataset):
-  def __init__(self,original_df,k_hardneg_df,img_transform=None,text_transform=None,batch_size=126,k=3,m=3):  
+    def __init__(self,original_df,k_hardneg_df,img_transform=None,text_transform=None,batch_size=126,k=3,m=3):  
         ###Batch size needs to be divisible by k*m
         assert batch_size % (k*m) == 0, "Batch size must be divisible by k*m"
         self.batch_size = batch_size
@@ -411,7 +411,7 @@ class TextImageDatasetWithHardNegsSingle(Dataset):
                 self.df.loc[self.df.label == label,"anchor_id"] = anchor_id
         
         ###Name the columns
-        
+            
 
         self.df = self.df.reset_index(drop=True)
         self.df = self.df.dropna()
@@ -421,29 +421,29 @@ class TextImageDatasetWithHardNegsSingle(Dataset):
         print(self.df.head(10))
 
     
-        def __len__(self):
-            return len(self.df)
-        
-        def __getitem__(self,idx):
-                
-                if torch.is_tensor(idx):
-                    idx = idx.tolist()
-        
-                img_path = self.df.iloc[idx,0]
-                text = self.df.iloc[idx,1]
-                label=self.df.iloc[idx,2]
-                anchor_id=self.df.iloc[idx,3]
-        
-                img = Image.open(img_path)
-        
-                if self.img_transform:
-                    img = self.img_transform(img)
-        
-                if self.text_transform:
-                    text = self.text_transform(text)
-        
-        
-                return text, img, label, anchor_id
+    def __len__(self):
+        return len(self.df)
+
+    def __getitem__(self,idx):
+            
+            if torch.is_tensor(idx):
+                idx = idx.tolist()
+
+            img_path = self.df.iloc[idx,0]
+            text = self.df.iloc[idx,1]
+            label=self.df.iloc[idx,2]
+            anchor_id=self.df.iloc[idx,3]
+
+            img = Image.open(img_path)
+
+            if self.img_transform:
+                img = self.img_transform(img)
+
+            if self.text_transform:
+                text = self.text_transform(text)
+
+
+            return text, img, label, anchor_id
 
 
 ###Run as script
