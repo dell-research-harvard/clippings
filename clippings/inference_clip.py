@@ -180,7 +180,8 @@ def cluster(cluster_type, cluster_params, corpus_embeddings, corpus_ids=None):
 if __name__ == "__main__":
 
     # checkpoint_path="/mnt/data01/clippings_general/models/clip_pretrain_unlabelled_m1_newspapers_cc.pt"
-    checkpoint_path=None
+    checkpoint_path="/mnt/data01/clippings_general/models/clip_imwt_5bienc_clip_pretrain_labelled_m3_v3_newspapers_nosingle.pt"
+    # checkpoint_path=None
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
     clip_model = CLIPModel.from_pretrained("openai/clip-vit-base-patch32")
