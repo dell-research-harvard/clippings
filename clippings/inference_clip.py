@@ -284,10 +284,6 @@ if __name__ == "__main__":
 
         ##Normalize the embeddings
         all_embeddings=torch.nn.functional.normalize(all_embeddings,dim=1)
-
-
-
-
         all_embeddings=all_embeddings.cpu().numpy()
         all_labels=all_labels.cpu().numpy()
         print(all_labels)
