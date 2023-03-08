@@ -302,7 +302,7 @@ if __name__ == "__main__":
             "im_wt":hp.uniform("im_wt",0,1),
         }
 
-        best = fmin(hyp_ari, space, algo=tpe.suggest, max_evals=2000)
+        best = fmin(hyp_ari, space, algo=tpe.suggest, max_evals=1000)
         print(best)
 
 
