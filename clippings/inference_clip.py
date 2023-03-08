@@ -103,13 +103,24 @@ def get_image_text_embeddings(data_loader,clip_model,mlp_model,device,processor,
                 all_labels = labels
                 all_text=text
                 all_paths=image_path
+                all_image_embeddings=image_embeds
+                all_text_embeddings=text_embeds
             else:
                 all_embeddings = torch.cat((all_embeddings, final_embeds), dim=0)
                 all_labels = torch.cat((all_labels, labels), dim=0)
                 all_text=all_text+text
                 all_paths=all_paths+image_path
+            ##GEt image and text embeddings in a similar list
 
-    return all_embeddings, all_labels, all_text, all_paths
+            if batch_idx==0:
+                all_image_embeddings=image_embeds
+                all_text_embeddings=text_embeds
+            else:
+                all_image_embeddings=torch.cat((all_image_embeddings,image_embeds),dim=0)
+                all_text_embeddings=torch.cat((all_text_embeddings,text_embeds),dim=0)
+
+
+    return all_embeddings, all_image_embeddings, all_text_embeddings, all_labels, all_text, all_paths
 
 
 def cluster(cluster_type, cluster_params, corpus_embeddings, corpus_ids=None):
@@ -186,6 +197,7 @@ if __name__ == "__main__":
     parser.add_argument("--im_wt", type=float, default=0.5, help="Weight of image embeddings")
     parser.add_argument("--pooling_type", type=str, default="mean", help="Pooling type")
     parser.add_argument("--split_test_for_eval", action="store_true", help="Split test set for evaluation")
+    parser.add_argument("iter_glob", action="store_true")
     
 
     
@@ -203,10 +215,13 @@ if __name__ == "__main__":
     results_dict={}
     for checkpoint_path in glob.glob("/mnt/data01/clippings_general/models/clip_imwt_5**bienc_clip_pretrain_labelled_m3_v3_newspapers_nosingle**.pt"):
 
-    
+        
         ###Load checkpoint
         if args.checkpoint_path is not None:
-            clip_model.load_state_dict(torch.load(checkpoint_path, map_location=torch.device(device)))
+            if args.iter_glob: 
+                clip_model.load_state_dict(torch.load(checkpoint_path, map_location=torch.device(device)))
+            else : 
+                clip_model.load_state_dict(torch.load(args.checkpoint_path, map_location=torch.device(device)))
         # model.load_state_dict(torch.load("/mnt/data01/clippings_general/models/bienc_clip_pretrain_labelled_m3.pt", map_location=torch.device(device)))
         clip_model.to(device)
 
@@ -251,31 +266,36 @@ if __name__ == "__main__":
         eval_loader=torch.utils.data.DataLoader(eval_dataset,batch_size=126,shuffle=False,num_workers=16)
 
         ###Get the embeddings
-        all_embeddings, all_labels, all_text, all_paths=get_image_text_embeddings(eval_loader,clip_model,None,device,processor,args.pooling_type,args.im_wt)
+        all_embeddings, all_image_embeddings, all_text_embeddings, all_labels, all_text, all_paths=get_image_text_embeddings(eval_loader,clip_model,None,device,processor,args.pooling_type,args.im_wt)
 
-        print("Get knn")
-
-        ###Build the index
-        index = faiss.IndexFlatIP( 512)
-
-        ###Add the embeddings
-        index.add(all_embeddings.cpu().numpy())
-
-        print("Done adding embeddings")
-
-        ###Get the top 1000 nearest neighbours
-        D, I = index.search(all_embeddings.cpu().numpy(),    all_embeddings.shape[0])
-
-
-        all_embeddings=all_embeddings.cpu().numpy()
-        all_labels=all_labels.cpu().numpy()
-        print(all_labels)
 
         ###Get the clusters
 
         ###Use hyperopt to max the adjusted rand index
         def hyp_ari(params):
             print("Params",params)
+
+            print("Get knn")
+
+            ###final embeddings = im_wt*image_embeddings + (1-im_wt)*text_embeddings
+            all_embeddings=params["im_wt"]*all_image_embeddings + (1-params["im_wt"])*all_text_embeddings
+
+            ###Build the index
+            index = faiss.IndexFlatIP( 512)
+
+            ###Add the embeddings
+            index.add(all_embeddings.cpu().numpy())
+
+            print("Done adding embeddings")
+
+            ###Get the top 1000 nearest neighbours
+            D, I = index.search(all_embeddings.cpu().numpy(),    all_embeddings.shape[0])
+
+
+            all_embeddings=all_embeddings.cpu().numpy()
+            all_labels=all_labels.cpu().numpy()
+            print(all_labels)
+
             clusters=cluster("SLINK",cluster_params={"min cluster size":1,"threshold":params["threshold"],"metric":"cosine"},corpus_embeddings=all_embeddings,corpus_ids=None)
             print("Clusters",clusters)
             print("Max cluster",max(clusters))
@@ -283,7 +303,8 @@ if __name__ == "__main__":
             return -adjusted_rand_score(all_labels,clusters)
         
         space = {
-            "threshold":hp.uniform("threshold",0.01,0.4)
+            "threshold":hp.uniform("threshold",0.01,0.4),
+            "im_wt":hp.uniform("im_wt",0,1),
         }
 
         best = fmin(hyp_ari, space, algo=tpe.suggest, max_evals=1000)
@@ -331,15 +352,20 @@ if __name__ == "__main__":
         cluster_results=cluster_results.merge(test_data,on="image_path")
 
         ##Save the results
-        cluster_results.to_csv("/mnt/data01/clippings_general/texts/cluster_results.csv",index=False)
+        cluster_results.to_csv("/mnt/data01/clippings_general/texts/cluster_results_check.csv",index=False)
 
 
 
         results_dict[checkpoint_path]={"threshold":best["threshold"],"checkpoint":args.checkpoint_path,"im_wt":args.im_wt,"pooling_type":args.pooling_type,"ARI":test_ari}
 
 
+        if args.iter_glob:
+            continue
+        else:
+            break
+
     results_df=pd.DataFrame.from_dict(results_dict,orient="index")
-    results_df.csv("/mnt/data01/clippings_general/nosingle_results.csv")
+    results_df.csv("/mnt/data01/clippings_general/nosingle_results_check.csv")
     
     ##Print max ARI and its checkpoint
     print(results_df[results_df.ARI==results_df.ARI.max()])
