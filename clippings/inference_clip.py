@@ -324,6 +324,16 @@ if __name__ == "__main__":
         print("ARI",adjusted_rand_score(all_labels,clusters))
         test_ari=adjusted_rand_score(all_labels,clusters)
 
+        ###Save cluster results
+        cluster_results=pd.DataFrame({"image_path":all_paths,"cluster":clusters})
+
+        ##Merge with the original data
+        cluster_results=cluster_results.merge(test_data,on="image_path")
+
+        ##Save the results
+        cluster_results.to_csv("/mnt/data01/clippings_general/texts/cluster_results.csv",index=False)
+
+
 
         results_dict[checkpoint_path]={"threshold":best["threshold"],"checkpoint":args.checkpoint_path,"im_wt":args.im_wt,"pooling_type":args.pooling_type,"ARI":test_ari}
 
