@@ -364,7 +364,86 @@ class TextImageDatasetWithHardNegs(Dataset):
         
         
                 return text, img, label, anchor_id
+
+
+##Different hardnegative dataset in the presence of singletons
+class TextImageDatasetWithHardNegsSingle(Dataset):
+  def __init__(self,original_df,k_hardneg_df,img_transform=None,text_transform=None,batch_size=126,k=3,m=3):  
+        ###Batch size needs to be divisible by k*m
+        assert batch_size % (k*m) == 0, "Batch size must be divisible by k*m"
+        self.batch_size = batch_size
+        self.k = k
+        self.m = m
+        self.k_hardneg_df = k_hardneg_df
+        self.img_transform = img_transform
+        self.text_transform = text_transform
+        self.original_df = original_df
+
+        self.k_hardneg_df = self.k_hardneg_df.dropna()
+        ##Get unique anchor ids
+        self.anchor_ids = self.k_hardneg_df.anchor_id.unique()
+
+        ###Partition anchor ids into batch_size/k*m groups
+        self.anchor_id_groups = np.array_split(self.anchor_ids,self.batch_size/(self.k*self.m))
+        self.anchor_id_groups = [list(x) for x in self.anchor_id_groups]
+
+        ###Now, for each anchor id, get a unique list of labels
+        self.anchor_id_to_labels = {}
+        for anchor_id in self.anchor_ids:
+            self.anchor_id_to_labels[anchor_id] = self.k_hardneg_df[self.k_hardneg_df.anchor_id == anchor_id].label.unique()
         
+        ####Now for each label in each anchor id, sample m rows corresponding to that label
+        self.anchor_id_to_label_to_rows = {}
+        for anchor_id in self.anchor_ids:
+            self.anchor_id_to_label_to_rows[anchor_id] = {}
+            for label in self.anchor_id_to_labels[anchor_id]:
+                if len(self.original_df[ (self.original_df.label == label)]) >= m:
+                    self.anchor_id_to_label_to_rows[anchor_id][label] = self.original_df[ (self.original_df.label == label)].sample(m,replace=True)
+                else:
+                    self.anchor_id_to_label_to_rows[anchor_id][label] = self.original_df[ (self.original_df.label == label)]
+
+        ###Now, reconstruct the dataframe
+        self.df = pd.DataFrame()
+        for anchor_id in self.anchor_ids:
+            for label in self.anchor_id_to_labels[anchor_id]:
+                self.df = self.df.append(self.anchor_id_to_label_to_rows[anchor_id][label])
+                ###Add anchor_id to each row
+                self.df.loc[self.df.label == label,"anchor_id"] = anchor_id
+        
+        ###Name the columns
+        
+
+        self.df = self.df.reset_index(drop=True)
+        self.df = self.df.dropna()
+
+        print("Exapanded Dataset length: ",len(self.df))
+        print("Original Dataset length: ",len(original_df))
+        print(self.df.head(10))
+
+    
+        def __len__(self):
+            return len(self.df)
+        
+        def __getitem__(self,idx):
+                
+                if torch.is_tensor(idx):
+                    idx = idx.tolist()
+        
+                img_path = self.df.iloc[idx,0]
+                text = self.df.iloc[idx,1]
+                label=self.df.iloc[idx,2]
+                anchor_id=self.df.iloc[idx,3]
+        
+                img = Image.open(img_path)
+        
+                if self.img_transform:
+                    img = self.img_transform(img)
+        
+                if self.text_transform:
+                    text = self.text_transform(text)
+        
+        
+                return text, img, label, anchor_id
 
 
 ###Run as script

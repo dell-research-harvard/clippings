@@ -388,6 +388,9 @@ if __name__ == "__main__":
     parser.add_argument("--augmented_crops",action="store_true")
     parser.add_argument("--train_hardneg",action="store_true")
     parser.add_argument("--checkpoint_path",type=str,default=None)
+    parser.add_argument("--contrastive_loss",type=str,default="supcon")
+    parser.add_argument("--contrastive_loss_pos_margin",type=float,default=0.5)
+    parser.add_argument("--contrastive_loss_neg_margin",type=float,default=0.8)
 
     args = parser.parse_args()
     
@@ -459,8 +462,12 @@ if __name__ == "__main__":
         print("Total number of unique labels in train data: ",len(dedup_train_data))
         k_hardneg_df = data_loaders.make_hard_neg_df(dedup_train_data,k=args.k,clip_model=clip_model,mlp_model=mlp_model,device=device,processor=processor,pooling_type=args.pooling_type,im_wt=args.im_wt)
         ##Save the hardneg df
-        k_hardneg_df.to_csv("k_hardneg_df.csv")
-        train_dataset=data_loaders.TextImageDatasetWithHardNegs(train_data,k_hardneg_df,img_transform=  train_image_transform ,text_transform=None,batch_size=126,k=args.k,m=args.m)
+        k_hardneg_df.to_csv("k_hardneg_df.csv") ###Use TextImageDatasetWithHardNegsSingle for incorporating singletons better TextImageDatasetWithHardNegs ow
+        
+        if args.contrastive_loss == "cntrastive":
+            train_dataset=data_loaders.TextImageDatasetWithHardNegsSingle(train_data,k_hardneg_df,img_transform=  train_image_transform ,text_transform=None,batch_size=args.batch_size,k=args.k,m=args.m)
+        else : 
+            train_dataset=data_loaders.TextImageDatasetWithHardNegs(train_data,k_hardneg_df,img_transform=  train_image_transform ,text_transform=None,batch_size=args.batch_size,k=args.k,m=args.m)
         print("Done setting up dataset with hardnegatives")
     else: 
         train_dataset=data_loaders.TextImageDataset(train_data, img_transform=train_image_transform)
@@ -476,7 +483,7 @@ if __name__ == "__main__":
     if args.train_data_type == "food101_labelled" or args.train_data_type == "newspapers_labelled" :
         
         if args.train_hardneg:
-            train_loader=torch.utils.data.DataLoader(train_dataset,batch_size=126,shuffle=False,num_workers=4)
+            train_loader=torch.utils.data.DataLoader(train_dataset,batch_size=args.batch_size,shuffle=False,num_workers=4)
         else:
             train_loader=torch.utils.data.DataLoader(train_dataset, batch_size=args.batch_size,sampler=data_loaders.NoReplacementMPerClassSampler(train_dataset, m=args.m,batch_size=args.batch_size,num_passes=1))
 
@@ -484,7 +491,7 @@ if __name__ == "__main__":
 
     elif args.train_data_type == "food101_unlabelled" or args.train_data_type == "newspapers_unlabelled":
         if args.train_hardneg:
-            train_loader=torch.utils.data.DataLoader(train_dataset,batch_size=126,shuffle=False,num_workers=4)
+            train_loader=torch.utils.data.DataLoader(train_dataset,batch_size=args.batch_size,shuffle=False,num_workers=4)
         else:
             train_loader=torch.utils.data.DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True)
         val_loader=torch.utils.data.DataLoader(val_dataset, batch_size=args.batch_size, shuffle=True)
@@ -524,7 +531,13 @@ if __name__ == "__main__":
     num_epochs=1000
     start_epoch=0
     best_acc=0
-    loss_func=losses.SupConLoss(temperature=args.supcon_temp)
+
+    if args.contrasive_loss=="supcon":
+        loss_func=losses.SupConLoss(temperature=args.supcon_temp)
+    elif args.contrastive_loss=="contrastive":
+        loss_func=losses.ContrastiveLoss(pos_margin=args.contrastive_loss_pos_margin, neg_margin=args.contrastive_loss_neg_margin)
+    else:
+        ValueError("Contrastive loss must be either supcon or contrastive")
 
 
 
