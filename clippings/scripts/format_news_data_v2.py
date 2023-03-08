@@ -219,33 +219,35 @@ val.to_csv(f'/mnt/data01/clippings_general/texts/labelled_news_val_reformatted_n
 
 # print("Total image-text pairs in pretraining CLIP", len(connected_components_df))
 
-# ###Reformat the eval data
+###Reformat the eval data
 
-# ###Eval data csv
-# eval_data_path="/mnt/data02/captions/labels/test_day.csv"
+###Eval data csv
+eval_data_path="/mnt/data02/captions/labels/test_day.csv"
 
-# eval_data = pd.read_csv(eval_data_path)
+eval_data = pd.read_csv(eval_data_path)
 
-# ####Add root to the image path
+####Add root to the image path
 
-# eval_data['image_path'] = '/mnt/data02/captions/test_day_pulled_crops/' + eval_data['image_id'] + '.png'
+eval_data['image_path'] = '/mnt/data02/captions/test_day_pulled_crops/' + eval_data['image_id'] + '.png'
 
-# ##Drop image_id
-# eval_data = eval_data.drop(columns=['image_id'])
+##Drop image_id
+eval_data = eval_data.drop(columns=['image_id'])
 
-# ##Remove the unnamed column
-# eval_data = eval_data.drop(columns=['Unnamed: 0'])
+##Remove the unnamed column
+eval_data = eval_data.drop(columns=['Unnamed: 0'])
 
-# ##Rename caption as text and cluster_label as label
-# eval_data = eval_data.rename(columns={'caption':'text', 'cluster_label':'label'})
+##Rename caption as text and cluster_label as label
+eval_data = eval_data.rename(columns={'caption':'text', 'cluster_label':'label'})
 
-# ##Reorder and keep only image_path, text and label
-# eval_data = eval_data[['image_path', 'text', 'label']]
+##Reorder and keep only image_path, text and label
+eval_data = eval_data[['image_path', 'text', 'label']]
+
+##Drop duplicates
+eval_data = eval_data.drop_duplicates()
 
 
+##Save the text data
+eval_data.to_csv(f'/mnt/data01/clippings_general/texts/labelled_news_eval_reformatted.csv', index=False)
 
-# ##Save the text data
-# eval_data.to_csv(f'/mnt/data01/clippings_general/texts/labelled_news_eval_reformatted.csv', index=False)
-
-# print("Total image-text pairs in eval CLIP", len(eval_data))
+print("Total image-text pairs in eval CLIP", len(eval_data))
 
