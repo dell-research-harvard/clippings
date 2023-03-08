@@ -185,6 +185,7 @@ if __name__ == "__main__":
     parser.add_argument("--checkpoint_path", type=str, default=None, help="Path to checkpoint")
     parser.add_argument("--im_wt", type=float, default=0.5, help="Weight of image embeddings")
     parser.add_argument("--pooling_type", type=str, default="mean", help="Pooling type")
+    parser.add_argument("--split_test_for_eval", action="store_true", help="Split test set for evaluation")
 
     args = parser.parse_args()
     # checkpoint_path="/mnt/data01/clippings_general/models/clip_pretrain_unlabelled_m1_newspapers_cc.pt"
@@ -210,7 +211,18 @@ if __name__ == "__main__":
     ###Eval data
     if args.split_test_for_eval:
         eval_data=test_data
-        val_data
+        ###Get unique labels
+        unique_labels=eval_data.label.unique()
+
+        ###Split labels into train and test
+        _, val_labels=train_test_split(unique_labels, test_size=0.4, random_state=42)
+
+        ###Get the data
+        eval_data=eval_data[eval_data.label.isin(val_labels)]
+
+        ##Save val data
+        eval_data.to_csv("/mnt/data01/clippings_general/texts/test_val_for_export.csv",index=False)
+
 
     else:
         eval_data=pd.read_csv("/mnt/data01/clippings_general/texts/labelled_news_val_reformatted.csv")
