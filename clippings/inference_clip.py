@@ -213,8 +213,8 @@ if __name__ == "__main__":
     clip_transform=CLIP_BASE_TRANSFORM_CENTER
     
     results_dict={}
-    for checkpoint_path in glob.glob("/mnt/data01/clippings_general/models/clip_imwt_5**bienc_clip_pretrain_labelled_m3_v3_newspapers_nosingle**.pt"):
-
+    for checkpoint_path in [1]:
+    # glob.glob("/mnt/data01/clippings_general/models/clip_imwt_5**bienc_clip_pretrain_labelled_m3_v3_newspapers_nosingle**.pt")
         
         ###Load checkpoint
         if args.checkpoint_path is not None:
@@ -375,6 +375,7 @@ if __name__ == "__main__":
             continue
         else:
             break
+
 
     results_df=pd.DataFrame.from_dict(results_dict,orient="index")
     results_df.csv("/mnt/data01/clippings_general/nosingle_results_check.csv")
