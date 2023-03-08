@@ -388,7 +388,7 @@ if __name__ == "__main__":
     parser.add_argument("--augmented_crops",action="store_true")
     parser.add_argument("--train_hardneg",action="store_true")
     parser.add_argument("--checkpoint_path",type=str,default=None)
-    parser.add_argument("--contrastive_loss",type=str,default="supcon")
+    parser.add_argument("--loss_type",type=str,default="supcon")
     parser.add_argument("--contrastive_loss_pos_margin",type=float,default=0.5)
     parser.add_argument("--contrastive_loss_neg_margin",type=float,default=0.8)
 
@@ -464,7 +464,7 @@ if __name__ == "__main__":
         ##Save the hardneg df
         k_hardneg_df.to_csv("k_hardneg_df.csv") ###Use TextImageDatasetWithHardNegsSingle for incorporating singletons better TextImageDatasetWithHardNegs ow
         
-        if args.contrastive_loss == "cntrastive":
+        if args.loss_type == "contrastive":
             train_dataset=data_loaders.TextImageDatasetWithHardNegsSingle(train_data,k_hardneg_df,img_transform=  train_image_transform ,text_transform=None,batch_size=args.batch_size,k=args.k,m=args.m)
         else : 
             train_dataset=data_loaders.TextImageDatasetWithHardNegs(train_data,k_hardneg_df,img_transform=  train_image_transform ,text_transform=None,batch_size=args.batch_size,k=args.k,m=args.m)
@@ -534,7 +534,7 @@ if __name__ == "__main__":
 
     if args.contrasive_loss=="supcon":
         loss_func=losses.SupConLoss(temperature=args.supcon_temp)
-    elif args.contrastive_loss=="contrastive":
+    elif args.loss_type=="contrastive":
         loss_func=losses.ContrastiveLoss(pos_margin=args.contrastive_loss_pos_margin, neg_margin=args.contrastive_loss_neg_margin)
     else:
         ValueError("Contrastive loss must be either supcon or contrastive")
