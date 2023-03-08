@@ -256,8 +256,7 @@ if __name__ == "__main__":
         "threshold":hp.uniform("threshold",0.01,0.15)
     }
 
-    trials = hp.Trials()
-    best = hp.fmin(hyp_ari, space, algo=hp.tpe.suggest, max_evals=20,trials=trials)
+    best = hp.fmin(hyp_ari, space, algo=hp.tpe.suggest, max_evals=20)
     print(best)
 
 
