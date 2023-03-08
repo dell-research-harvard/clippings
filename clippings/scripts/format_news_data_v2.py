@@ -200,8 +200,8 @@ print("Number of val images", len(val))
 
 
 ##Save the text data
-train.to_csv(f'/mnt/data01/clippings_general/texts/labelled_news_train.csv', index=False)
-val.to_csv(f'/mnt/data01/clippings_general/texts/labelled_news_val.csv', index=False)
+train.to_csv(f'/mnt/data01/clippings_general/texts/labelled_news_train_reformatted.csv', index=False)
+val.to_csv(f'/mnt/data01/clippings_general/texts/labelled_news_val_reformatted.csv', index=False)
 
 
 ##Save a version without singleton images
@@ -211,7 +211,6 @@ val = val[val['label']>=0]
 ##Save the text data
 train.to_csv(f'/mnt/data01/clippings_general/texts/labelled_news_train_reformatted_no_singletons.csv', index=False)
 val.to_csv(f'/mnt/data01/clippings_general/texts/labelled_news_val_reformatted_no_singletons.csv', index=False)
-
 
 # print("Total image-text pairs in pretraining CLIP", len(connected_components_df))
 
