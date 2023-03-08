@@ -702,8 +702,8 @@ if __name__ == "__main__":
                 # torch.save(clip_model.state_dict(), os.path.join("/mnt/data01/clippings_general/models/",("epoch_"+str(epoch)+args.wandb_name+".pt")))
 
     elif args.training_type=="train_bienc" and args.train_data_type=="newspapers_labelled":
-        best_bienc_loss=val_bienc_clip_loss(val_loader,clip_model,mlp_model,loss_func,split='val',log=True,processor=processor)
-        print("Val loss: {}".format(best_bienc_loss))
+        best_val_ari=val_bienc_clustering(val_loader,clip_model,mlp_model,split='val',log=True,processor=processor)
+        print("Best Val ARI: {}".format(best_val_ari))
         # best_acc=tester_bienc_clip(val_loader,huge_ref_loader,clip_model,mlp_model,split="val_huge",log=True)
         for epoch in (range(start_epoch, num_epochs+start_epoch)):
             if epoch<= args.freeze_clip_epochs:
@@ -716,9 +716,9 @@ if __name__ == "__main__":
                 freeze_clip=False
                 epoch_loss=train_bienc_clip(train_loader,clip_model,device,loss_func,epoch,clip_optimizer,clip_scheduler=clip_scheduler,epochviz="/mnt/data01/clippings_general/epoch_viz/",processor=processor,mlp_model=mlp_model,mlp_optimizer=mlp_optimizer,mlp_scheduler=mlp_scheduler,freeze_clip=freeze_clip)
             
-            bienc_loss=val_bienc_clip_loss(val_loader,clip_model,mlp_model,loss_func,split='val',log=True,processor=processor)
-            if bienc_loss<best_bienc_loss:
-                best_acc=bienc_loss
+            val_ari=val_bienc_clustering(val_loader,clip_model,mlp_model,split='val',log=True,processor=processor)
+            if val_ari>best_val_ari:
+                best_val_ari=val_ari
                 torch.save(clip_model.state_dict(), os.path.join("/mnt/data01/clippings_general/models/",("clip_imwt_"+str(args.im_wt)[2]+args.wandb_name+".pt")))
                 print("Model saved at epoch {}".format(epoch))
                 print("Path of the saved model: {}".format(os.path.join("/mnt/data01/clippings_general/models/",("clip_imwt_"+str(args.im_wt)[2]+args.wandb_name+".pt"))))
