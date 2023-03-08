@@ -198,7 +198,7 @@ if __name__ == "__main__":
     parser.add_argument("--pooling_type", type=str, default="mean", help="Pooling type")
     parser.add_argument("--split_test_for_eval", action="store_true", help="Split test set for evaluation")
     parser.add_argument("--opt_im_wt", action="store_true", help="Optimize image weight")
-    parser.add_argument("--specified_thresh", action="store_true", help="Optimize image weight")
+    parser.add_argument("--specified_thresh", type=float, default=None, help="Specified threshold")
     parser.add_argument("--use_specified_weight", action="store_true", help="Use specified args")
 
 
@@ -361,7 +361,7 @@ if __name__ == "__main__":
     all_labels=all_labels.cpu().numpy()
     print(all_labels)
 
-    if args.specified_thresh:
+    if args.specified_thresh is not None:
         best["threshold"]=args.specified_thresh
     
 
