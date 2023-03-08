@@ -208,7 +208,13 @@ if __name__ == "__main__":
 
 
     ###Eval data
-    eval_data=pd.read_csv("/mnt/data01/clippings_general/texts/labelled_news_val_reformatted.csv")
+    if args.split_test_for_eval:
+        eval_data=test_data
+        val_data
+
+    else:
+        eval_data=pd.read_csv("/mnt/data01/clippings_general/texts/labelled_news_val_reformatted.csv")
+    
     eval_data=eval_data.sort_values(by="label")
 
 
