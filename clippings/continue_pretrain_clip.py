@@ -454,6 +454,8 @@ def val_bienc_clustering(val_loader,clip_model,mlp_model,split='val',log=True,pr
     ###Get the nearest neighbours
     D, I = index.search(test_embeddings.cpu().numpy(), 1)
 
+    ##
+
     
 
     if log:
