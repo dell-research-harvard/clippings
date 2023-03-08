@@ -204,6 +204,15 @@ train.to_csv(f'/mnt/data01/clippings_general/texts/labelled_news_train_reformatt
 val.to_csv(f'/mnt/data01/clippings_general/texts/labelled_news_val_reformatted.csv', index=False)
 
 
+##Save a version without singleton images
+train = train[train['label']>=0]
+val = val[val['label']>=0]
+
+##Save the text data
+train.to_csv(f'/mnt/data01/clippings_general/texts/labelled_news_train_reformatted_no_singletons.csv', index=False)
+val.to_csv(f'/mnt/data01/clippings_general/texts/labelled_news_val_reformatted_no_singletons.csv', index=False)
+
+
 # print("Total image-text pairs in pretraining CLIP", len(connected_components_df))
 
 # ###Reformat the eval data
