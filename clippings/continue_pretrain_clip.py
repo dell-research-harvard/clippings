@@ -389,8 +389,8 @@ if __name__ == "__main__":
     parser.add_argument("--train_hardneg",action="store_true")
     parser.add_argument("--checkpoint_path",type=str,default=None)
     parser.add_argument("--loss_type",type=str,default="supcon")
-    parser.add_argument("--contrastive_loss_pos_margin",type=float,default=0.5)
-    parser.add_argument("--contrastive_loss_neg_margin",type=float,default=0.8)
+    parser.add_argument("--contrastive_loss_pos_margin",type=float,default=0)
+    parser.add_argument("--contrastive_loss_neg_margin",type=float,default=0.5)
 
     args = parser.parse_args()
     
