@@ -284,16 +284,7 @@ if __name__ == "__main__":
             ##Normalize the embeddings
             all_embeddings=torch.nn.functional.normalize(all_embeddings,dim=1)
 
-            # ###Build the index
-            # index = faiss.IndexFlatIP( 512)
 
-            # ###Add the embeddings
-            # index.add(all_embeddings.cpu().numpy())
-
-            # print("Done adding embeddings")
-
-            # ###Get the top 1000 nearest neighbours
-            # D, I = index.search(all_embeddings.cpu().numpy(),    all_embeddings.shape[0])
 
 
             all_embeddings=all_embeddings.cpu().numpy()
@@ -311,7 +302,7 @@ if __name__ == "__main__":
             "im_wt":hp.uniform("im_wt",0,1),
         }
 
-        best = fmin(hyp_ari, space, algo=tpe.suggest, max_evals=10000)
+        best = fmin(hyp_ari, space, algo=tpe.suggest, max_evals=2000)
         print(best)
 
 
@@ -352,7 +343,7 @@ if __name__ == "__main__":
     
         print("threshold",best["threshold"])
         print("checkpoint",args.checkpoint_path)
-        print("im_wt",args.im_wt)
+        print("im_wt",best["im_wt"])
         print("pooling_type",args.pooling_type)
         print("ARI",adjusted_rand_score(all_labels,clusters))
         test_ari=adjusted_rand_score(all_labels,clusters)
