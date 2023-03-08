@@ -482,7 +482,10 @@ def val_bienc_clustering(val_loader,clip_model,mlp_model,split='val',log=True,pr
     }
 
     best = fmin(hyp_ari, space, algo=tpe.suggest, max_evals=500)
-    print(best)
+    print(best) 
+
+    all_embeddings_test=all_embeddings_test.cpu().numpy()
+    all_labels_test=all_labels_test.cpu().numpy()
 
 
     cluster_preds=cluster("SLINK",cluster_params={"min cluster size":1,"threshold":best["threshold"],"metric":"cosine"},corpus_embeddings=all_embeddings_test,corpus_ids=None)
