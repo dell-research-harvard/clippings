@@ -188,7 +188,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     # checkpoint_path="/mnt/data01/clippings_general/models/clip_pretrain_unlabelled_m1_newspapers_cc.pt"
-    checkpoint_path="/mnt/data01/clippings_general/models/clip_imwt_5bienc_clip_pretrain_labelled_m3_v3_newspapers_nosingle.pt"
+    # checkpoint_path="/mnt/data01/clippings_general/models/clip_imwt_5bienc_clip_pretrain_labelled_m3_v3_newspapers_nosingle.pt"
     # checkpoint_path=None
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
@@ -257,7 +257,7 @@ if __name__ == "__main__":
     }
 
     trials = hp.Trials()
-    best = hp.fmin(hyp_ari, space, algo=hp.tpe.suggest, max_evals=10,trials=trials)
+    best = hp.fmin(hyp_ari, space, algo=hp.tpe.suggest, max_evals=20,trials=trials)
     print(best)
 
 
