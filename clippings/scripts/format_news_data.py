@@ -153,7 +153,7 @@ print("Number of unique labels", len(connected_components_df['label'].unique()))
 
 ###Add root to the image path
 
-connected_components_df['image_path'] = '/mnt/data02/captions/train_day_pulled_crops_quicker/' + connected_components_df['image_path'] + '.png'
+connected_components_df['image_path'] = '/mnt/data02/captions/train_day_pulled_crops_quicker_9/' + connected_components_df['image_path'] + '.png'
 
 ##Save the text data
 connected_components_df.to_csv(f'/mnt/data01/clippings_general/texts/labelled_news_reformatted.csv', index=False)
