@@ -16,4 +16,4 @@ CUDA_VISIBLE_DEVICES=0 python clippings/continue_pretrain_clip.py --clip_lr 5e-6
 
 
 ###Inference ARI
-
+CUDA_VISIBLE_DEVICES=0 python clippings/inference_clip.py --im_wt 0.5 --checkpoint_path /mnt/data01/clippings_general/models/clip_imwt_5bienc_clip_pretrain_labelled_m3_v3_newspapers_nosingle.pt
