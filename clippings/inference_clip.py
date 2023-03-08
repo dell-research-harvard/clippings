@@ -186,8 +186,11 @@ if __name__ == "__main__":
         print("Text",all_text[i])
         print("Nearest neighbours")
         nn_of_i_2=I[i][1:3]
+        dist_of_i_2=D[i][1:3]
         for nn in nn_of_i_2:
                 print("NN",nn)
+                print("Dist",dist_of_i_2[nn])
+
                 print("Text",all_text[nn])
                 print("Path",all_paths[nn])
                 print("Label",all_labels[nn])
