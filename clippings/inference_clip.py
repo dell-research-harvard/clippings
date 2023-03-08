@@ -197,68 +197,68 @@ if __name__ == "__main__":
                 print("Label",all_labels[nn])
 
   
-    # for thresh in np.arange(0.1,0.95,0.01):
-    #     print("Threshold",thresh)
-    #     above_threshold = D > thresh
-    #     ##If 0 embeddings are above threshold, then set stop
-    #     if np.sum(above_threshold)==0:
-    #         break
+    for thresh in np.arange(0.1,0.95,0.01):
+        print("Threshold",thresh)
+        above_threshold = D > thresh
+        ##If 0 embeddings are above threshold, then set stop
+        if np.sum(above_threshold)==0:
+            break
 
-    #     upper_only = np.triu(np.ones((all_embeddings.shape[0], all_embeddings.shape[0])) - np.identity(all_embeddings.shape[0]))
-    #     result = above_threshold * upper_only
+        upper_only = np.triu(np.ones((all_embeddings.shape[0], all_embeddings.shape[0])) - np.identity(all_embeddings.shape[0]))
+        result = above_threshold * upper_only
 
-    #     indices = [index for index, value in np.ndenumerate(result) if value]
-    #     edges = [[all_paths[pair[0]], all_paths[pair[1]]] for pair in indices]
+        indices = [index for index, value in np.ndenumerate(result) if value]
+        edges = [[all_paths[pair[0]], all_paths[pair[1]]] for pair in indices]
 
-    #     # Build graph
-    #     G = nx.Graph()
-    #     G.add_edges_from(edges)
+        # Build graph
+        G = nx.Graph()
+        G.add_edges_from(edges)
 
-    #     # Community detection
-    #     communities = nx_comm.louvain_communities(G, resolution=1)
+        # Community detection
+        communities = nx_comm.louvain_communities(G, resolution=1)
 
-    #     pred_pairs = []
-    #     for i in range(len(communities)):
-    #         pred_pairs.extend(combinations(list(communities[i]), 2))
+        pred_pairs = []
+        for i in range(len(communities)):
+            pred_pairs.extend(combinations(list(communities[i]), 2))
 
-    #     clustered_ids = {}
-    #     for i in range(len(communities)):
-    #         clustered_ids[i] = list(communities[i])
+        clustered_ids = {}
+        for i in range(len(communities)):
+            clustered_ids[i] = list(communities[i])
 
 
 
-    #     pred_pairs = [list(p) for p in pred_pairs]
+        pred_pairs = [list(p) for p in pred_pairs]
 
-    #     print(f'{(all_embeddings.shape[0])} examples grouped into {len(communities)} clusters')
-    #     # Evaluate
-    #     set_preds = set(map(tuple, pred_pairs))
-    #     set_gt = set(map(tuple, gt_pairs))
+        print(f'{(all_embeddings.shape[0])} examples grouped into {len(communities)} clusters')
+        # Evaluate
+        set_preds = set(map(tuple, pred_pairs))
+        set_gt = set(map(tuple, gt_pairs))
 
-    #     # Metrics
-    #     true_pos = [i for i in set_gt if i in set_preds or (i[1], i[0]) in set_preds]
-    #     false_pos = [i for i in set_preds if i not in set_gt and (i[1], i[0]) not in set_gt]
-    #     false_neg = [i for i in set_gt if i not in set_preds and (i[1], i[0]) not in set_preds]
+        # Metrics
+        true_pos = [i for i in set_gt if i in set_preds or (i[1], i[0]) in set_preds]
+        false_pos = [i for i in set_preds if i not in set_gt and (i[1], i[0]) not in set_gt]
+        false_neg = [i for i in set_gt if i not in set_preds and (i[1], i[0]) not in set_preds]
 
-    #     tps = len(true_pos)
-    #     fps = len(false_pos)
-    #     fns = len(false_neg)
+        tps = len(true_pos)
+        fps = len(false_pos)
+        fns = len(false_neg)
 
-    #     precision = tps / (tps + fps)
-    #     recall = tps / (tps + fns)
-    #     f_score = 2 * (precision * recall) / (precision + recall)
+        precision = tps / (tps + fps)
+        recall = tps / (tps + fns)
+        f_score = 2 * (precision * recall) / (precision + recall)
 
-    #     # wrongs = []
-    #     # for fn in false_neg:
-    #     #     wrongs.append(fn[0])
-    #     #     wrongs.append(fn[1])
-    #     # wrongs = list(set(wrongs))
+        # wrongs = []
+        # for fn in false_neg:
+        #     wrongs.append(fn[0])
+        #     wrongs.append(fn[1])
+        # wrongs = list(set(wrongs))
 
-    #     # for w in wrongs:
-    #     #     print(text_dict[w])
-    #     #     print("**")
+        # for w in wrongs:
+        #     print(text_dict[w])
+        #     print("**")
 
-    #     print(precision, recall, f_score)
-    #     print(tps, fps, fns)
+        print(precision, recall, f_score)
+        print(tps, fps, fns)
 
 
         
