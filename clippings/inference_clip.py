@@ -212,7 +212,7 @@ if __name__ == "__main__":
 
     clip_transform=CLIP_BASE_TRANSFORM_CENTER
     
-    # results_dict={}
+    results_dict={}
     for checkpoint_path in glob.glob("/mnt/data01/clippings_general/models/clip_imwt_5**bienc_clip_pretrain_labelled_m3_v3_newspapers_nosingle**.pt"):
     
     ###Load checkpoint
@@ -343,31 +343,31 @@ if __name__ == "__main__":
         print("ARI",adjusted_rand_score(all_labels,clusters))
         test_ari=adjusted_rand_score(all_labels,clusters)
 
-        ###Save cluster results
-        cluster_results=pd.DataFrame({"image_path":all_paths,"cluster":clusters})
+        # ###Save cluster results
+        # cluster_results=pd.DataFrame({"image_path":all_paths,"cluster":clusters})
 
-        ##Merge with the original data
-        cluster_results=cluster_results.merge(test_data,on="image_path")
+        # ##Merge with the original data
+        # cluster_results=cluster_results.merge(test_data,on="image_path")
 
-        ##Save the results
-        cluster_results.to_csv("/mnt/data01/clippings_general/texts/cluster_results_check.csv",index=False)
-
-
-
-    # results_dict[checkpoint_path]={"threshold":best["threshold"],"checkpoint":args.checkpoint_path,"im_wt":best["im_wt"],"pooling_type":args.pooling_type,"ARI":test_ari}
-
-
-    # if args.iter_glob:
-    #     continue
-    # else:
-    #     break
+        # ##Save the results
+        # cluster_results.to_csv("/mnt/data01/clippings_general/texts/cluster_results_check.csv",index=False)
+        results_dict[checkpoint_path]={"threshold":best["threshold"],"checkpoint":args.checkpoint_path,"im_wt":best["im_wt"],"pooling_type":args.pooling_type,"ARI":test_ari}
+           
+        if args.iter_glob:
+            continue
+        else:
+            break
 
 
-    # results_df=pd.DataFrame.from_dict(results_dict,orient="index")
-    # results_df.to_csv("/mnt/data01/clippings_general/nosingle_results_check.csv")
+
+
+
+
+    results_df=pd.DataFrame.from_dict(results_dict,orient="index")
+    results_df.to_csv("/mnt/data01/clippings_general/nosingle_results_check.csv")
     
-    # ##Print max ARI and its checkpoint
-    # print(results_df[results_df.ARI==results_df.ARI.max()])
+    ##Print max ARI and its checkpoint
+    print(results_df[results_df.ARI==results_df.ARI.max()])
     
   
     
