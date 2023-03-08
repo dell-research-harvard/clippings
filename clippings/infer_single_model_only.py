@@ -110,7 +110,13 @@ def get_image_text_embeddings(data_loader,clip_model,mlp_model,device,processor,
                 all_labels = torch.cat((all_labels, labels), dim=0)
                 all_text=all_text+text
                 all_paths=all_paths+image_path
+                all_image_embeddings= torch.cat((all_image_embeddings, image_embeds), dim=0) 
+                all_text_embeddings= torch.cat((all_text_embeddings, text_embeds), dim=0)
             ##GEt image and text embeddings in a similar list
+
+            print(all_embeddings.shape)
+            print(all_labels.shape)
+            print(image_embeds.shape)
 
 
 
