@@ -231,24 +231,27 @@ if __name__ == "__main__":
 
         ###Eval data
         if args.split_test_for_eval:
-            eval_data=test_data
-            ###Get unique labels
-            unique_labels=eval_data.label.unique()
+            # eval_data=test_data
+            # ###Get unique labels
+            # unique_labels=eval_data.label.unique()
 
-            ###Split labels into train and test
-            test_labels, val_labels=train_test_split(unique_labels, test_size=0.4, random_state=42)
+            # ###Split labels into train and test
+            # test_labels, val_labels=train_test_split(unique_labels, test_size=0.4, random_state=42)
 
-            ###Get the data
-            eval_data=eval_data[eval_data.label.isin(val_labels)]
+            # ###Get the data
+            # eval_data=eval_data[eval_data.label.isin(val_labels)]
 
-            ##Save val data
-            eval_data.to_csv("/mnt/data01/clippings_general/texts/test_val_for_export.csv",index=False)
+            # ##Save val data
+            # eval_data.to_csv("/mnt/data01/clippings_general/texts/test_val_for_export.csv",index=False)
 
 
-            test_data=test_data[test_data.label.isin(test_labels)]
+            # test_data=test_data[test_data.label.isin(test_labels)]
 
-            ##Save test data
-            test_data.to_csv("/mnt/data01/clippings_general/texts/test_test_for_export.csv",index=False)
+            # ##Save test data
+            # test_data.to_csv("/mnt/data01/clippings_general/texts/test_test_for_export.csv",index=False)
+
+            eval_data=pd.read_csv("/mnt/data01/clippings_general/texts/test_val_for_export.csv")
+            test_data=pd.read_csv("/mnt/data01/clippings_general/texts/test_test_for_export.csv")
 
         else:
             eval_data=pd.read_csv("/mnt/data01/clippings_general/texts/labelled_news_val_reformatted.csv")
