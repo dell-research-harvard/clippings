@@ -151,7 +151,7 @@ singletons = list(set(singletons_1 + singletons_2))
 
 
 for i,image in enumerate(singletons):
-    cluster_df = cluster_df.concat({'image_path':image, 'cluster_id':-(i)}, axis=0)
+    cluster_df = pd.concat(cluster_df,{'image_path':image, 'cluster_id':-(i)}, axis=0)
 
 
 ##Drop duplicates
