@@ -48,8 +48,8 @@ def convert_to_text(unicode_string):
 
 def prep_labelled_news_data():
     ###Load the text file with the labels
-    train_data = pd.read_csv(f'/mnt/data01/clippings_general/texts/labelled_news_train_reformatted.csv')
-    val_data = pd.read_csv(f'/mnt/data01/clippings_general/texts/labelled_news_val_reformatted.csv')
+    train_data = pd.read_csv(f'/mnt/data01/clippings_general/texts/labelled_news_train_reformatted_no_singletons.csv')
+    val_data = pd.read_csv(f'/mnt/data01/clippings_general/texts/labelled_news_val_reformatted_no_singletons.csv')
 
     return train_data,val_data
 
