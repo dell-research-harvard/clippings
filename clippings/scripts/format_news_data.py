@@ -45,7 +45,7 @@ import networkx as nx
 ##Load the json
 # train_data_path="/mnt/data01/clippings_general/texts/emily_news_captions_3.json"
 train_data_list=["/mnt/data01/clippings_general/texts/emily_news_captions_3.json","/mnt/data01/clippings_general/texts/emily_news_captions_2.json","/mnt/data01/clippings_general/texts/emily_newspaper_labels_0603.json"]
-train_data_list=["/mnt/data01/clippings_general/texts/emily_news_captions_3.json"]
+train_data_list=["/mnt/data01/clippings_general/texts/emily_news_captions_2.json"]
 
 ###Concat the jsons
 data = []
