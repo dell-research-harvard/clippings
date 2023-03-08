@@ -43,7 +43,7 @@ import networkx as nx
 ###The labelled data is in a json from label studio 
 
 ##Load the json
-train_data_path="/mnt/data01/clippings_general/texts/emily_news_captions_2.json"
+train_data_path="/mnt/data01/clippings_general/texts/emily_news_captions_3.json"
 
 with open(train_data_path) as f:
     data = json.load(f)
