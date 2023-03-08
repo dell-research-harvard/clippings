@@ -63,7 +63,7 @@ caption2 = []
 result = []
 
 for i in range(len(data)):
-    print(i)
+    # print(i)
     image1.append(data[i]['data']['id1'])
     caption1.append(data[i]['data']['caption1'])
     image2.append(data[i]['data']['id2'])
