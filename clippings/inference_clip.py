@@ -284,16 +284,16 @@ if __name__ == "__main__":
             ##Normalize the embeddings
             all_embeddings=torch.nn.functional.normalize(all_embeddings,dim=1)
 
-            ###Build the index
-            index = faiss.IndexFlatIP( 512)
+            # ###Build the index
+            # index = faiss.IndexFlatIP( 512)
 
-            ###Add the embeddings
-            index.add(all_embeddings.cpu().numpy())
+            # ###Add the embeddings
+            # index.add(all_embeddings.cpu().numpy())
 
-            print("Done adding embeddings")
+            # print("Done adding embeddings")
 
-            ###Get the top 1000 nearest neighbours
-            D, I = index.search(all_embeddings.cpu().numpy(),    all_embeddings.shape[0])
+            # ###Get the top 1000 nearest neighbours
+            # D, I = index.search(all_embeddings.cpu().numpy(),    all_embeddings.shape[0])
 
 
             all_embeddings=all_embeddings.cpu().numpy()
@@ -329,16 +329,16 @@ if __name__ == "__main__":
         ##Normalize the embeddings
         all_embeddings=torch.nn.functional.normalize(all_embeddings,dim=1)
 
-        ###Build the index
-        index = faiss.IndexFlatIP( 512)
+        # ###Build the index
+        # index = faiss.IndexFlatIP( 512)
 
-        ###Add the embeddings
-        index.add(all_embeddings.cpu().numpy())
+        # ###Add the embeddings
+        # index.add(all_embeddings.cpu().numpy())
 
-        print("Done adding embeddings")
+        # print("Done adding embeddings")
 
         ###Get the top 1000 nearest neighbours
-        D, I = index.search(all_embeddings.cpu().numpy(),    all_embeddings.shape[0])
+        # D, I = index.search(all_embeddings.cpu().numpy(),    all_embeddings.shape[0])
 
 
         all_embeddings=all_embeddings.cpu().numpy()
