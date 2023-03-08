@@ -292,7 +292,7 @@ if __name__ == "__main__":
     
     if args.opt_im_wt:
         space = {
-            "threshold":hp.uniform("threshold",0.01,0.5),
+            "threshold":hp.uniform("threshold",0.01,1),
             "im_wt":hp.uniform("im_wt",0.3,1),
         }
     else:
