@@ -447,17 +447,22 @@ def val_bienc_clustering(val_loader,clip_model,mlp_model,split='val',log=True,pr
     test_embeddings, test_labels, test_text, test_paths = get_image_text_embeddings(val_loader,clip_model,mlp_model, device,processor,args.pooling_type,args.im_wt)
     print("total test embeddings: ",test_embeddings.shape)
 
-    ###Make an index
-    index = faiss.IndexFlatIP(test_embeddings.shape[1])
-    index.add(test_embeddings.cpu().numpy())
+    ###Split the embeddings and labels into train and val
+    idx_val=np.random.choice(len(test_embeddings),int(len(test_embeddings)*0.2),replace=False)
+    idx_train=np.setdiff1d(np.arange(len(test_embeddings)),idx_val)
 
-    ###Get the nearest neighbours
-    D, I = index.search(test_embeddings.cpu().numpy(), 1)
+    all_embeddings_val=torch.cat((test_embeddings[idx_train],test_embeddings[idx_val]))
+    all_labels_val=torch.cat((test_labels[idx_train],test_labels[idx_val]))
 
-    ##
+    all_embeddings_test=test_embeddings[idx_val]
+    all_labels_test=test_labels[idx_val]
 
+    ###Cluster the val embeddings
     
 
+    cluster_preds=cluster("SLINK",cluster_params={"min cluster size":1,"threshold":params["threshold"],"metric":"cosine"},corpus_embeddings=all_embeddings,corpus_ids=None)
+
+    ari_split=("ARI",adjusted_rand_score(all_labels,clusters))
     if log:
         wandb.log({f"{split}/cluster accuracy": cluster_acc})
 
