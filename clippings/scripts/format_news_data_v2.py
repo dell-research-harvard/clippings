@@ -141,7 +141,7 @@ for cluster in cluster_dict:
 cluster_df = pd.DataFrame(columns=['image_path', 'cluster_id'])
 for cluster in cluster_dict:
     for image in cluster_dict[cluster]:
-        cluster_df = cluster_df.append({'image_path':image, 'cluster_id':cluster}, axis=0)
+        cluster_df = cluster_df.append({'image_path':image, 'cluster_id':cluster})
 
 ###Add singletons to the clusters
 all_images_in_clusters = [item for sublist in cluster_dict.values() for item in sublist]
@@ -151,7 +151,7 @@ singletons = list(set(singletons_1 + singletons_2))
 
 
 for i,image in enumerate(singletons):
-    cluster_df = cluster_df.append({'image_path':image, 'cluster_id':-(i)}, axis=0)
+    cluster_df = cluster_df.append({'image_path':image, 'cluster_id':-(i)})
 
 
 ##Drop duplicates
