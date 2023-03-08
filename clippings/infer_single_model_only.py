@@ -51,7 +51,7 @@ from itertools import combinations
 
 from sklearn.metrics import adjusted_mutual_info_score, rand_score, adjusted_rand_score, normalized_mutual_info_score
 from sklearn.cluster import AgglomerativeClustering, DBSCAN
-from hyperopt import hp,fmin, tpe
+from hyperopt import hp,fmin, tpe, rand
 
 
 
@@ -301,7 +301,7 @@ if __name__ == "__main__":
             "threshold":hp.uniform("threshold",0.01,1),
         }
 
-    best = fmin(hyp_ari, space, algo=tpe.suggest, max_evals=1000)
+    best = fmin(hyp_ari, space, algo=rand.suggest, max_evals=1000)
     print(best)
 
 
