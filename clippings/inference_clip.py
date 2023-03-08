@@ -49,6 +49,10 @@ import networkx.algorithms.community as nx_comm
 from itertools import combinations
 
 
+from sklearn.metrics import adjusted_mutual_info_score, rand_score, adjusted_rand_score, normalized_mutual_info_score
+from sklearn.cluster import AgglomerativeClustering, DBSCAN
+
+
 
 
 def get_image_text_embeddings(data_loader,clip_model,mlp_model,device,processor,pooling_type,im_wt):
@@ -105,6 +109,72 @@ def get_image_text_embeddings(data_loader,clip_model,mlp_model,device,processor,
                 all_paths=all_paths+image_path
 
     return all_embeddings, all_labels, all_text, all_paths
+
+
+def cluster(cluster_type, cluster_params, corpus_embeddings, corpus_ids=None):
+
+    if cluster_type not in ["agglomerative", "HDBScan", "SLINK"]:
+        raise ValueError('cluster_type must be "agglomerative", "HDBScan", "community" or "SLINK"')
+    if cluster_type == "agglomerative":
+        if "threshold" not in cluster_params:
+            raise ValueError('cluster_params must contain "threshold"')
+        if "clustering linkage" not in cluster_params:
+            raise ValueError('cluster_params must contain "clustering linkage"')
+        if "metric" not in cluster_params:
+            raise ValueError('cluster_params must contain "metric"')
+    if cluster_type == "HDBScan":
+        if "min cluster size" not in cluster_params:
+            raise ValueError('cluster_params must contain "min cluster size"')
+        if "min samples" not in cluster_params:
+            raise ValueError('cluster_params must contain "min cluster size"')
+    if cluster_type == "SLINK":
+        if "min cluster size" not in cluster_params:
+            raise ValueError('cluster_params must contain "min cluster size"')
+        if "threshold" not in cluster_params:
+            raise ValueError('cluster_params must contain "threshold"')
+        if "clustering affinity" not in cluster_params:
+            raise ValueError('cluster_params must contain "clustering affinity"')
+
+    if cluster_type == "agglomerative":
+        clustering_model = AgglomerativeClustering(
+            n_clusters=None,
+            distance_threshold=cluster_params["threshold"],
+            linkage=cluster_params["clustering linkage"],
+            affinity=cluster_params["metric"]
+        )
+
+    if cluster_type == "SLINK":
+        clustering_model = DBSCAN(
+            eps=cluster_params["threshold"],
+            min_samples=cluster_params["min cluster size"],
+            metric=cluster_params["metric"]
+        )
+
+    if cluster_type == "HDBScan":
+        clustering_model = hdbscan.HDBSCAN(
+            min_cluster_size=cluster_params["min cluster size"],
+            min_samples=cluster_params["min samples"],
+            gen_min_span_tree=True
+        )
+
+    clustering_model.fit(corpus_embeddings)
+    cluster_assignment = clustering_model.labels_
+
+    clustered_ids = {}
+    for sentence_id, cluster_id in enumerate(cluster_assignment):
+        if int(cluster_id) not in clustered_ids:
+            clustered_ids[int(cluster_id)] = []
+
+        if corpus_ids:
+            clustered_ids[int(cluster_id)].append(corpus_ids[sentence_id])
+        else:
+            clustered_ids[int(cluster_id)].append(sentence_id)
+
+    # HDBScan has a cluster where it puts all the unassigned nodes
+    if cluster_type == "HDBScan" or cluster_type == "SLINK" and -1 in clustered_ids:
+        del clustered_ids[-1]
+
+    return clustered_ids
 
 
 ###Run as script
@@ -196,70 +266,11 @@ if __name__ == "__main__":
                 print("Path",all_paths[nn])
                 print("Label",all_labels[nn])
 
+    ###Get the clusters
+    print("Get clusters")
+    clusters=cluster("SLINK",cluster_params={"min cluster size":1,"threshold":0.9,"metric":"cosine"},corpus_embeddings=all_embeddings,corpus_ids=None)
+    print("Done getting clusters")
+
+    print(adjusted_rand_score(clusters,all_labels))
   
-    for thresh in np.arange(0.8,0.99,0.01):
-        print("Threshold",thresh)
-        above_threshold = D > thresh
-        ##If 0 embeddings are above threshold, then set stop
-        if np.sum(above_threshold)==0:
-            break
-
-        upper_only = np.triu(np.ones((all_embeddings.shape[0], all_embeddings.shape[0])) - np.identity(all_embeddings.shape[0]))
-        result = above_threshold * upper_only
-
-        indices = [index for index, value in np.ndenumerate(result) if value]
-        edges = [[all_paths[pair[0]], all_paths[pair[1]]] for pair in indices]
-
-        # Build graph
-        G = nx.Graph()
-        G.add_edges_from(edges)
-
-        # Community detection
-        communities = nx_comm.louvain_communities(G, resolution=1)
-
-        pred_pairs = []
-        for i in range(len(communities)):
-            pred_pairs.extend(combinations(list(communities[i]), 2))
-
-        clustered_ids = {}
-        for i in range(len(communities)):
-            clustered_ids[i] = list(communities[i])
-
-
-
-        pred_pairs = [list(p) for p in pred_pairs]
-
-        print(f'{(all_embeddings.shape[0])} examples grouped into {len(communities)} clusters')
-        # Evaluate
-        set_preds = set(map(tuple, pred_pairs))
-        set_gt = set(map(tuple, gt_pairs))
-
-        # Metrics
-        true_pos = [i for i in set_gt if i in set_preds or (i[1], i[0]) in set_preds]
-        false_pos = [i for i in set_preds if i not in set_gt and (i[1], i[0]) not in set_gt]
-        false_neg = [i for i in set_gt if i not in set_preds and (i[1], i[0]) not in set_preds]
-
-        tps = len(true_pos)
-        fps = len(false_pos)
-        fns = len(false_neg)
-
-        precision = tps / (tps + fps)
-        recall = tps / (tps + fns)
-        f_score = 2 * (precision * recall) / (precision + recall)
-
-        # wrongs = []
-        # for fn in false_neg:
-        #     wrongs.append(fn[0])
-        #     wrongs.append(fn[1])
-        # wrongs = list(set(wrongs))
-
-        # for w in wrongs:
-        #     print(text_dict[w])
-        #     print("**")
-
-        print(precision, recall, f_score)
-        print(tps, fps, fns)
-
-
-        
-
+    
