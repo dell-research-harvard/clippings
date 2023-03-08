@@ -181,12 +181,12 @@ if __name__ == "__main__":
     D, I = index.search(all_embeddings.cpu().numpy(), all_embeddings.shape[0])
 
     ###Check the text of some of the nearest neighbours apart from the same image
-    for i in range(0,all_embeddings.shape[0]):
+    for i in range(0,3):
         print("Image",all_paths[i])
         print("Text",all_text[i])
         print("Label",all_labels[i])
         print("Nearest neighbours")
-        for j in range(0,all_embeddings.shape[0]):
+        for j in range(0,2):
                 print("Image",all_paths[j])
                 print("Text",all_text[j])
                 print("Label",all_labels[j])
