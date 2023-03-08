@@ -197,7 +197,6 @@ if __name__ == "__main__":
     parser.add_argument("--im_wt", type=float, default=0.5, help="Weight of image embeddings")
     parser.add_argument("--pooling_type", type=str, default="mean", help="Pooling type")
     parser.add_argument("--split_test_for_eval", action="store_true", help="Split test set for evaluation")
-    parser.add_argument("--iter_glob", action="store_true")
     
 
     
