@@ -275,7 +275,7 @@ if __name__ == "__main__":
     clusters=cluster("SLINK",cluster_params={"min cluster size":1,"threshold":0.1,"metric":"cosine"},corpus_embeddings=all_embeddings,corpus_ids=None)
     print("Done getting clusters")
     print(clusters)
-    print(max(cluster))
+    print(max(clusters))
 
     print(adjusted_rand_score(clusters,all_labels))
   
