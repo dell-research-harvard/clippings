@@ -118,9 +118,9 @@ train_data['result'] = train_data['result'].replace({'Different':0, 'Same':1,'Dr
 
 ##DRop if result is nan
 train_data = train_data.dropna()
-image_1= train_data['image1']
-image_2= train_data['image2']
-labels= train_data['result']
+image_1= train_data['image1'].tolist()
+image_2= train_data['image2'].tolist()
+labels= train_data['result'].tolist()
 
 ###Build a graph from the data. Nodes are connected if they have result=1
 edges_list = []
