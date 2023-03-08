@@ -212,160 +212,161 @@ if __name__ == "__main__":
 
     clip_transform=CLIP_BASE_TRANSFORM_CENTER
     
-    results_dict={}
-    for checkpoint_path in ["/mnt/data01/clippings_general//models/clip_imwt_5bienc_clip_pretrain_labelled_m3_v3_newspapers_nosingle_backup.pt"]:
-    # glob.glob("/mnt/data01/clippings_general/models/clip_imwt_5**bienc_clip_pretrain_labelled_m3_v3_newspapers_nosingle**.pt")
-        
-        ###Load checkpoint
-        if args.checkpoint_path is not None:
-            if args.iter_glob: 
-                clip_model.load_state_dict(torch.load(checkpoint_path, map_location=torch.device(device)))
-            else : 
-                clip_model.load_state_dict(torch.load(args.checkpoint_path, map_location=torch.device(device)))
-        # model.load_state_dict(torch.load("/mnt/data01/clippings_general/models/bienc_clip_pretrain_labelled_m3.pt", map_location=torch.device(device)))
-        clip_model.to(device)
+    # results_dict={}
+# for checkpoint_path in ["/mnt/data01/clippings_general//models/clip_imwt_5bienc_clip_pretrain_labelled_m3_v3_newspapers_nosingle_backup.pt"]:
+# glob.glob("/mnt/data01/clippings_general/models/clip_imwt_5**bienc_clip_pretrain_labelled_m3_v3_newspapers_nosingle**.pt")
+    
+    ###Load checkpoint
+    if args.checkpoint_path is not None:
+        clip_model.load_state_dict(torch.load(args.checkpoint_path, map_location=torch.device(device)))
+        # if args.iter_glob: 
+        #     clip_model.load_state_dict(torch.load(checkpoint_path, map_location=torch.device(device)))
+        # else : 
+        #     clip_model.load_state_dict(torch.load(args.checkpoint_path, map_location=torch.device(device)))
+    # model.load_state_dict(torch.load("/mnt/data01/clippings_general/models/bienc_clip_pretrain_labelled_m3.pt", map_location=torch.device(device)))
+    clip_model.to(device)
 
-        ###Load data
-        test_data=pd.read_csv("/mnt/data01/clippings_general/texts/labelled_news_eval_reformatted.csv")
-        test_data=test_data.sort_values(by="label")
-
-
-        ###Eval data
-        if args.split_test_for_eval:
-            eval_data=test_data
-            ###Get unique labels
-            unique_labels=eval_data.label.unique()
-
-            ###Split labels into train and test
-            test_labels, val_labels=train_test_split(unique_labels, test_size=0.4, random_state=42)
-
-            ###Get the data
-            eval_data=eval_data[eval_data.label.isin(val_labels)]
-
-            ##Save val data
-            eval_data.to_csv("/mnt/data01/clippings_general/texts/test_val_for_export.csv",index=False)
+    ###Load data
+    test_data=pd.read_csv("/mnt/data01/clippings_general/texts/labelled_news_eval_reformatted.csv")
+    test_data=test_data.sort_values(by="label")
 
 
-            test_data=test_data[test_data.label.isin(test_labels)]
+    ###Eval data
+    if args.split_test_for_eval:
+        eval_data=test_data
+        ###Get unique labels
+        unique_labels=eval_data.label.unique()
 
-            ##Save test data
-            test_data.to_csv("/mnt/data01/clippings_general/texts/test_test_for_export.csv",index=False)
+        ###Split labels into train and test
+        test_labels, val_labels=train_test_split(unique_labels, test_size=0.4, random_state=42)
 
-        else:
-            eval_data=pd.read_csv("/mnt/data01/clippings_general/texts/labelled_news_val_reformatted.csv")
-        
-        eval_data=eval_data.sort_values(by="label")
+        ###Get the data
+        eval_data=eval_data[eval_data.label.isin(val_labels)]
+
+        ##Save val data
+        eval_data.to_csv("/mnt/data01/clippings_general/texts/test_val_for_export.csv",index=False)
 
 
+        test_data=test_data[test_data.label.isin(test_labels)]
 
-        ##Load the dataset
-        ###Create the data datsets
-        ###Tune params using eval set
+        ##Save test data
+        test_data.to_csv("/mnt/data01/clippings_general/texts/test_test_for_export.csv",index=False)
 
-        eval_dataset=data_loaders.TextImageDataset(eval_data, img_transform=clip_transform)
-        eval_loader=torch.utils.data.DataLoader(eval_dataset,batch_size=126,shuffle=False,num_workers=16)
-
-        ###Get the embeddings
-        all_embeddings, all_image_embeddings, all_text_embeddings, all_labels, all_text, all_paths = get_image_text_embeddings(eval_loader,clip_model,None,device,processor,args.pooling_type,args.im_wt)
-
-        
-
-        ###Get the clusters
-
-        ###Use hyperopt to max the adjusted rand index
-        def hyp_ari(params,all_embeddings=all_embeddings, all_image_embeddings=all_image_embeddings, all_text_embeddings=all_text_embeddings, all_labels=all_labels, all_text=all_text, all_paths=all_paths):
-            print("Params",params)
-
-            print("Get knn")
-
-            ###final embeddings = im_wt*image_embeddings + (1-im_wt)*text_embeddings
-            all_embeddings=params["im_wt"]*all_image_embeddings + (1-params["im_wt"])*all_text_embeddings
-
-            ##Normalize the embeddings
-            all_embeddings=torch.nn.functional.normalize(all_embeddings,dim=1)
+    else:
+        eval_data=pd.read_csv("/mnt/data01/clippings_general/texts/labelled_news_val_reformatted.csv")
+    
+    eval_data=eval_data.sort_values(by="label")
 
 
 
+    ##Load the dataset
+    ###Create the data datsets
+    ###Tune params using eval set
 
-            all_embeddings=all_embeddings.cpu().numpy()
-            all_labels=all_labels.cpu().numpy()
-            print(all_labels)
+    eval_dataset=data_loaders.TextImageDataset(eval_data, img_transform=clip_transform)
+    eval_loader=torch.utils.data.DataLoader(eval_dataset,batch_size=126,shuffle=False,num_workers=16)
 
-            clusters=cluster("SLINK",cluster_params={"min cluster size":1,"threshold":params["threshold"],"metric":"cosine"},corpus_embeddings=all_embeddings,corpus_ids=None)
-            print("Clusters",clusters)
-            print("Max cluster",max(clusters))
-            print("ARI",adjusted_rand_score(all_labels,clusters))
-            return -adjusted_rand_score(all_labels,clusters)
-        
-        space = {
-            "threshold":hp.uniform("threshold",0.01,0.8),
-            "im_wt":hp.uniform("im_wt",0,1),
-        }
+    ###Get the embeddings
+    all_embeddings, all_image_embeddings, all_text_embeddings, all_labels, all_text, all_paths = get_image_text_embeddings(eval_loader,clip_model,None,device,processor,args.pooling_type,args.im_wt)
 
-        best = fmin(hyp_ari, space, algo=tpe.suggest, max_evals=1000)
-        print(best)
+    
 
+    ###Get the clusters
 
-        ###Now calculate test ARI using the best params
-        ##First embed the test data
-        test_dataset=data_loaders.TextImageDataset(test_data, img_transform=clip_transform)
-        test_loader=torch.utils.data.DataLoader(test_dataset,batch_size=126,shuffle=False,num_workers=16)
+    ###Use hyperopt to max the adjusted rand index
+    def hyp_ari(params,all_embeddings=all_embeddings, all_image_embeddings=all_image_embeddings, all_text_embeddings=all_text_embeddings, all_labels=all_labels, all_text=all_text, all_paths=all_paths):
+        print("Params",params)
 
-        ###Get the embeddings
-        all_embeddings, all_image_embeddings, all_text_embeddings, all_labels, all_text, all_paths=get_image_text_embeddings(test_loader,clip_model,None,device,processor,"mean",0.5)
+        print("Get knn")
 
         ###final embeddings = im_wt*image_embeddings + (1-im_wt)*text_embeddings
-        all_embeddings=best["im_wt"]*all_image_embeddings + (1-best["im_wt"])*all_text_embeddings
+        all_embeddings=params["im_wt"]*all_image_embeddings + (1-params["im_wt"])*all_text_embeddings
 
         ##Normalize the embeddings
         all_embeddings=torch.nn.functional.normalize(all_embeddings,dim=1)
 
-        # ###Build the index
-        # index = faiss.IndexFlatIP( 512)
 
-        # ###Add the embeddings
-        # index.add(all_embeddings.cpu().numpy())
-
-        # print("Done adding embeddings")
-
-        ###Get the top 1000 nearest neighbours
-        # D, I = index.search(all_embeddings.cpu().numpy(),    all_embeddings.shape[0])
 
 
         all_embeddings=all_embeddings.cpu().numpy()
         all_labels=all_labels.cpu().numpy()
         print(all_labels)
 
-        clusters=cluster("SLINK",cluster_params={"min cluster size":1,"threshold":best["threshold"],"metric":"cosine"},corpus_embeddings=all_embeddings,corpus_ids=None)
+        clusters=cluster("SLINK",cluster_params={"min cluster size":1,"threshold":params["threshold"],"metric":"cosine"},corpus_embeddings=all_embeddings,corpus_ids=None)
         print("Clusters",clusters)
         print("Max cluster",max(clusters))
         print("ARI",adjusted_rand_score(all_labels,clusters))
+        return -adjusted_rand_score(all_labels,clusters)
     
-        print("threshold",best["threshold"])
-        print("checkpoint",args.checkpoint_path)
-        print("im_wt",best["im_wt"])
-        print("pooling_type",args.pooling_type)
-        print("ARI",adjusted_rand_score(all_labels,clusters))
-        test_ari=adjusted_rand_score(all_labels,clusters)
+    space = {
+        "threshold":hp.uniform("threshold",0.01,0.8),
+        "im_wt":hp.uniform("im_wt",0,1),
+    }
 
-        ###Save cluster results
-        cluster_results=pd.DataFrame({"image_path":all_paths,"cluster":clusters})
-
-        ##Merge with the original data
-        cluster_results=cluster_results.merge(test_data,on="image_path")
-
-        ##Save the results
-        cluster_results.to_csv("/mnt/data01/clippings_general/texts/cluster_results_check.csv",index=False)
+    best = fmin(hyp_ari, space, algo=tpe.suggest, max_evals=1000)
+    print(best)
 
 
+    ###Now calculate test ARI using the best params
+    ##First embed the test data
+    test_dataset=data_loaders.TextImageDataset(test_data, img_transform=clip_transform)
+    test_loader=torch.utils.data.DataLoader(test_dataset,batch_size=126,shuffle=False,num_workers=16)
 
-        results_dict[checkpoint_path]={"threshold":best["threshold"],"checkpoint":args.checkpoint_path,"im_wt":best["im_wt"],"pooling_type":args.pooling_type,"ARI":test_ari}
+    ###Get the embeddings
+    all_embeddings, all_image_embeddings, all_text_embeddings, all_labels, all_text, all_paths=get_image_text_embeddings(test_loader,clip_model,None,device,processor,"mean",0.5)
+
+    ###final embeddings = im_wt*image_embeddings + (1-im_wt)*text_embeddings
+    all_embeddings=best["im_wt"]*all_image_embeddings + (1-best["im_wt"])*all_text_embeddings
+
+    ##Normalize the embeddings
+    all_embeddings=torch.nn.functional.normalize(all_embeddings,dim=1)
+
+    # ###Build the index
+    # index = faiss.IndexFlatIP( 512)
+
+    # ###Add the embeddings
+    # index.add(all_embeddings.cpu().numpy())
+
+    # print("Done adding embeddings")
+
+    ###Get the top 1000 nearest neighbours
+    # D, I = index.search(all_embeddings.cpu().numpy(),    all_embeddings.shape[0])
 
 
-        if args.iter_glob:
-            continue
-        else:
-            break
+    all_embeddings=all_embeddings.cpu().numpy()
+    all_labels=all_labels.cpu().numpy()
+    print(all_labels)
+
+    clusters=cluster("SLINK",cluster_params={"min cluster size":1,"threshold":best["threshold"],"metric":"cosine"},corpus_embeddings=all_embeddings,corpus_ids=None)
+    print("Clusters",clusters)
+    print("Max cluster",max(clusters))
+    print("ARI",adjusted_rand_score(all_labels,clusters))
+
+    print("threshold",best["threshold"])
+    print("checkpoint",args.checkpoint_path)
+    print("im_wt",best["im_wt"])
+    print("pooling_type",args.pooling_type)
+    print("ARI",adjusted_rand_score(all_labels,clusters))
+    test_ari=adjusted_rand_score(all_labels,clusters)
+
+    ###Save cluster results
+    cluster_results=pd.DataFrame({"image_path":all_paths,"cluster":clusters})
+
+    ##Merge with the original data
+    cluster_results=cluster_results.merge(test_data,on="image_path")
+
+    ##Save the results
+    cluster_results.to_csv("/mnt/data01/clippings_general/texts/cluster_results_check.csv",index=False)
+
+
+
+    results_dict[checkpoint_path]={"threshold":best["threshold"],"checkpoint":args.checkpoint_path,"im_wt":best["im_wt"],"pooling_type":args.pooling_type,"ARI":test_ari}
+
+
+    if args.iter_glob:
+        continue
+    else:
+        break
 
 
     results_df=pd.DataFrame.from_dict(results_dict,orient="index")
