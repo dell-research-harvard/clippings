@@ -132,8 +132,7 @@ def cluster(cluster_type, cluster_params, corpus_embeddings, corpus_ids=None):
             raise ValueError('cluster_params must contain "min cluster size"')
         if "threshold" not in cluster_params:
             raise ValueError('cluster_params must contain "threshold"')
-        if "clustering affinity" not in cluster_params:
-            raise ValueError('cluster_params must contain "clustering affinity"')
+
 
     if cluster_type == "agglomerative":
         clustering_model = AgglomerativeClustering(
