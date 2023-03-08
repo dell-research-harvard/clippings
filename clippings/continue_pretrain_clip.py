@@ -458,6 +458,8 @@ if __name__ == "__main__":
         dedup_train_data=train_data.drop_duplicates(subset=['label'],keep='first')
         print("Total number of unique labels in train data: ",len(dedup_train_data))
         k_hardneg_df = data_loaders.make_hard_neg_df(dedup_train_data,k=args.k,clip_model=clip_model,mlp_model=mlp_model,device=device,processor=processor,pooling_type=args.pooling_type,im_wt=args.im_wt)
+        ##Save the hardneg df
+        k_hardneg_df.to_csv("k_hardneg_df.csv")
         train_dataset=data_loaders.TextImageDatasetWithHardNegs(train_data,k_hardneg_df,img_transform=  train_image_transform ,text_transform=None,batch_size=126,k=args.k,m=args.m)
         print("Done setting up dataset with hardnegatives")
     else: 
