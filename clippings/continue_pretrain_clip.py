@@ -532,7 +532,7 @@ if __name__ == "__main__":
     start_epoch=0
     best_acc=0
 
-    if args.contrasive_loss=="supcon":
+    if args.loss_type=="supcon":
         loss_func=losses.SupConLoss(temperature=args.supcon_temp)
     elif args.loss_type=="contrastive":
         loss_func=losses.ContrastiveLoss(pos_margin=args.contrastive_loss_pos_margin, neg_margin=args.contrastive_loss_neg_margin)
