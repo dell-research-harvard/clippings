@@ -170,12 +170,13 @@ connected_components_df.to_csv(f'/mnt/data01/clippings_general/texts/labelled_ne
 print("length after dropping duplicates", len(connected_components_df))
 
 ##Split into train and val by using labels. Sample 20% of the labels for val
-train, val = train_test_split(connected_components_df['label'].unique(), test_size=0.2, random_state=42)
+train_labels, val_labels = train_test_split(connected_components_df['label'].unique(), test_size=0.2, random_state=42)
 
+print(train_labels[:10])
 ##Split the data
-train = connected_components_df[connected_components_df['label'].isin(train)]
+train = connected_components_df[connected_components_df['label'].isin(train_labels)]
 print("Number of train images", len(train))
-val = connected_components_df[connected_components_df['label'].isin(val)]
+val = connected_components_df[connected_components_df['label'].isin(val_labels)]
 print("Number of val images", len(val))
 
 
