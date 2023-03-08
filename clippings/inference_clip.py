@@ -51,7 +51,7 @@ from itertools import combinations
 
 from sklearn.metrics import adjusted_mutual_info_score, rand_score, adjusted_rand_score, normalized_mutual_info_score
 from sklearn.cluster import AgglomerativeClustering, DBSCAN
-import hyperopt as hp
+from hyperopt import hp
 
 
 
@@ -253,7 +253,7 @@ if __name__ == "__main__":
         return -adjusted_rand_score(all_labels,clusters)
     
     space = {
-        "threshold":hp.uniform("threshold",0.01,0.1)
+        "threshold":hp.uniform("threshold",0.01,0.15)
     }
 
     trials = hp.Trials()
