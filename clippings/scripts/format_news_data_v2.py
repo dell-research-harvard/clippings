@@ -185,6 +185,9 @@ print("length before dropping duplicates", len(connected_components_df))
 connected_components_df = connected_components_df.drop_duplicates()
 connected_components_df.to_csv(f'/mnt/data01/clippings_general/texts/labelled_news_reformatted.csv', index=False)
 
+##Reorder the columns
+connected_components_df = connected_components_df[['image_path', 'text', 'label']]
+
 print("length after dropping duplicates", len(connected_components_df))
 
 ##Split into train and val by using labels. Sample 20% of the labels for val
@@ -196,6 +199,8 @@ train = connected_components_df[connected_components_df['label'].isin(train_labe
 print("Number of train images", len(train))
 val = connected_components_df[connected_components_df['label'].isin(val_labels)]
 print("Number of val images", len(val))
+
+
 
 
 
