@@ -132,6 +132,10 @@ cluster_dict = clusters_from_edges(edges_list)
 
 print(cluster_dict)
 
+##Check if there are any clusters with more than 2 image
+for cluster in cluster_dict:
+    if len(cluster_dict[cluster])>2:
+        print(cluster_dict[cluster])
 
 
 # ###Add root to the image path
