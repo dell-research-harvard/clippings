@@ -213,7 +213,7 @@ if __name__ == "__main__":
     clip_transform=CLIP_BASE_TRANSFORM_CENTER
     
     results_dict={}
-    for checkpoint_path in glob.glob("/mnt/data01/clippings_general/models/clip_imwt_5**bienc_clip_pretrain_labelled_m3_v3_newspapers_nosingle**.pt"):
+    for checkpoint_path in glob.glob("/mnt/data01/clippings_general/models/clip_imwt_5bienc_clip_pretrain_labelled_m3_v3_contrastive.pt"):
     
     ###Load checkpoint
         if args.checkpoint_path is not None:
