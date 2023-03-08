@@ -112,12 +112,6 @@ def get_image_text_embeddings(data_loader,clip_model,mlp_model,device,processor,
                 all_paths=all_paths+image_path
             ##GEt image and text embeddings in a similar list
 
-            if batch_idx==0:
-                all_image_embeddings=image_embeds
-                all_text_embeddings=text_embeds
-            else:
-                all_image_embeddings=torch.cat((all_image_embeddings,image_embeds),dim=0)
-                all_text_embeddings=torch.cat((all_text_embeddings,text_embeds),dim=0)
 
 
     return all_embeddings, all_image_embeddings, all_text_embeddings, all_labels, all_text, all_paths
@@ -316,6 +310,7 @@ if __name__ == "__main__":
     ###final embeddings = im_wt*image_embeddings + (1-im_wt)*text_embeddings
     if args.opt_im_wt:
         all_embeddings=best["im_wt"]*all_image_embeddings + (1-best["im_wt"])*all_text_embeddings
+        
     else:
         all_embeddings=args.im_wt*all_image_embeddings + (1-args.im_wt)*all_text_embeddings
     ##Normalize the embeddings
