@@ -161,8 +161,12 @@ connected_components_df.to_csv(f'/mnt/data01/clippings_general/texts/labelled_ne
 ##Before dropping duplicates, check if there are any duplicates
 print("Number of duplicates", len(connected_components_df[connected_components_df.duplicated()]))
 
+print("length before dropping duplicates", len(connected_components_df))
+
 ###Drop duplicates
 connected_components_df = connected_components_df.drop_duplicates()
+
+print("length after dropping duplicates", len(connected_components_df))
 
 ##Split into train and val by using labels. Sample 20% of the labels for val
 train, val = train_test_split(connected_components_df['label'].unique(), test_size=0.2, random_state=42)
