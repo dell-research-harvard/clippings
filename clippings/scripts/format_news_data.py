@@ -165,6 +165,7 @@ print("length before dropping duplicates", len(connected_components_df))
 
 ###Drop duplicates
 connected_components_df = connected_components_df.drop_duplicates()
+connected_components_df.to_csv(f'/mnt/data01/clippings_general/texts/labelled_news_reformatted.csv', index=False)
 
 print("length after dropping duplicates", len(connected_components_df))
 
