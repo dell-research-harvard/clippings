@@ -213,7 +213,7 @@ if __name__ == "__main__":
     clip_transform=CLIP_BASE_TRANSFORM_CENTER
     
     results_dict={}
-    for checkpoint_path in ["/mnt/data01/clippings_general/models/clip_imwt_5epoch_74bienc_clip_pretrain_labelled_m3_v3_newspapers_nosingle_backup.pt"]:
+    for checkpoint_path in ["/mnt/data01/clippings_general/models/clip_imwt_5bienc_clip_pretrain_labelled_m3_v3_newspapers_nosingle_backup.pt"]:
     # glob.glob("/mnt/data01/clippings_general/models/clip_imwt_5**bienc_clip_pretrain_labelled_m3_v3_newspapers_nosingle**.pt")
         
         ###Load checkpoint
@@ -307,11 +307,11 @@ if __name__ == "__main__":
             return -adjusted_rand_score(all_labels,clusters)
         
         space = {
-            "threshold":hp.uniform("threshold",0.01,0.4),
+            "threshold":hp.uniform("threshold",0.01,0.8),
             "im_wt":hp.uniform("im_wt",0,1),
         }
 
-        best = fmin(hyp_ari, space, algo=tpe.suggest, max_evals=1000)
+        best = fmin(hyp_ari, space, algo=tpe.suggest, max_evals=10000)
         print(best)
 
 
