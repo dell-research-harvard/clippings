@@ -186,6 +186,7 @@ if __name__ == "__main__":
     parser.add_argument("--im_wt", type=float, default=0.5, help="Weight of image embeddings")
     parser.add_argument("--pooling_type", type=str, default="mean", help="Pooling type")
 
+    args = parser.parse_args()
     # checkpoint_path="/mnt/data01/clippings_general/models/clip_pretrain_unlabelled_m1_newspapers_cc.pt"
     checkpoint_path="/mnt/data01/clippings_general/models/clip_imwt_5bienc_clip_pretrain_labelled_m3_v3_newspapers_nosingle.pt"
     # checkpoint_path=None
