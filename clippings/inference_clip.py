@@ -265,6 +265,9 @@ if __name__ == "__main__":
                 print("Path",all_paths[nn])
                 print("Label",all_labels[nn])
 
+    all_embeddings=all_embeddings.cpu().numpy()
+    all_labels=all_labels.cpu().numpy()
+    
     ###Get the clusters
     print("Get clusters")
     clusters=cluster("SLINK",cluster_params={"min cluster size":1,"threshold":0.9,"metric":"cosine"},corpus_embeddings=all_embeddings,corpus_ids=None)
