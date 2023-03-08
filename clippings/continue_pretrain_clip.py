@@ -40,6 +40,17 @@ import requests
 from transformers import CLIPProcessor, CLIPModel
 import encoders
 
+import networkx as nx
+
+##NX community detection
+import networkx.algorithms.community as nx_comm
+##Import combinations
+from itertools import combinations
+
+
+from sklearn.metrics import adjusted_mutual_info_score, rand_score, adjusted_rand_score, normalized_mutual_info_score
+from sklearn.cluster import AgglomerativeClustering, DBSCAN
+from hyperopt import hp,fmin, tpe
 
 
 
@@ -362,6 +373,93 @@ def val_bienc_clip_loss(val_loader,clip_model,mlp_model,loss_fn,split='val',log=
     return val_loss
 
 
+
+def cluster(cluster_type, cluster_params, corpus_embeddings, corpus_ids=None):
+
+    if cluster_type not in ["agglomerative", "HDBScan", "SLINK"]:
+        raise ValueError('cluster_type must be "agglomerative", "HDBScan", "community" or "SLINK"')
+    if cluster_type == "agglomerative":
+        if "threshold" not in cluster_params:
+            raise ValueError('cluster_params must contain "threshold"')
+        if "clustering linkage" not in cluster_params:
+            raise ValueError('cluster_params must contain "clustering linkage"')
+        if "metric" not in cluster_params:
+            raise ValueError('cluster_params must contain "metric"')
+    if cluster_type == "HDBScan":
+        if "min cluster size" not in cluster_params:
+            raise ValueError('cluster_params must contain "min cluster size"')
+        if "min samples" not in cluster_params:
+            raise ValueError('cluster_params must contain "min cluster size"')
+    if cluster_type == "SLINK":
+        if "min cluster size" not in cluster_params:
+            raise ValueError('cluster_params must contain "min cluster size"')
+        if "threshold" not in cluster_params:
+            raise ValueError('cluster_params must contain "threshold"')
+
+
+    if cluster_type == "agglomerative":
+        clustering_model = AgglomerativeClustering(
+            n_clusters=None,
+            distance_threshold=cluster_params["threshold"],
+            linkage=cluster_params["clustering linkage"],
+            affinity=cluster_params["metric"]
+        )
+
+    if cluster_type == "SLINK":
+        clustering_model = DBSCAN(
+            eps=cluster_params["threshold"],
+            min_samples=cluster_params["min cluster size"],
+            metric=cluster_params["metric"]
+        )
+
+    if cluster_type == "HDBScan":
+        clustering_model = hdbscan.HDBSCAN(
+            min_cluster_size=cluster_params["min cluster size"],
+            min_samples=cluster_params["min samples"],
+            gen_min_span_tree=True
+        )
+
+    clustering_model.fit(corpus_embeddings)
+    cluster_assignment = clustering_model.labels_
+
+    # clustered_ids = {}
+    # for sentence_id, cluster_id in enumerate(cluster_assignment):
+    #     if int(cluster_id) not in clustered_ids:
+    #         clustered_ids[int(cluster_id)] = []
+
+    #     if corpus_ids:
+    #         clustered_ids[int(cluster_id)].append(corpus_ids[sentence_id])
+    #     else:
+    #         clustered_ids[int(cluster_id)].append(sentence_id)
+
+    # # HDBScan has a cluster where it puts all the unassigned nodes
+    # if cluster_type == "HDBScan" or cluster_type == "SLINK" and -1 in clustered_ids:
+    #     del clustered_ids[-1]
+
+    return cluster_assignment
+
+
+
+
+def val_bienc_clustering(val_loader,clip_model,mlp_model,split='val',log=True,processor=None):
+    print("Testing using pooled embeddings (clustering-ari)")
+    
+    test_embeddings, test_labels, test_text, test_paths = get_image_text_embeddings(val_loader,clip_model,mlp_model, device,processor,args.pooling_type,args.im_wt)
+    print("total test embeddings: ",test_embeddings.shape)
+
+    ###Make an index
+    index = faiss.IndexFlatIP(test_embeddings.shape[1])
+    index.add(test_embeddings.cpu().numpy())
+
+    ###Get the nearest neighbours
+    D, I = index.search(test_embeddings.cpu().numpy(), 1)
+
+    
+
+    if log:
+        wandb.log({f"{split}/cluster accuracy": cluster_acc})
+
+    return cluster_acc
 
 
 
