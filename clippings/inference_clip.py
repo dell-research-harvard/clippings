@@ -51,6 +51,7 @@ from itertools import combinations
 
 from sklearn.metrics import adjusted_mutual_info_score, rand_score, adjusted_rand_score, normalized_mutual_info_score
 from sklearn.cluster import AgglomerativeClustering, DBSCAN
+import hyperopt as hp
 
 
 
@@ -179,6 +180,12 @@ def cluster(cluster_type, cluster_params, corpus_embeddings, corpus_ids=None):
 ###Run as script
 if __name__ == "__main__":
 
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--checkpoint_path", type=str, default=None, help="Path to checkpoint")
+    parser.add_argument("--im_wt", type=float, default=0.5, help="Weight of image embeddings")
+    parser.add_argument("--pooling_type", type=str, default="mean", help="Pooling type")
+
     # checkpoint_path="/mnt/data01/clippings_general/models/clip_pretrain_unlabelled_m1_newspapers_cc.pt"
     checkpoint_path="/mnt/data01/clippings_general/models/clip_imwt_5bienc_clip_pretrain_labelled_m3_v3_newspapers_nosingle.pt"
     # checkpoint_path=None
@@ -195,45 +202,27 @@ if __name__ == "__main__":
     clip_model.to(device)
 
     ###Load data
-    eval_data=pd.read_csv("/mnt/data01/clippings_general/texts/labelled_news_eval_reformatted.csv")
+    test_data=pd.read_csv("/mnt/data01/clippings_general/texts/labelled_news_eval_reformatted.csv")
+    test_data=test_data.sort_values(by="label")
 
-    ##Sort by label
+
+    ###Eval data
+    eval_data=pd.read_csv("/mnt/data01/clippings_general/texts/labelled_news_val_reformatted.csv")
     eval_data=eval_data.sort_values(by="label")
 
-    ###Make ground truth pairs - take combinations of 2 image_paths for each label
-    
-    gt_pairs=[]
-    ###for each label, get all image paths, then take combinations of 2 and add as a tuple
-    unique_labels=eval_data["label"]
-    print("Unique labels",unique_labels)
-
-    for label in unique_labels:
-        label_data=eval_data[eval_data["label"]==label]
-        image_paths=label_data["image_path"]
-        combinations_label=list(combinations(image_paths,2))
-        gt_pairs=gt_pairs+combinations_label
-    
 
 
     ##Load the dataset
     ###Create the data datsets
+    ###Tune params using eval set
+
     eval_dataset=data_loaders.TextImageDataset(eval_data, img_transform=clip_transform)
     eval_loader=torch.utils.data.DataLoader(eval_dataset,batch_size=126,shuffle=False,num_workers=16)
 
     ###Get the embeddings
-    all_embeddings, all_labels, all_text, all_paths=get_image_text_embeddings(eval_loader,clip_model,None,device,processor,"mean",0.5)
+    all_embeddings, all_labels, all_text, all_paths=get_image_text_embeddings(eval_loader,clip_model,None,device,processor,args.pooling_type,args.im_wt)
 
-    ##Take a subset of embeddngs
-    # all_embeddings=all_embeddings[0:10]
-
-
-    ###Pairwise distances using faiss - gpu
-    ###Get the pairwise distances
     print("Get knn")
-    # res=faiss.StandardGpuResources()
-    print(all_embeddings.shape)
-
-
 
     ###Build the index
     index = faiss.IndexFlatIP( 512)
@@ -252,12 +241,60 @@ if __name__ == "__main__":
     print(all_labels)
 
     ###Get the clusters
-    print("Get clusters")
-    clusters=cluster("SLINK",cluster_params={"min cluster size":1,"threshold":0.09,"metric":"cosine"},corpus_embeddings=all_embeddings,corpus_ids=None)
-    print("Done getting clusters")
-    print(clusters)
-    print(max(clusters))
 
-    print(adjusted_rand_score(clusters,all_labels))
+    ###Use hyperopt to max the adjusted rand index
+    def hyp_ari(params):
+        print("Params",params)
+        clusters=cluster("SLINK",cluster_params={"min cluster size":1,"threshold":params["threshold"],"metric":"cosine"},corpus_embeddings=all_embeddings,corpus_ids=None)
+        print("Clusters",clusters)
+        print("Max cluster",max(clusters))
+        print("ARI",adjusted_rand_score(all_labels,clusters))
+        return -adjusted_rand_score(all_labels,clusters)
+    
+    space = {
+        "threshold":hp.uniform("threshold",0.01,0.1)
+    }
+
+    trials = hp.Trials()
+    best = hp.fmin(hyp_ari, space, algo=hp.tpe.suggest, max_evals=10,trials=trials)
+    print(best)
+
+
+    ###Now calculate test ARI using the best params
+    ##First embed the test data
+    test_dataset=data_loaders.TextImageDataset(test_data, img_transform=clip_transform)
+    test_loader=torch.utils.data.DataLoader(test_dataset,batch_size=126,shuffle=False,num_workers=16)
+
+    ###Get the embeddings
+    all_embeddings, all_labels, all_text, all_paths=get_image_text_embeddings(test_loader,clip_model,None,device,processor,"mean",0.5)
+
+    print("Get knn")
+
+    ###Build the index
+    index = faiss.IndexFlatIP( 512)
+
+    ###Add the embeddings
+    index.add(all_embeddings.cpu().numpy())
+
+    print("Done adding embeddings")
+
+    ###Get the top 1000 nearest neighbours
+    D, I = index.search(all_embeddings.cpu().numpy(),    all_embeddings.shape[0])
+
+
+    all_embeddings=all_embeddings.cpu().numpy()
+    all_labels=all_labels.cpu().numpy()
+
+    clusters=cluster("SLINK",cluster_params={"min cluster size":1,"threshold":best["threshold"],"metric":"cosine"},corpus_embeddings=all_embeddings,corpus_ids=None)
+
+    print("threshold",best["threshold"])
+    print("checkpoint",args.checkpoint_path)
+    print("im_wt",args.im_wt)
+    print("pooling_type",args.pooling_type)
+    print("ARI",adjusted_rand_score(all_labels,clusters))
+
+
+
+    
   
     
