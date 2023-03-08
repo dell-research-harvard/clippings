@@ -253,7 +253,7 @@ if __name__ == "__main__":
         return -adjusted_rand_score(all_labels,clusters)
     
     space = {
-        "threshold":hp.uniform("threshold",0.01,0.4)
+        "threshold":hp.uniform("threshold",0.01,0.8)
     }
 
     best = fmin(hyp_ari, space, algo=tpe.suggest, max_evals=1000)
