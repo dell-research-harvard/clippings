@@ -44,9 +44,14 @@ import networkx as nx
 
 ##Load the json
 train_data_path="/mnt/data01/clippings_general/texts/emily_news_captions_3.json"
+train_data_list=["/mnt/data01/clippings_general/texts/emily_news_captions_3.json","/mnt/data01/clippings_general/texts/emily_news_captions_2.json","/mnt/data01/clippings_general/texts/emily_newspaper_labels_0603.json"]
 
-with open(train_data_path) as f:
-    data = json.load(f)
+###Concat the jsons
+data = []
+for path in train_data_list:
+    with open(path) as f:
+        data += json.load(f)
+
 
 
 ###Make two lists of pairs of image-captions and results. (image1,caption1,image2,caption2,result)
@@ -153,6 +158,12 @@ connected_components_df['image_path'] = '/mnt/data02/captions/train_day_pulled_c
 ##Save the text data
 connected_components_df.to_csv(f'/mnt/data01/clippings_general/texts/labelled_news_reformatted.csv', index=False)
 
+##Before dropping duplicates, check if there are any duplicates
+print("Number of duplicates", len(connected_components_df[connected_components_df.duplicated()]))
+
+###Drop duplicates
+eval_data = connected_components_df.drop_duplicates()
+
 ##Split into train and val by using labels. Sample 20% of the labels for val
 train, val = train_test_split(connected_components_df['label'].unique(), test_size=0.2, random_state=42)
 
@@ -161,6 +172,8 @@ train = connected_components_df[connected_components_df['label'].isin(train)]
 print("Number of train images", len(train))
 val = connected_components_df[connected_components_df['label'].isin(val)]
 print("Number of val images", len(val))
+
+
 
 ##Save the text data
 train.to_csv(f'/mnt/data01/clippings_general/texts/labelled_news_train_reformatted.csv', index=False)
@@ -191,6 +204,8 @@ eval_data = eval_data.rename(columns={'caption':'text', 'cluster_label':'label'}
 
 ##Reorder and keep only image_path, text and label
 eval_data = eval_data[['image_path', 'text', 'label']]
+
+
 
 ##Save the text data
 eval_data.to_csv(f'/mnt/data01/clippings_general/texts/labelled_news_eval_reformatted.csv', index=False)
