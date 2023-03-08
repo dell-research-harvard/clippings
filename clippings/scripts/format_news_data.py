@@ -162,7 +162,7 @@ connected_components_df.to_csv(f'/mnt/data01/clippings_general/texts/labelled_ne
 print("Number of duplicates", len(connected_components_df[connected_components_df.duplicated()]))
 
 ###Drop duplicates
-eval_data = connected_components_df.drop_duplicates()
+connected_components_df = connected_components_df.drop_duplicates()
 
 ##Split into train and val by using labels. Sample 20% of the labels for val
 train, val = train_test_split(connected_components_df['label'].unique(), test_size=0.2, random_state=42)
