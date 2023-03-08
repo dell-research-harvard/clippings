@@ -188,6 +188,7 @@ if __name__ == "__main__":
         nn_of_i_2=I[i][1:3]
         dist_of_i_2=D[i][1:3]
         for j  in range(len(nn_of_i_2)):
+                nn=nn_of_i_2[j]
                 print("NN",nn_of_i_2[j])
                 print("Dist" ,dist_of_i_2[j])
 
