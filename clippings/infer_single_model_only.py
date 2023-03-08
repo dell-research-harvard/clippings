@@ -352,7 +352,8 @@ if __name__ == "__main__":
     print("pooling_type",args.pooling_type)
     print("ARI",adjusted_rand_score(all_labels,clusters))
     test_ari=adjusted_rand_score(all_labels,clusters)
-    print(len(all_labels.unique()))
+    ##Print unique label lengths
+    print("Unique labels",len(set(all_labels)))
 
     # ###Save cluster results
     # cluster_results=pd.DataFrame({"image_path":all_paths,"cluster":clusters})
