@@ -265,6 +265,8 @@ if __name__ == "__main__":
     #             print("Path",all_paths[nn])
     #             print("Label",all_labels[nn])
 
+    print(cluster_assignment)
+
     all_embeddings=all_embeddings.cpu().numpy()
     all_labels=all_labels.cpu().numpy()
     print(all_labels)
