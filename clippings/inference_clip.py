@@ -181,20 +181,19 @@ if __name__ == "__main__":
     D, I = index.search(all_embeddings.cpu().numpy(), all_embeddings.shape[0])
     thresh=0.75
 
-    ###Check the text of some of the nearest neighbours
+    ###Check the text of some of the nearest neighbours apart from the same image
     for i in range(0,all_embeddings.shape[0]):
         print("Image",all_paths[i])
         print("Text",all_text[i])
         print("Label",all_labels[i])
         print("Nearest neighbours")
         for j in range(0,all_embeddings.shape[0]):
-            if D[i,j]>thresh:
+            if D[i,j]>thresh and i!=j:
                 print("Image",all_paths[j])
                 print("Text",all_text[j])
                 print("Label",all_labels[j])
                 print("Distance",D[i,j])
-                print("")
-
+  
     # for thresh in np.arange(0.1,0.95,0.01):
     #     print("Threshold",thresh)
     #     above_threshold = D > thresh
