@@ -141,7 +141,7 @@ for cluster in cluster_dict:
 cluster_df = pd.DataFrame(columns=['image_path', 'cluster_id'])
 for cluster in cluster_dict:
     for image in cluster_dict[cluster]:
-        cluster_df = pd.concat(cluster_df,{'image_path':image, 'cluster_id':cluster})
+        cluster_df = cluster_df.append({'image_path':image, 'cluster_id':cluster}, axis=0)
 
 ###Add singletons to the clusters
 all_images_in_clusters = [item for sublist in cluster_dict.values() for item in sublist]
@@ -151,7 +151,7 @@ singletons = list(set(singletons_1 + singletons_2))
 
 
 for i,image in enumerate(singletons):
-    cluster_df = pd.concat(cluster_df,{'image_path':image, 'cluster_id':-(i)})
+    cluster_df = cluster_df.append({'image_path':image, 'cluster_id':-(i)}, axis=0)
 
 
 ##Drop duplicates
@@ -164,26 +164,42 @@ connected_components_df = pd.merge(cluster_df, image_captions, on='image_path', 
 connected_components_df = connected_components_df.drop_duplicates()
 
 
+# ###Add root to the image path
 
+# connected_components_df['image_path'] = '/mnt/data02/captions/pulled_crops_quicker_all/' + connected_components_df['image_path'] + '.png'
+
+# ##Save the text data
+# connected_components_df.to_csv(f'/mnt/data01/clippings_general/texts/labelled_news_reformatted.csv', index=False)
+
+# ##Before dropping duplicates, check if there are any duplicates
+# print("Number of duplicates", len(connected_components_df[connected_components_df.duplicated()]))
+
+# print("length before dropping duplicates", len(connected_components_df))
+
+# ###Drop duplicates
+# connected_components_df = connected_components_df.drop_duplicates()
+# connected_components_df.to_csv(f'/mnt/data01/clippings_general/texts/labelled_news_reformatted.csv', index=False)
+
+# print("length after dropping duplicates", len(connected_components_df))
 
 # ##Split into train and val by using labels. Sample 20% of the labels for val
-train_labels, val_labels = train_test_split(connected_components_df['label'].unique(), test_size=0.2, random_state=42)
+# train_labels, val_labels = train_test_split(connected_components_df['label'].unique(), test_size=0.2, random_state=42)
 
-print(train_labels[:10])
-##Split the data
-train = connected_components_df[connected_components_df['label'].isin(train_labels)]
-print("Number of train images", len(train))
-val = connected_components_df[connected_components_df['label'].isin(val_labels)]
-print("Number of val images", len(val))
-
-
-
-##Save the text data
-train.to_csv(f'/mnt/data01/clippings_general/texts/labelled_news_train_reformatted.csv', index=False)
-val.to_csv(f'/mnt/data01/clippings_general/texts/labelled_news_val_reformatted.csv', index=False)
+# print(train_labels[:10])
+# ##Split the data
+# train = connected_components_df[connected_components_df['label'].isin(train_labels)]
+# print("Number of train images", len(train))
+# val = connected_components_df[connected_components_df['label'].isin(val_labels)]
+# print("Number of val images", len(val))
 
 
-print("Total image-text pairs in pretraining CLIP", len(connected_components_df))
+
+# ##Save the text data
+# train.to_csv(f'/mnt/data01/clippings_general/texts/labelled_news_train_reformatted.csv', index=False)
+# val.to_csv(f'/mnt/data01/clippings_general/texts/labelled_news_val_reformatted.csv', index=False)
+
+
+# print("Total image-text pairs in pretraining CLIP", len(connected_components_df))
 
 # ###Reformat the eval data
 
