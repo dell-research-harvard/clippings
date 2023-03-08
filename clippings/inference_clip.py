@@ -159,21 +159,21 @@ def cluster(cluster_type, cluster_params, corpus_embeddings, corpus_ids=None):
     clustering_model.fit(corpus_embeddings)
     cluster_assignment = clustering_model.labels_
 
-    clustered_ids = {}
-    for sentence_id, cluster_id in enumerate(cluster_assignment):
-        if int(cluster_id) not in clustered_ids:
-            clustered_ids[int(cluster_id)] = []
+    # clustered_ids = {}
+    # for sentence_id, cluster_id in enumerate(cluster_assignment):
+    #     if int(cluster_id) not in clustered_ids:
+    #         clustered_ids[int(cluster_id)] = []
 
-        if corpus_ids:
-            clustered_ids[int(cluster_id)].append(corpus_ids[sentence_id])
-        else:
-            clustered_ids[int(cluster_id)].append(sentence_id)
+    #     if corpus_ids:
+    #         clustered_ids[int(cluster_id)].append(corpus_ids[sentence_id])
+    #     else:
+    #         clustered_ids[int(cluster_id)].append(sentence_id)
 
-    # HDBScan has a cluster where it puts all the unassigned nodes
-    if cluster_type == "HDBScan" or cluster_type == "SLINK" and -1 in clustered_ids:
-        del clustered_ids[-1]
+    # # HDBScan has a cluster where it puts all the unassigned nodes
+    # if cluster_type == "HDBScan" or cluster_type == "SLINK" and -1 in clustered_ids:
+    #     del clustered_ids[-1]
 
-    return clustered_ids
+    return cluster_assignment
 
 
 ###Run as script
