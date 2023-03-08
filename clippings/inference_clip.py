@@ -364,7 +364,7 @@ if __name__ == "__main__":
 
 
     results_df=pd.DataFrame.from_dict(results_dict,orient="index")
-    results_df.to_csv("/mnt/data01/clippings_general/nosingle_results_check.csv")
+    results_df.to_csv("/mnt/data01/clippings_general/nosingle_results_check_contrastive.csv")
     
     ##Print max ARI and its checkpoint
     print(results_df[results_df.ARI==results_df.ARI.max()])
