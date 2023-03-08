@@ -356,7 +356,7 @@ if __name__ == "__main__":
 
 
 
-        results_dict[checkpoint_path]={"threshold":best["threshold"],"checkpoint":args.checkpoint_path,"im_wt":args.im_wt,"pooling_type":args.pooling_type,"ARI":test_ari}
+        results_dict[checkpoint_path]={"threshold":best["threshold"],"checkpoint":args.checkpoint_path,"im_wt":best["im_wt"],"pooling_type":args.pooling_type,"ARI":test_ari}
 
 
         if args.iter_glob:
