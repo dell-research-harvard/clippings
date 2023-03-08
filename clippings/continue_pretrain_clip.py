@@ -59,9 +59,13 @@ def convert_to_text(unicode_string):
 
 def prep_labelled_news_data():
     ###Load the text file with the labels
-    train_data = pd.read_csv(f'/mnt/data01/clippings_general/texts/labelled_news_train_reformatted_no_singletons.csv')
-    val_data = pd.read_csv(f'/mnt/data01/clippings_general/texts/labelled_news_val_reformatted_no_singletons.csv')
+    # train_data = pd.read_csv(f'/mnt/data01/clippings_general/texts/labelled_news_train_reformatted_no_singletons.csv')
+    # val_data = pd.read_csv(f'/mnt/data01/clippings_general/texts/labelled_news_val_reformatted_no_singletons.csv')
 
+    ##With singletons
+    train_data = pd.read_csv(f'/mnt/data01/clippings_general/texts/labelled_news_train_reformatted.csv')
+    val_data = pd.read_csv(f'/mnt/data01/clippings_general/texts/labelled_news_val_reformatted.csv')
+    
     return train_data,val_data
 
 def prep_food101_data():
@@ -458,15 +462,36 @@ def val_bienc_clustering(val_loader,clip_model,mlp_model,split='val',log=True,pr
     all_labels_test=test_labels[idx_val]
 
     ###Cluster the val embeddings
+    ###Use hyperopt to max the adjusted rand index
+    def hyp_ari(params,all_embeddings=all_embeddings_val, all_labels=all_labels_val):
+        print("Params",params)
+
+        print("Get knn")
+
+        all_embeddings=all_embeddings.cpu().numpy()
+        all_labels=all_labels.cpu().numpy()
+        print(all_labels)
+
+        val_clusters=cluster("SLINK",cluster_params={"min cluster size":1,"threshold":params["threshold"],"metric":"cosine"},corpus_embeddings=all_embeddings,corpus_ids=None)
+        print("ARI",adjusted_rand_score(all_labels,val_clusters))
+        return -adjusted_rand_score(all_labels,val_clusters)
     
+    space = {
+        "threshold":hp.uniform("threshold",0.01,0.4),
+        
+    }
 
-    cluster_preds=cluster("SLINK",cluster_params={"min cluster size":1,"threshold":params["threshold"],"metric":"cosine"},corpus_embeddings=all_embeddings,corpus_ids=None)
+    best = fmin(hyp_ari, space, algo=tpe.suggest, max_evals=500)
+    print(best)
 
-    ari_split=("ARI",adjusted_rand_score(all_labels,clusters))
+
+    cluster_preds=cluster("SLINK",cluster_params={"min cluster size":1,"threshold":best["threshold"],"metric":"cosine"},corpus_embeddings=all_embeddings_test,corpus_ids=None)
+
+    ari_split=("ARI",adjusted_rand_score(all_labels_test,cluster_preds))
     if log:
-        wandb.log({f"{split}/cluster accuracy": cluster_acc})
+        wandb.log({f"{split}/ari": ari_split})
 
-    return cluster_acc
+    return ari_split
 
 
 
