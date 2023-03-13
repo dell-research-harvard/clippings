@@ -264,7 +264,7 @@ if __name__ == "__main__":
             "threshold":hp.uniform("threshold",0.01,1),
         }
 
-    if args.specified_thresh is not None:
+    if args.specified_thresh is None:
         best = fmin(hyp_ari, space, algo=rand.suggest, max_evals=1000)
     else:
         best={"threshold":args.specified_thresh,"im_wt":args.im_wt}
@@ -308,7 +308,10 @@ if __name__ == "__main__":
 
     print("threshold",best["threshold"])
     print("checkpoint",args.checkpoint_path)
-    print("im_wt",best["im_wt"])
+    if args.opt_im_wt:
+        print("im_wt",best["im_wt"])
+    else:
+        print("im_wt",args.im_wt)
     print("pooling_type",args.pooling_type)
     print("ARI",adjusted_rand_score(all_labels,clusters))
     test_ari=adjusted_rand_score(all_labels,clusters)
