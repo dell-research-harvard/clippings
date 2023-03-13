@@ -7,7 +7,8 @@ This readme file is for the associated paper's ICCV submission. Given the size l
 
 
 - sample_data : Contains sample data
-    -  newscaptions_dup
+    -  images
+    -  image_captions.csv
 
 - datasets
     - data_loaders.py : Contains the pytorch datasets, dataloaders and miners neccesary for training
@@ -32,16 +33,27 @@ This readme file is for the associated paper's ICCV submission. Given the size l
 This section provides the commands (with relevant arguments) to replicate the results in the main paper. 
 
 ### Train
+Use relevant hyperparameters from Table X in the supplementary material file
 
+Pretrain the base CLIP model (example)
 
+```
+python train_clippings.py --clip_lr 5e-6 --train_data_type newspapers_unlabelled --wandb_name clip_pretrain_unlabelled_m1_newspapers_cc --training_type pretrain
+
+```
+
+Train the CLIPPINGS model (example)
+
+```
+python train_clippings.py --clip_lr 5e-9 --train_data_type newspapers_labelled --wandb_name bienc_clip_nopretrain_labelled_m3_v3_newspapers_nosingle --m 3 --training_type train_bienc --im_wt 0.5 --k 3 --supcon_temp 0.1 --train_hardneg --loss_type supcon --checkpoint /path/to/pretrained/clip.pt
+```
 
 ### Evaluation
 
 
 
 ``` 
-python infer_clippings.py --im_wt {a} --use  --split_test_for_eval --checkpoint_path /mnt/data01/clippings_general/models/clip_imwt_5bienc_clip_nopretrain_labelled_m3_v3_newspapers_nosingle.pt  
+python infer_clippings.py --im_wt {a} --specified_thresh {b}  --split_test_for_eval --checkpoint_path path/to/checkpoint.pt 
 
 ```
-
-
+Use a and b from the the supplementary material table X to replicate the relevant result given model weights. Addtionally, use args --opt_im_wt to optmise the weight of image embeddings in the final CLIPPINGS embedding and remove the --specified_thresh argument to re-optimise the threshold given the val set. 
