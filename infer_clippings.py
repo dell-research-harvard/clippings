@@ -141,20 +141,6 @@ def cluster(cluster_type, cluster_params, corpus_embeddings, corpus_ids=None):
     clustering_model.fit(corpus_embeddings)
     cluster_assignment = clustering_model.labels_
 
-    # clustered_ids = {}
-    # for sentence_id, cluster_id in enumerate(cluster_assignment):
-    #     if int(cluster_id) not in clustered_ids:
-    #         clustered_ids[int(cluster_id)] = []
-
-    #     if corpus_ids:
-    #         clustered_ids[int(cluster_id)].append(corpus_ids[sentence_id])
-    #     else:
-    #         clustered_ids[int(cluster_id)].append(sentence_id)
-
-    # # HDBScan has a cluster where it puts all the unassigned nodes
-    # if cluster_type == "HDBScan" or cluster_type == "SLINK" and -1 in clustered_ids:
-    #     del clustered_ids[-1]
-
     return cluster_assignment
 
 
@@ -176,9 +162,6 @@ if __name__ == "__main__":
 
     
     args = parser.parse_args()
-    # checkpoint_path="/mnt/data01/clippings_general/models/clip_pretrain_unlabelled_m1_newspapers_cc.pt"
-    # checkpoint_path="/mnt/data01/clippings_general/models/clip_imwt_5bienc_clip_pretrain_labelled_m3_v3_newspapers_nosingle.pt"
-    # checkpoint_path=None
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
     clip_model = CLIPModel.from_pretrained(args.hf_model_path)
