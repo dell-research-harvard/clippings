@@ -7,10 +7,10 @@ This readme file is for the associated paper's ICCV submission. Given the size l
 
 
 - sample_data : Contains sample data
-    -newscaptions_dup
+    -  newscaptions_dup
 
 - datasets
-    -data_loaders.py : Contains the pytorch datasets, dataloaders and miners neccesary for training
+    - data_loaders.py : Contains the pytorch datasets, dataloaders and miners neccesary for training
 
 - models
     - encoders.py: Contains a class defining an MLP which was a part of the experiments instead of mean-pooling (deprecated later, but the training script retains functionality)
@@ -26,8 +26,10 @@ This readme file is for the associated paper's ICCV submission. Given the size l
 
 - infer_clippings.py : Run inference to embed image-text pairs given model weights, perform SLINK, find the optimum threshold using the val set and present ARI for the test data
 
+- requirements.yaml : The conda environment containing all dependencies
 
 ## Code usage
+This section provides the commands (with relevant arguments) to replicate the results in the main paper. 
 
 ### Train
 
@@ -35,5 +37,11 @@ This readme file is for the associated paper's ICCV submission. Given the size l
 
 ### Evaluation
 
+
+
+``` 
+python infer_clippings.py --im_wt {a} --use  --split_test_for_eval --checkpoint_path /mnt/data01/clippings_general/models/clip_imwt_5bienc_clip_nopretrain_labelled_m3_v3_newspapers_nosingle.pt  
+
+```
 
 
