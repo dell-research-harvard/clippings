@@ -29,10 +29,11 @@ import datasets.data_loaders as data_loaders
 def convert_to_text(unicode_string):
     return unicode_string.encode('ascii','ignore').decode('ascii')
 
-def prep_labelled_news_data():
+def prep_labelled_news_data(singletons_only=True):
     ###Load the text file with the labels
-    train_data = pd.read_csv(f'/mnt/data01/clippings_general/texts/labelled_news_train_reformatted_no_singletons.csv')
-    val_data = pd.read_csv(f'/mnt/data01/clippings_general/texts/labelled_news_val_reformatted_no_singletons.csv')
+    if singletons_only:
+        train_data = pd.read_csv(f'/mnt/data01/clippings_general/texts/labelled_news_train_reformatted_no_singletons.csv')
+        val_data = pd.read_csv(f'/mnt/data01/clippings_general/texts/labelled_news_val_reformatted_no_singletons.csv')
 
     ##With singletons
     # train_data = pd.read_csv(f'/mnt/data01/clippings_general/texts/labelled_news_train_reformatted.csv')
