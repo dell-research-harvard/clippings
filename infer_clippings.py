@@ -180,6 +180,7 @@ if __name__ == "__main__":
 
     ###Eval data
     if args.split_test_for_eval:
+        ###We split the test data itself to test and val toensure that val is representative of the test data.
         # eval_data=test_data
         # ###Get unique labels
         # unique_labels=eval_data.label.unique()
@@ -211,13 +212,23 @@ if __name__ == "__main__":
     ##Load the dataset
     ###Create the data datsets
     ###Tune params using eval set
+    ##Optmise if params are not specified
 
-    eval_dataset=data_loaders.TextImageDataset(eval_data, img_transform=clip_transform)
-    eval_loader=torch.utils.data.DataLoader(eval_dataset,batch_size=126,shuffle=False,num_workers=16)
+    if args.specified_thresh is None:
 
-    ###Get the embeddings
-    all_embeddings, all_image_embeddings, all_text_embeddings, all_labels, all_text, all_paths = get_image_text_embeddings(eval_loader,clip_model,None,device,processor,args.pooling_type,args.im_wt)
+        eval_dataset=data_loaders.TextImageDataset(eval_data, img_transform=clip_transform)
+        eval_loader=torch.utils.data.DataLoader(eval_dataset,batch_size=126,shuffle=False,num_workers=16)
 
+        ###Get the embeddings
+        all_embeddings, all_image_embeddings, all_text_embeddings, all_labels, all_text, all_paths = get_image_text_embeddings(eval_loader,clip_model,None,device,processor,args.pooling_type,args.im_wt)
+
+    else :
+        all_embeddings=None
+        all_image_embeddings=None
+        all_text_embeddings=None
+        all_labels=None
+        all_text=None
+        all_paths=None
     
 
     ###Get the clusters
@@ -247,9 +258,11 @@ if __name__ == "__main__":
         all_embeddings=torch.nn.functional.normalize(all_embeddings,dim=1)
         all_embeddings=all_embeddings.cpu().numpy()
         all_labels=all_labels.cpu().numpy()
+        print(all_labels)
 
         clusters=cluster("SLINK",cluster_params={"min cluster size":1,"threshold":params["threshold"],"metric":"cosine"},corpus_embeddings=all_embeddings,corpus_ids=None)
-
+        print("Clusters",clusters)
+        print("Max cluster",max(clusters))
         print("ARI",adjusted_rand_score(all_labels,clusters))
         return -adjusted_rand_score(all_labels,clusters)
     
@@ -264,10 +277,12 @@ if __name__ == "__main__":
             "threshold":hp.uniform("threshold",0.01,1),
         }
 
+
     if args.specified_thresh is None:
         best = fmin(hyp_ari, space, algo=rand.suggest, max_evals=1000)
     else:
         best={"threshold":args.specified_thresh,"im_wt":args.im_wt}
+
 
     ###Now calculate test ARI using the best params
     ##First embed the test data
@@ -295,10 +310,14 @@ if __name__ == "__main__":
 
     ##Normalize the embeddings
     all_embeddings=torch.nn.functional.normalize(all_embeddings,dim=1)
+
+
     all_embeddings=all_embeddings.cpu().numpy()
     all_labels=all_labels.cpu().numpy()
+    print(all_labels)
 
-
+    if args.specified_thresh is not None:
+        best["threshold"]=args.specified_thresh
     
 
     clusters=cluster("SLINK",cluster_params={"min cluster size":1,"threshold":best["threshold"],"metric":"cosine"},corpus_embeddings=all_embeddings,corpus_ids=None)
