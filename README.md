@@ -1,9 +1,10 @@
-# clippings
+# CLIPPINGS
 
 This repo is for CLIPPINGs as a clean and simple general purpose solution for multi-modal metric learning.
 This readme file is for the associated paper's ICCV submission. Given the size limit of the submission, we only show a sample of the data. 
+The framework can be built up on any pretrained HuggingFace CLIP model by specifying the right arguments (or similar image-language models).
 
-## File tree
+## Repo structure
 
 
 - sample_data : Contains sample data
@@ -49,8 +50,6 @@ python train_clippings.py --clip_lr 5e-9 --train_data_type newspapers_labelled -
 ```
 
 ### Evaluation
-
-
 
 ``` 
 python infer_clippings.py --im_wt {a} --specified_thresh {b}  --split_test_for_eval --checkpoint_path path/to/checkpoint.pt 
