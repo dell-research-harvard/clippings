@@ -90,25 +90,25 @@ PAD_RESIZE_TRANSFORM = T.Compose([
 ])
 
 
-AUG_NORMALIZE = T.Compose([gss.random_image_transform(), T.ToTensor(),
+AUG_NORMALIZE = T.Compose([gss.get_render_transform(), T.ToTensor(),
  T.Normalize(mean=IMAGENET_DEFAULT_MEAN, std=IMAGENET_DEFAULT_STD)])
 
 
-RANDOM_TRANS_PAD_RESIZE= T.Compose([gss.random_image_transform(), PAD_RESIZE_TRANSFORM])
+RANDOM_TRANS_PAD_RESIZE= T.Compose([gss.get_render_transform(), PAD_RESIZE_TRANSFORM])
 
 def create_random_doc_transform(size=224):
-    return T.Compose([  gss.random_image_transform(), BASE_TRANSFORM])
+    return T.Compose([  gss.get_render_transform(), BASE_TRANSFORM])
 
 
 def create_clip_random_doc_transform(size=224):
-    return T.Compose([  gss.random_image_transform(), CLIP_BASE_TRANSFORM])
+    return T.Compose([  gss.get_render_transform(), CLIP_BASE_TRANSFORM])
 
 
 def create_random_no_aug_doc_transform(size=224):
     return T.Compose([  gss.get_render_transform(), BASE_TRANSFORM])
     
 def create_random_doc_transform_no_resize():
-    return T.Compose([  gss.random_image_transform(), NO_PAD_NO_RESIZE_TRANSFORM])
+    return T.Compose([  gss.get_render_transform(), NO_PAD_NO_RESIZE_TRANSFORM])
 
 CLIP_BASE_TRANSFORM = T.Compose([  
          MedianPad(override=(255,255,255)),

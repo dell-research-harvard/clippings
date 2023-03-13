@@ -10,14 +10,7 @@ import pandas as pd
 import json
 from tqdm import tqdm
 from glob import glob
-import cv2
 import torch
-##Import augraphy
-from augraphy import *
-
-from multiprocessing import Pool
-from functools import partial
-import utils.custom_augraphy as ca
 
 
 
@@ -75,38 +68,6 @@ def create_render_transform(high_blur,affine_degrees,translate,scale,contrast,br
 
 
 
-##Add Augraphy transforms
-
-def random_augraphy_transform_im(img,custom_pipeline=True):
-    ##Convert PIL to numpy array
-    img = np.array(img)
-
-    ##if image is horizontal, use horizontal pipeline
-    if custom_pipeline:
-        if img.shape[1] > img.shape[0]:
-            pipeline = ca.pipeline_v
-        else:
-            pipeline = ca.pipeline_h
-    else:
-        pipeline = default_augraphy_pipeline()
-    img = pipeline.augment(img)["output"]
-    ###Numpy to PIL
-    img = Image.fromarray(img)
-    return img
-
-class augraphy_transform(object):
-    def __init__(self,size=224):
-        self.size=224
-    def __call__(self, img):
-        aug_image= random_augraphy_transform_im(img)
-
-        ##IF image is valid, return it, otherwise, re-augment
-        if aug_image is not None:
-            return aug_image
-        else:
-            return self.__call__(img) 
-    # def __repr__(self):
-    #     return self.__class__.__name__+'()'
 
 
 ###Tuples - scale,translate, all params are between 0,1 , translate has to have second number greater than 1st
@@ -131,27 +92,6 @@ def get_render_transform():
     params = get_render_transform_params()
     return create_render_transform(**params)
 
-
-
-def transform_image(tv=False,au=False):
-    print(tv,au)
-    if tv:
-        chosen_transform = get_render_transform()
-    if au==True and tv==True:
-        chosen_transform =  T.Compose([chosen_transform,augraphy_transform(size=224)]) 
-    if au==True and tv==False:
-        chosen_transform =  augraphy_transform(size=224)
-    return chosen_transform
-
-def random_choice_transforms():
-    tv,au = random.choice([(True,False)])
-  
-    return {"tv":tv,"au":au}
-
-def random_image_transform():
-    transform_params = random_choice_transforms()
-    transform = transform_image(tv=transform_params["tv"],au=transform_params["au"])
-    return transform
 
 
 def create_synthetic_images(im_subfolder_path,save_dir,image_count):
