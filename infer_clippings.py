@@ -170,6 +170,7 @@ if __name__ == "__main__":
     parser.add_argument("--opt_im_wt", action="store_true", help="Optimize image weight")
     parser.add_argument("--specified_thresh", type=float, default=None, help="Specified threshold")
     parser.add_argument("--use_specified_weight", action="store_true", help="Use specified args")
+    parser.add_argument("--hf_model_path", action="store_true",help="Use hf model from path", default="openai/clip-vit-base-patch32")
 
 
 
@@ -180,9 +181,8 @@ if __name__ == "__main__":
     # checkpoint_path=None
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
-    clip_model = CLIPModel.from_pretrained("openai/clip-vit-base-patch32")
-    processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
-
+    clip_model = CLIPModel.from_pretrained(args.hf_model_path)
+    processor = CLIPProcessor.from_pretrained(args.hf_model_path) ##Only the tokeniser is used here
     clip_transform=CLIP_BASE_TRANSFORM_CENTER
     
 
@@ -276,7 +276,7 @@ if __name__ == "__main__":
     if args.opt_im_wt:
         space = {
             "threshold":hp.uniform("threshold",0.01,1),
-            "im_wt":hp.uniform("im_wt",0.4,0.6),
+            "im_wt":hp.uniform("im_wt",0.4,1),
         }
     else:
 
@@ -314,17 +314,6 @@ if __name__ == "__main__":
 
     ##Normalize the embeddings
     all_embeddings=torch.nn.functional.normalize(all_embeddings,dim=1)
-
-    # ###Build the index
-    # index = faiss.IndexFlatIP( 512)
-
-    # ###Add the embeddings
-    # index.add(all_embeddings.cpu().numpy())
-
-    # print("Done adding embeddings")
-
-    ###Get the top 1000 nearest neighbours
-    # D, I = index.search(all_embeddings.cpu().numpy(),    all_embeddings.shape[0])
 
 
     all_embeddings=all_embeddings.cpu().numpy()

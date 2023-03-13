@@ -8,18 +8,8 @@ from utils.datasets_utils import *
 
 import faiss 
 from tqdm import tqdm
-
-import math
-import json
 import argparse
-
-from sklearn.model_selection import train_test_split
-
-
-from PIL import Image
 import torch
-
-
 from pytorch_metric_learning import losses, testers
 from pytorch_metric_learning.utils.accuracy_calculator import AccuracyCalculator
 from pytorch_metric_learning.utils.inference import InferenceModel, FaissKNN
@@ -34,20 +24,10 @@ from utils.datasets_utils import *
 
 
 import datasets.data_loaders as data_loaders
-from PIL import Image
-import requests
+
 
 from transformers import CLIPProcessor, CLIPModel
 import models.encoders as encoders
-
-import networkx as nx
-
-##NX community detection
-import networkx.algorithms.community as nx_comm
-##Import combinations
-from itertools import combinations
-
-
 from sklearn.metrics import adjusted_mutual_info_score, rand_score, adjusted_rand_score, normalized_mutual_info_score
 from sklearn.cluster import AgglomerativeClustering, DBSCAN
 from hyperopt import hp,fmin, tpe
