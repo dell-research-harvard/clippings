@@ -4,33 +4,25 @@
 import pandas as pd
 import numpy as np
 import wandb
-from utils.datasets_utils import *
-
 import faiss 
 from tqdm import tqdm
 import argparse
 import torch
-from pytorch_metric_learning import losses, testers
-from pytorch_metric_learning.utils.accuracy_calculator import AccuracyCalculator
-from pytorch_metric_learning.utils.inference import InferenceModel, FaissKNN
-from torch.optim import AdamW
+from pytorch_metric_learning import losses
 from torch.optim.lr_scheduler import CosineAnnealingWarmRestarts, ReduceLROnPlateau, CosineAnnealingLR, StepLR
-
 from torch import nn
- 
 import wandb
-
-from utils.datasets_utils import *
-
-
-import datasets.data_loaders as data_loaders
-
-
 from transformers import CLIPProcessor, CLIPModel
 import models.encoders as encoders
 from sklearn.metrics import adjusted_mutual_info_score, rand_score, adjusted_rand_score, normalized_mutual_info_score
 from sklearn.cluster import AgglomerativeClustering, DBSCAN
 from hyperopt import hp,fmin, tpe
+
+
+from utils.datasets_utils import *
+import datasets.data_loaders as data_loaders
+
+
 
 
 
@@ -39,12 +31,12 @@ def convert_to_text(unicode_string):
 
 def prep_labelled_news_data():
     ###Load the text file with the labels
-    # train_data = pd.read_csv(f'/mnt/data01/clippings_general/texts/labelled_news_train_reformatted_no_singletons.csv')
-    # val_data = pd.read_csv(f'/mnt/data01/clippings_general/texts/labelled_news_val_reformatted_no_singletons.csv')
+    train_data = pd.read_csv(f'/mnt/data01/clippings_general/texts/labelled_news_train_reformatted_no_singletons.csv')
+    val_data = pd.read_csv(f'/mnt/data01/clippings_general/texts/labelled_news_val_reformatted_no_singletons.csv')
 
     ##With singletons
-    train_data = pd.read_csv(f'/mnt/data01/clippings_general/texts/labelled_news_train_reformatted.csv')
-    val_data = pd.read_csv(f'/mnt/data01/clippings_general/texts/labelled_news_val_reformatted.csv')
+    # train_data = pd.read_csv(f'/mnt/data01/clippings_general/texts/labelled_news_train_reformatted.csv')
+    # val_data = pd.read_csv(f'/mnt/data01/clippings_general/texts/labelled_news_val_reformatted.csv')
     
     return train_data,val_data
 
@@ -406,19 +398,7 @@ def cluster(cluster_type, cluster_params, corpus_embeddings, corpus_ids=None):
     clustering_model.fit(corpus_embeddings)
     cluster_assignment = clustering_model.labels_
 
-    # clustered_ids = {}
-    # for sentence_id, cluster_id in enumerate(cluster_assignment):
-    #     if int(cluster_id) not in clustered_ids:
-    #         clustered_ids[int(cluster_id)] = []
 
-    #     if corpus_ids:
-    #         clustered_ids[int(cluster_id)].append(corpus_ids[sentence_id])
-    #     else:
-    #         clustered_ids[int(cluster_id)].append(sentence_id)
-
-    # # HDBScan has a cluster where it puts all the unassigned nodes
-    # if cluster_type == "HDBScan" or cluster_type == "SLINK" and -1 in clustered_ids:
-    #     del clustered_ids[-1]
 
     return cluster_assignment
 
