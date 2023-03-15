@@ -32,27 +32,27 @@ def convert_to_text(unicode_string):
 def prep_labelled_news_data(singletons_only=True):
     ###Load the text file with the labels
     if singletons_only:
-        train_data = pd.read_csv(f'/mnt/data01/clippings_general/texts/labelled_news_train_reformatted_no_singletons.csv')
-        val_data = pd.read_csv(f'/mnt/data01/clippings_general/texts/labelled_news_val_reformatted_no_singletons.csv')
+        train_data = pd.read_csv(f'/path/to/data/clippings_general/texts/labelled_news_train_reformatted_no_singletons.csv')
+        val_data = pd.read_csv(f'/path/to/data/clippings_general/texts/labelled_news_val_reformatted_no_singletons.csv')
 
     ##With singletons
-    # train_data = pd.read_csv(f'/mnt/data01/clippings_general/texts/labelled_news_train_reformatted.csv')
-    # val_data = pd.read_csv(f'/mnt/data01/clippings_general/texts/labelled_news_val_reformatted.csv')
+    # train_data = pd.read_csv(f'/path/to/data/clippings_general/texts/labelled_news_train_reformatted.csv')
+    # val_data = pd.read_csv(f'/path/to/data/clippings_general/texts/labelled_news_val_reformatted.csv')
     
     return train_data,val_data
 
 def prep_food101_data():
     ###Load the text file with the labels
-    train_data = pd.read_csv(f'/mnt/data01/clippings_general/texts/train_titles_reformatted.csv')
-    val_data = pd.read_csv(f'/mnt/data01/clippings_general/texts/val_titles_reformatted.csv')
-    test_data = pd.read_csv(f'/mnt/data01/clippings_general/texts/test_titles_reformatted.csv')
+    train_data = pd.read_csv(f'/path/to/data/clippings_general/texts/train_titles_reformatted.csv')
+    val_data = pd.read_csv(f'/path/to/data/clippings_general/texts/val_titles_reformatted.csv')
+    test_data = pd.read_csv(f'/path/to/data/clippings_general/texts/test_titles_reformatted.csv')
 
     return train_data, val_data, test_data
 
 def prep_unlabelled_news_data():
     ###Load the text file with the labels
-    train_data = pd.read_csv(f'/mnt/data01/clippings_general/texts/unlabelled_news_train_reformatted.csv')
-    val_data = pd.read_csv(f'/mnt/data01/clippings_general/texts/unlabelled_news_val_reformatted.csv')
+    train_data = pd.read_csv(f'/path/to/data/clippings_general/texts/unlabelled_news_train_reformatted.csv')
+    val_data = pd.read_csv(f'/path/to/data/clippings_general/texts/unlabelled_news_val_reformatted.csv')
 
     return train_data,val_data
 
@@ -496,7 +496,7 @@ if __name__ == "__main__":
     ###Load checkpoint
     if args.checkpoint_path is not None:
         clip_model.load_state_dict(torch.load(args.checkpoint_path, map_location=torch.device(device)))
-    # model.load_state_dict(torch.load("/mnt/data01/clippings_general/models/bienc_clip_pretrain_labelled_m3.pt", map_location=torch.device(device)))
+    # model.load_state_dict(torch.load("/path/to/savedir/clippings_general/models/bienc_clip_pretrain_labelled_m3.pt", map_location=torch.device(device)))
     clip_model.to(device)
 
     if args.pooling_type=="mlp":
@@ -654,16 +654,16 @@ if __name__ == "__main__":
 
                 if val_loss<zero_shot_loss:
                     zero_shot_loss=val_loss
-                    torch.save(clip_model.state_dict(), os.path.join("/mnt/data01/clippings_general/models/",args.wandb_name+".pt"))
+                    torch.save(clip_model.state_dict(), os.path.join("/path/to/savedir/clippings_general/models/",args.wandb_name+".pt"))
                     
                     print("Model saved at epoch {}".format(epoch))
-                    print("Path of the saved model: {}".format(os.path.join("/mnt/data01/clippings_general/models/",args.wandb_name+".pt")))
-                    print("Path of the saved model: {}".format(os.path.join("/mnt/data01/clippings_general/models/",("epoch_"+str(epoch)+"_"+args.wandb_name+".pt"))))
+                    print("Path of the saved model: {}".format(os.path.join("/path/to/savedir/clippings_general/models/",args.wandb_name+".pt")))
+                    print("Path of the saved model: {}".format(os.path.join("/path/to/savedir/clippings_general/models/",("epoch_"+str(epoch)+"_"+args.wandb_name+".pt"))))
                     print("Val loss: {}".format(val_loss))
                     if val_loss<0.1:
-                        torch.save(clip_model.state_dict(), os.path.join("/mnt/data01/clippings_general/models/",("epoch_"+str(epoch)+args.wandb_name+".pt")))
+                        torch.save(clip_model.state_dict(), os.path.join("/path/to/savedir/clippings_general/models/",("epoch_"+str(epoch)+args.wandb_name+".pt")))
                 ##Also save the model at the end of each epoch
-                # torch.save(clip_model.state_dict(), os.path.join("/mnt/data01/clippings_general/models/",("epoch_"+str(epoch)+args.wandb_name+".pt")))
+                # torch.save(clip_model.state_dict(), os.path.join("/path/to/savedir/clippings_general/models/",("epoch_"+str(epoch)+args.wandb_name+".pt")))
 
     elif args.training_type=="train_bienc" and args.train_data_type=="newspapers_labelled":
         best_val_ari=val_bienc_clustering(val_loader,clip_model,mlp_model,split='val',log=True,processor=processor)
@@ -675,22 +675,22 @@ if __name__ == "__main__":
                     freeze_clip=True
                 else:
                     freeze_clip=False
-                epoch_loss=train_bienc_clip(train_loader,clip_model,device,loss_func,epoch,clip_optimizer,clip_scheduler=clip_scheduler,epochviz="/mnt/data01/clippings_general/epoch_viz/",processor=processor,mlp_model=mlp_model,mlp_optimizer=mlp_optimizer,mlp_scheduler=mlp_scheduler,freeze_clip=freeze_clip)
+                epoch_loss=train_bienc_clip(train_loader,clip_model,device,loss_func,epoch,clip_optimizer,clip_scheduler=clip_scheduler,epochviz="/path/to/savedir/clippings_general/epoch_viz/",processor=processor,mlp_model=mlp_model,mlp_optimizer=mlp_optimizer,mlp_scheduler=mlp_scheduler,freeze_clip=freeze_clip)
             else:
                 freeze_clip=False
-                epoch_loss=train_bienc_clip(train_loader,clip_model,device,loss_func,epoch,clip_optimizer,clip_scheduler=clip_scheduler,epochviz="/mnt/data01/clippings_general/epoch_viz/",processor=processor,mlp_model=mlp_model,mlp_optimizer=mlp_optimizer,mlp_scheduler=mlp_scheduler,freeze_clip=freeze_clip)
+                epoch_loss=train_bienc_clip(train_loader,clip_model,device,loss_func,epoch,clip_optimizer,clip_scheduler=clip_scheduler,epochviz="/path/to/savedir/clippings_general/epoch_viz/",processor=processor,mlp_model=mlp_model,mlp_optimizer=mlp_optimizer,mlp_scheduler=mlp_scheduler,freeze_clip=freeze_clip)
             
             val_ari=val_bienc_clustering(val_loader,clip_model,mlp_model,split='val',log=True,processor=processor)
             if val_ari>best_val_ari:
                 best_val_ari=val_ari
-                torch.save(clip_model.state_dict(), os.path.join("/mnt/data01/clippings_general/models/",("clip_imwt_"+str(args.im_wt)[2]+args.wandb_name+".pt")))
+                torch.save(clip_model.state_dict(), os.path.join("/path/to/savedir/clippings_general/models/",("clip_imwt_"+str(args.im_wt)[2]+args.wandb_name+".pt")))
                 print("Model saved at epoch {}".format(epoch))
-                print("Path of the saved model: {}".format(os.path.join("/mnt/data01/clippings_general/models/",("clip_imwt_"+str(args.im_wt)[2]+args.wandb_name+".pt"))))
+                print("Path of the saved model: {}".format(os.path.join("/path/to/savedir/clippings_general/models/",("clip_imwt_"+str(args.im_wt)[2]+args.wandb_name+".pt"))))
                 if args.pooling_type=="mlp":
-                    torch.save(mlp_model.state_dict(), os.path.join("/mnt/data01/clippings_general/models/",("mlp_imwt_"+str(args.im_wt)[2]+args.wandb_name+".pt")))
+                    torch.save(mlp_model.state_dict(), os.path.join("/path/to/savedir/clippings_general/models/",("mlp_imwt_"+str(args.im_wt)[2]+args.wandb_name+".pt")))
                 print("Model saved at epoch {}".format(epoch))
             ###SAve at every epoch
-            # torch.save(clip_model.state_dict(), os.path.join("/mnt/data01/clippings_general/models/",("clip_imwt_"+str(args.im_wt)[2]+"epoch_"+str(epoch)+args.wandb_name+".pt")))
+            # torch.save(clip_model.state_dict(), os.path.join("/path/to/savedir/clippings_general/models/",("clip_imwt_"+str(args.im_wt)[2]+"epoch_"+str(epoch)+args.wandb_name+".pt")))
     
        
     else :

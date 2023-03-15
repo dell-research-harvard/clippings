@@ -113,34 +113,3 @@ def create_synthetic_images(im_subfolder_path,save_dir,image_count):
             img.save(os.path.join(folder_path,"transform_" + str(j)+img_name))
 
 
-
-##Run as script
-if __name__ == "__main__":
-
-    clean_images_dir= "/mnt/122a7683-fa4b-45dd-9f13-b18cc4f4a187/homoglyphs/word_dump_cjk/images"
-    noisy_dir = "/mnt/122a7683-fa4b-45dd-9f13-b18cc4f4a187/homoglyphs/word_dump_cjk/noisy_images"
-    image_count = 20
-
-    ##Create save dir if it doesn't exist
-    if not os.path.exists(noisy_dir):
-        os.makedirs(noisy_dir)
-    
-    ##Subfolder list
-    subfolder_list = glob(clean_images_dir+"/*")
-    print(subfolder_list)
-
-    ##Create synthetic images for each subfolder in parallel, add a progress bar
-    # with Pool(64) as p:
-    #     list=p.imap_unordered(partial(create_synthetic_images,noisy_dir,20),subfolder_list)
-
-    create_synthetic_images(subfolder_list[0],noisy_dir,20)
-        
-
-
-
-
-    ###Render images in the path
-
-
-        
-

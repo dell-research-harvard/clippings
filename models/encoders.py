@@ -1,30 +1,11 @@
 ###Models
-import numpy as np
-import pandas as pd
-import timm
-import torch
+
+
 
 import torch.nn as nn
-import torch.nn.functional as F
-import torch.optim as optim
-
-from torch.utils.data import DataLoader
-from torch.utils.data import Dataset
-
-import torchvision.transforms as T
-
-import faiss
-import math
-
-from transformers import AutoModel,AutoTokenizer, AutoModelForMaskedLM
-
 import torch
 import timm
-from timm.data import resolve_data_config, IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD
-from timm.data.transforms_factory import create_transform
-from torchvision import transforms as T
 
-from sentence_transformers import SentenceTransformer 
 
 
 

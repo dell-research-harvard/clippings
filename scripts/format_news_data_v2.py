@@ -40,7 +40,7 @@ def edges_from_clusters(cluster_dict):
 ###Load all unlabelled data
 
 ##Reformat the newspaper images data
-def prep_unlabelled_data(unlabelled_dir = '/mnt/data02/captions/unlabelled_pairs/'):
+def prep_unlabelled_data(unlabelled_dir = '/path/to/data/captions/unlabelled_pairs/'):
     ###Load the directory containig the csvs
     ##Load all the csvs
     unlabelled_data = pd.concat([pd.read_csv(unlabelled_dir + file) for file in os.listdir(unlabelled_dir)])
@@ -52,7 +52,7 @@ def prep_unlabelled_data(unlabelled_dir = '/mnt/data02/captions/unlabelled_pairs
     unlabelled_data.columns = ['image_path', 'text', 'label']
 
     ##Add base path to image path
-    unlabelled_data['image_path'] = '/mnt/data02/captions/pulled_crops/' + unlabelled_data['image_path'] + '.png'
+    unlabelled_data['image_path'] = '/path/to/data/captions/pulled_crops/' + unlabelled_data['image_path'] + '.png'
 
     ##Split in val and train
     train, val = train_test_split(unlabelled_data, test_size=0.2, random_state=42)
@@ -73,7 +73,7 @@ def prep_unlabelled_data(unlabelled_dir = '/mnt/data02/captions/unlabelled_pairs
 
 ##Load the json
 
-def prep_labelled_data(train_data_list=["/mnt/data01/clippings_general/texts/emily_news_captions_4.json","/mnt/data01/clippings_general/texts/emily_news_captions_3.json","/mnt/data01/clippings_general/texts/emily_news_captions_2.json","/mnt/data01/clippings_general/texts/emily_newspaper_labels_0603.json"]):
+def prep_labelled_data(train_data_list=["/path/to/data/clippings_general/texts/anno_news_captions_4.json","/path/to/data/clippings_general/texts/anno_news_captions_3.json","/path/to/data/clippings_general/texts/anno_news_captions_2.json","/path/to/data/clippings_general/texts/anno_newspaper_labels_0603.json"]):
 
     ###Concat the jsons
     data = []
@@ -165,10 +165,10 @@ def prep_labelled_data(train_data_list=["/mnt/data01/clippings_general/texts/emi
 
     ###Add root to the image path
 
-    connected_components_df['image_path'] = '/mnt/data02/captions/pulled_crops_quicker_all/' + connected_components_df['image_path'] + '.png'
+    connected_components_df['image_path'] = '/path/to/data/captions/pulled_crops_quicker_all/' + connected_components_df['image_path'] + '.png'
 
     ##Save the text data
-    connected_components_df.to_csv(f'/mnt/data01/clippings_general/texts/labelled_news_reformatted.csv', index=False)
+    connected_components_df.to_csv(f'/path/to/data/clippings_general/texts/labelled_news_reformatted.csv', index=False)
 
     ##Before dropping duplicates, check if there are any duplicates
     print("Number of duplicates", len(connected_components_df[connected_components_df.duplicated()]))
@@ -177,7 +177,7 @@ def prep_labelled_data(train_data_list=["/mnt/data01/clippings_general/texts/emi
 
     ###Drop duplicates
     connected_components_df = connected_components_df.drop_duplicates()
-    connected_components_df.to_csv(f'/mnt/data01/clippings_general/texts/labelled_news_reformatted.csv', index=False)
+    connected_components_df.to_csv(f'/path/to/data/clippings_general/texts/labelled_news_reformatted.csv', index=False)
 
     ##Reorder the columns
     connected_components_df = connected_components_df[['image_path', 'text', 'label']]
@@ -195,8 +195,8 @@ def prep_labelled_data(train_data_list=["/mnt/data01/clippings_general/texts/emi
     print("Number of val images", len(val))
 
     ##Save the text data
-    train.to_csv(f'/mnt/data01/clippings_general/texts/labelled_news_train_reformatted.csv', index=False)
-    val.to_csv(f'/mnt/data01/clippings_general/texts/labelled_news_val_reformatted.csv', index=False)
+    train.to_csv(f'/path/to/data/clippings_general/texts/labelled_news_train_reformatted.csv', index=False)
+    val.to_csv(f'/path/to/data/clippings_general/texts/labelled_news_val_reformatted.csv', index=False)
 
 
     ##Save a version without singleton images
@@ -204,21 +204,21 @@ def prep_labelled_data(train_data_list=["/mnt/data01/clippings_general/texts/emi
     val = val[val['label']>=0]
 
     ##Save the text data
-    train.to_csv(f'/mnt/data01/clippings_general/texts/labelled_news_train_reformatted_no_singletons.csv', index=False)
-    val.to_csv(f'/mnt/data01/clippings_general/texts/labelled_news_val_reformatted_no_singletons.csv', index=False)
+    train.to_csv(f'/path/to/data/clippings_general/texts/labelled_news_train_reformatted_no_singletons.csv', index=False)
+    val.to_csv(f'/path/to/data/clippings_general/texts/labelled_news_val_reformatted_no_singletons.csv', index=False)
 
 # print("Total image-text pairs in pretraining CLIP", len(connected_components_df))
 
 ###Reformat the eval data
 
-def prep_eval_data(eval_data_path="/mnt/data02/captions/labels/test_day.csv"):
+def prep_eval_data(eval_data_path="/path/to/data/captions/labels/test_day.csv"):
 
     ###Eval data csv
     eval_data = pd.read_csv(eval_data_path)
 
     ####Add root to the image path
 
-    eval_data['image_path'] = '/mnt/data02/captions/test_day_pulled_crops/' + eval_data['image_id'] + '.png'
+    eval_data['image_path'] = '/path/to/data/captions/test_day_pulled_crops/' + eval_data['image_id'] + '.png'
 
     ##Drop image_id
     eval_data = eval_data.drop(columns=['image_id'])
@@ -237,7 +237,7 @@ def prep_eval_data(eval_data_path="/mnt/data02/captions/labels/test_day.csv"):
 
 
     ##Save the text data
-    eval_data.to_csv(f'/mnt/data01/clippings_general/texts/labelled_news_eval_reformatted.csv', index=False)
+    eval_data.to_csv(f'/path/to/data/clippings_general/texts/labelled_news_eval_reformatted.csv', index=False)
 
     print("Total image-text pairs in eval CLIP", len(eval_data))
 

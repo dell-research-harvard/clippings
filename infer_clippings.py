@@ -174,36 +174,18 @@ if __name__ == "__main__":
     clip_model.to(device)
 
     ###Load data
-    test_data=pd.read_csv("/mnt/data01/clippings_general/texts/labelled_news_eval_reformatted.csv")
+    test_data=pd.read_csv("/path/to/data/clippings_general/texts/labelled_news_eval_reformatted.csv")
     test_data=test_data.sort_values(by="label")
 
 
     ###Eval data
     if args.split_test_for_eval:
         ###We split the test data itself to test and val toensure that val is representative of the test data.
-        # eval_data=test_data
-        # ###Get unique labels
-        # unique_labels=eval_data.label.unique()
-
-        # ###Split labels into train and test
-        # test_labels, val_labels=train_test_split(unique_labels, test_size=0.4, random_state=42)
-
-        # ###Get the data
-        # eval_data=eval_data[eval_data.label.isin(val_labels)]
-
-        # ##Save val data
-        # eval_data.to_csv("/mnt/data01/clippings_general/texts/test_val_for_export.csv",index=False)
-
-
-        # test_data=test_data[test_data.label.isin(test_labels)]
-
-        # ##Save test data
-        # test_data.to_csv("/mnt/data01/clippings_general/texts/test_test_for_export.csv",index=False)
-        eval_data=pd.read_csv("/mnt/data01/clippings_general/texts/test_val_for_export.csv")
-        test_data=pd.read_csv("/mnt/data01/clippings_general/texts/test_test_for_export.csv")
+        eval_data=pd.read_csv("/path/to/data/clippings_general/texts/test_val_for_export.csv")
+        test_data=pd.read_csv("/path/to/data/clippings_general/texts/test_test_for_export.csv")
 
     else:
-        eval_data=pd.read_csv("/mnt/data01/clippings_general/texts/labelled_news_val_reformatted.csv")
+        eval_data=pd.read_csv("/path/to/data/clippings_general/texts/labelled_news_val_reformatted.csv")
     
     eval_data=eval_data.sort_values(by="label")
 
@@ -337,14 +319,6 @@ if __name__ == "__main__":
     ##Print unique label lengths
     print("Unique labels",len(set(all_labels)))
 
-    # ###Save cluster results
-    # cluster_results=pd.DataFrame({"image_path":all_paths,"cluster":clusters})
-
-    # ##Merge with the original data
-    # cluster_results=cluster_results.merge(test_data,on="image_path")
-
-    # ##Save the results
-        # cluster_results.to_csv("/mnt/data01/clippings_general/texts/cluster_results_check.csv",index=False)
 
 
 

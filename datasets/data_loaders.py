@@ -1,9 +1,5 @@
 ####Train a multi-modal siamese network for image and text embeddings
-import timm
 import torch
-import torch.nn as nn
-import torch.nn.functional as F
-import torch.optim as optim
 from torch.utils.data import DataLoader
 from torch.utils.data import Dataset
 from torch.utils.data.sampler import Sampler
@@ -19,10 +15,8 @@ from timm.models import load_state_dict
 import timm
 
 import faiss
-import wandb
 
 import os
-import sys
 from PIL import Image
 from timm.data import IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD
 from utils.datasets_utils import *
