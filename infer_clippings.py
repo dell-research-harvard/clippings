@@ -279,7 +279,7 @@ if __name__ == "__main__":
 
 
     if args.specified_thresh is None:
-        best = fmin(hyp_ari, space, algo=rand.suggest, max_evals=1000)
+        best = fmin(hyp_ari, space, algo=rand.suggest, max_evals=3000)
     else:
         best={"threshold":args.specified_thresh,"im_wt":args.im_wt}
 

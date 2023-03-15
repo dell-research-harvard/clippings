@@ -442,7 +442,7 @@ def val_bienc_clustering(val_loader,clip_model,mlp_model,split='val',log=True,pr
         
     }
 
-    best = fmin(hyp_ari, space, algo=tpe.suggest, max_evals=2000)
+    best = fmin(hyp_ari, space, algo=tpe.suggest, max_evals=500)
     print(best) 
 
     all_embeddings_test=all_embeddings_test.cpu().numpy()
