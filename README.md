@@ -56,3 +56,28 @@ python infer_clippings.py --im_wt {a} --specified_thresh {b}  --split_test_for_e
 
 ```
 Use a and b from the the supplementary material table X to replicate the relevant result given model weights. Addtionally, use args --opt_im_wt to optmise the weight of image embeddings in the final CLIPPINGS embedding and remove the --specified_thresh argument to re-optimise the threshold given the val set. 
+
+
+### Rule-based baseline (Jaccard Similarity)
+
+```
+python scripts/
+```
+
+### Replication of main results
+
+|                            | ARI  |
+|----------------------------|------|
+| Jaccard similarity         | 40.3 |
+| SelfSup Visual Linking     | 40.7 |
+| SelfSup Language Linking   | 31.0 |
+| SelfSup Multimodal Linking | 43.0 |
+| Sup Visual Linking         | 59.7 |
+| Sup Language Linking       | 38.9 |
+| Sup Multimodal Linking     | 61.5 |
+
+Run the following file: 
+
+```
+results_replication.sh
+```
