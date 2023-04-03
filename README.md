@@ -61,7 +61,7 @@ Use a and b from the the supplementary material table X to replicate the relevan
 ### Rule-based baseline (Jaccard Similarity)
 
 ```
-python scripts/
+python jaccard_sim.py
 ```
 
 ### Replication of main results
