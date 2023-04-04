@@ -23,7 +23,7 @@ The framework can be built up on any pretrained HuggingFace CLIP model by specif
 
 - infer_clippings.py : Run inference to embed image-text pairs given model weights, perform SLINK, find the optimum threshold using the val set and present ARI for the test data
 
-- clippings.yml : The conda environment containing all dependencies
+- requirements.yaml : The conda environment containing all dependencies
 
 ## Code usage
 This section provides the commands (with relevant arguments) to replicate the results in the main paper. 
