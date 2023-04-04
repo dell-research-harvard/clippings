@@ -6,11 +6,6 @@ The framework can be built up on any pretrained HuggingFace CLIP model by specif
 
 ## Repo structure
 
-
-- sample_data : Contains sample data
-    -  images
-    -  image_captions.csv
-
 - datasets
     - data_loaders.py : Contains the pytorch datasets, dataloaders and miners neccesary for training
 
@@ -28,13 +23,13 @@ The framework can be built up on any pretrained HuggingFace CLIP model by specif
 
 - infer_clippings.py : Run inference to embed image-text pairs given model weights, perform SLINK, find the optimum threshold using the val set and present ARI for the test data
 
-- requirements.yaml : The conda environment containing all dependencies
+- clippings.yml : The conda environment containing all dependencies
 
 ## Code usage
 This section provides the commands (with relevant arguments) to replicate the results in the main paper. 
 
 ### Train
-Use relevant hyperparameters from Table X in the supplementary material file
+Use relevant hyperparameters as in the replication script and Table 1 in the supplementary material pdf. 
 
 Pretrain the base CLIP model (example)
 
@@ -61,7 +56,7 @@ Use a and b from the the supplementary material table X to replicate the relevan
 ### Rule-based baseline (Jaccard Similarity)
 
 ```
-python scripts/
+python scripts/jaccard_sim.py
 ```
 
 ### Replication of main results
