@@ -25,6 +25,9 @@ The framework can be built up on any pretrained HuggingFace CLIP model by specif
 
 - requirements.yaml : The conda environment containing all dependencies
 
+## Model Zoo 
+(Coming Soon)
+
 ## Code usage
 This section provides the commands (with relevant arguments) to replicate the results in the main paper. 
 
