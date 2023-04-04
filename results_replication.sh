@@ -1,8 +1,8 @@
 # Replicate all results in the main table
 
 
-# Rule based Jaccard Similarity -> SLINK -> ARI (fill in paths for test and val)
-python scripts/jaccard_sim.py
+# Rule based Jaccard Similarity -> SLINK -> ARI (fill in paths for val and test data)
+python scripts/jaccard_sim.py 
 
 #  SelfSup Visual Linking
 python infer_clippings.py --im_wt 1 --specified_thresh 0.1175  --split_test_for_eval --checkpoint_path path/to/checkpoint.pt 
