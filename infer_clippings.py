@@ -157,6 +157,7 @@ if __name__ == "__main__":
     parser.add_argument("--specified_thresh", type=float, default=None, help="Specified threshold")
     parser.add_argument("--hf_model_path", action="store_true",help="Use hf model from path", default="openai/clip-vit-base-patch32")
     parser.add_argument("--grid_resolution", type=float, default=0.1, help="Grid resolution for parameter search")
+    parser.add_argument("--uniform_search", action="store_true", help="Use uniform distribution-based search")
 
 
 
