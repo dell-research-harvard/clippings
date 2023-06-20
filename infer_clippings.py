@@ -323,6 +323,7 @@ if __name__ == "__main__":
     print("ARI",adjusted_rand_score(all_labels,clusters))
 
     print("threshold",best["threshold"])
+    print("best dict",best)
     print("checkpoint",args.checkpoint_path)
     if args.opt_im_wt:
         print("im_wt",best["im_wt"])
