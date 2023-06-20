@@ -174,18 +174,18 @@ if __name__ == "__main__":
     clip_model.to(device)
 
     ###Load data
-    test_data=pd.read_csv("/path/to/data/clippings_general/texts/labelled_news_eval_reformatted.csv")
+    test_data=pd.read_csv("/mnt/data01/clippings_general/texts/labelled_news_eval_reformatted.csv")
     test_data=test_data.sort_values(by="label")
 
 
     ###Eval data
     if args.split_test_for_eval:
         ###We split the test data itself to test and val toensure that val is representative of the test data.
-        eval_data=pd.read_csv("/path/to/data/clippings_general/texts/test_val_for_export.csv")
-        test_data=pd.read_csv("/path/to/data/clippings_general/texts/test_test_for_export.csv")
+        eval_data=pd.read_csv("/mnt/data01/clippings_general/texts/test_val_for_export.csv")
+        test_data=pd.read_csv("/mnt/data01/clippings_general/texts/test_test_for_export.csv")
 
     else:
-        eval_data=pd.read_csv("/path/to/data/clippings_general/texts/labelled_news_val_reformatted.csv")
+        eval_data=pd.read_csv("/mnt/data01/clippings_general/texts/labelled_news_val_reformatted.csv")
     
     eval_data=eval_data.sort_values(by="label")
 
