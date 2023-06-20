@@ -156,6 +156,7 @@ if __name__ == "__main__":
     parser.add_argument("--opt_im_wt", action="store_true", help="Optimize image weight")
     parser.add_argument("--specified_thresh", type=float, default=None, help="Specified threshold")
     parser.add_argument("--hf_model_path", action="store_true",help="Use hf model from path", default="openai/clip-vit-base-patch32")
+    parser.add_argument("--grid_resolution", type=float, default=0.1, help="Grid resolution for parameter search")
 
 
 
@@ -248,17 +249,33 @@ if __name__ == "__main__":
         print("ARI",adjusted_rand_score(all_labels,clusters))
         return -adjusted_rand_score(all_labels,clusters)
     
+    # Define the search space
     if args.opt_im_wt:
-        space = {
-            "threshold":hp.uniform("threshold",0.01,1),
-            "im_wt":hp.uniform("im_wt",0.4,1),
-        }
+        threshold_values = np.arange(0.01, 1.1, args.grid_resolution)
+        im_wt_values = np.arange(0.4, 1.1, args.grid_resolution)
+        if args.uniform_search:
+            threshold_space = hp.uniform("threshold", 0.01, 1)
+            im_wt_space = hp.uniform("im_wt", 0.4, 1)
+            space = {
+                "threshold": hp.choice("threshold", threshold_values) if args.uniform_search else threshold_space,
+                "im_wt": hp.choice("im_wt", im_wt_values) if args.uniform_search else im_wt_space
+            }
+        else:
+            space = {
+                "threshold": hp.choice("threshold", threshold_values),
+                "im_wt": hp.choice("im_wt", im_wt_values)
+            }
     else:
-
-        space = {
-            "threshold":hp.uniform("threshold",0.01,1),
-        }
-
+        threshold_values = np.arange(0.01, 1.1, args.grid_resolution)
+        if args.uniform_search:
+            threshold_space = hp.uniform("threshold", 0.01, 1)
+            space = {
+                "threshold": hp.choice("threshold", threshold_values) if args.uniform_search else threshold_space
+            }
+        else:
+            space = {
+                "threshold": hp.choice("threshold", threshold_values)
+            }
 
     if args.specified_thresh is None:
         best = fmin(hyp_ari, space, algo=rand.suggest, max_evals=3000)
