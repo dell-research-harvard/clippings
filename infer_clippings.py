@@ -156,8 +156,7 @@ if __name__ == "__main__":
     parser.add_argument("--opt_im_wt", action="store_true", help="Optimize image weight")
     parser.add_argument("--specified_thresh", type=float, default=None, help="Specified threshold")
     parser.add_argument("--hf_model_path", action="store_true",help="Use hf model from path", default="openai/clip-vit-base-patch32")
-    parser.add_argument("--grid_resolution", type=float, default=0.1, help="Grid resolution for parameter search")
-    parser.add_argument("--uniform_search", action="store_true", help="Use uniform distribution-based search")
+
 
 
     
@@ -241,38 +240,24 @@ if __name__ == "__main__":
         all_embeddings=torch.nn.functional.normalize(all_embeddings,dim=1)
         all_embeddings=all_embeddings.cpu().numpy()
         all_labels=all_labels.cpu().numpy()
+        print(all_labels)
 
         clusters=cluster("SLINK",cluster_params={"min cluster size":1,"threshold":params["threshold"],"metric":"cosine"},corpus_embeddings=all_embeddings,corpus_ids=None)
+        print("Clusters",clusters)
         print("Max cluster",max(clusters))
         print("ARI",adjusted_rand_score(all_labels,clusters))
         return -adjusted_rand_score(all_labels,clusters)
     
     if args.opt_im_wt:
-        threshold_values = np.arange(0.01, 1.1, args.grid_resolution)
-        im_wt_values = np.arange(0.4, 1.1, args.grid_resolution)
-        if args.uniform_search:
-            threshold_space = hp.uniform("threshold", 0.01, 1)
-            im_wt_space = hp.uniform("im_wt", 0.4, 1)
-            space = {
-                "threshold": hp.choice("threshold", threshold_values) if args.uniform_search else threshold_space,
-                "im_wt": hp.choice("im_wt", im_wt_values) if args.uniform_search else im_wt_space
-            }
-        else:
-            space = {
-                "threshold": hp.choice("threshold", threshold_values),
-                "im_wt": hp.choice("im_wt", im_wt_values)
-            }
+        space = {
+            "threshold":hp.uniform("threshold",0.01,1),
+            "im_wt":hp.uniform("im_wt",0.4,1),
+        }
     else:
-        threshold_values = np.arange(0.01, 1.1, args.grid_resolution)
-        if args.uniform_search:
-            threshold_space = hp.uniform("threshold", 0.01, 1)
-            space = {
-                "threshold": hp.choice("threshold", threshold_values) if args.uniform_search else threshold_space
-            }
-        else:
-            space = {
-                "threshold": hp.choice("threshold", threshold_values)
-            }
+
+        space = {
+            "threshold":hp.uniform("threshold",0.01,1),
+        }
 
 
     if args.specified_thresh is None:
@@ -323,7 +308,6 @@ if __name__ == "__main__":
     print("ARI",adjusted_rand_score(all_labels,clusters))
 
     print("threshold",best["threshold"])
-    print("best dict",best)
     print("checkpoint",args.checkpoint_path)
     if args.opt_im_wt:
         print("im_wt",best["im_wt"])
